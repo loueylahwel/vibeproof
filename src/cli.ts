@@ -11,11 +11,16 @@ const HELP = `vibeproof ${VERSION} - security scanner for vibe-coded web apps (a
 
 Usage:
   vibeproof dashboard    [--port 4173]          local web dashboard on 127.0.0.1
-  vibeproof repo <path>  [--out report.pdf] [--json report.json] [--no-history] [--npm-audit]
+  vibeproof repo <path | public repo link>  [--out report.pdf] [--json report.json] [--no-history] [--npm-audit]
   vibeproof web  <url>   [--supabase-url <url>] [--max-bundles 30] [--max-tables 25]
                      [--out report.pdf] [--json report.json]
   vibeproof verify <url>                        show the ownership token for a domain
   vibeproof report <scan.json> --out report.pdf
+
+Repositories:
+  A link to a public repository on GitHub, GitLab, Bitbucket or Codeberg is
+  downloaded to a temporary folder, scanned and deleted. Private repositories
+  are never fetched with your credentials: download them and pass the folder.
 
 Ownership:
   Web scans run only on domains you have proven you own: publish the token from

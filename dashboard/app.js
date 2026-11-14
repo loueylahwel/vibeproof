@@ -61,6 +61,8 @@ function shortTarget(target, track) {
 function detectTrack(value) {
   const t = value.trim();
   if (!t) return null;
+  if (/^git@|^ssh:\/\//i.test(t)) return 'ssh';
+  if (/^(https?:\/\/)?(www\.)?(github\.com|gitlab\.com|bitbucket\.org|codeberg\.org)\/[\w.-]+\/[\w.-]+/i.test(t)) return 'repo-link';
   if (/^https?:\/\//i.test(t)) return 'web';
   if (/^[\w-]+(\.[\w-]+)+(:\d+)?(\/.*)?$/.test(t) && !t.startsWith('.')) return 'web';
   return 'repo';
@@ -70,7 +72,12 @@ function detectTrack(value) {
 
 function updateDetected() {
   const track = detectTrack($('#target').value);
-  $('#detected').textContent = track === 'web' ? 'Live web app, read-only' : track === 'repo' ? 'Local repository, static analysis' : '';
+  $('#detected').textContent = {
+    web: 'Live web app, read-only',
+    repo: 'Local folder, static analysis',
+    'repo-link': 'Public repository: downloaded, scanned, then deleted',
+    ssh: 'SSH links are not used. Paste the https link, or download a private repo and enter its folder',
+  }[track] || '';
 }
 
 function setBusy(busy) {

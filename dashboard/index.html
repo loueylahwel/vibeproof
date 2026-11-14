@@ -19,7 +19,7 @@
     <aside class="sidebar">
       <form id="scan-form" autocomplete="off">
         <div class="field">
-          <input id="target" name="target" placeholder="Repository path or URL" spellcheck="false" aria-label="Repository path or URL">
+          <input id="target" name="target" placeholder="Repo link, folder path or website URL" spellcheck="false" aria-label="Repository link, folder path or website URL">
           <button type="submit" id="run-btn" aria-label="Run scan">
             <span class="spinner" aria-hidden="true"></span>
             <span class="label">Scan</span>
@@ -59,8 +59,9 @@
 
   <template id="empty-state">
     <div class="empty">
-      <p>Enter a repository path or a URL to start.</p>
-      <p class="muted">Web scans run only on domains you have verified, or on localhost.</p>
+      <p>Paste a public repository link, a folder path or a website URL.</p>
+      <p class="muted">Private repository? Download it and enter its folder path.</p>
+      <p class="muted">Website scans run only on domains you have verified, or on localhost.</p>
     </div>
   </template>
 </body>

@@ -34,16 +34,33 @@ npm run dashboard
 
 Then open http://localhost:4173. From the dashboard you can:
 
-- type a repository path or a URL and press Scan; the scan type is detected automatically, and an unverified domain shows its verification token;
+- paste a public repository link, a folder path, or a website URL and press Scan; the scan type is detected automatically, and an unverified domain shows its verification token;
 - browse the scan history, filter findings by severity or text, and expand each finding for evidence and the fix;
 - open or download the PDF report and the JSON data, or delete a scan.
 
 The dashboard can read local folders, so it is locked down: it listens on 127.0.0.1 only, rejects foreign `Host` headers (DNS rebinding) and cross-origin requests, and requires an `x-vibeproof` header on every request that changes something (CSRF). All finding text is rendered with `textContent`, so content from a scanned site cannot inject HTML. Use `--port` or `PORT` to change the port.
 
+## For collaborators: testing your own apps
+
+1. Get access to this repository, then set it up once (Node 20+ and git):
+
+   ```bash
+   git clone https://github.com/loueylahwel/vibeproof.git && cd vibeproof && npm install && npm run build
+   ```
+
+2. Start the dashboard with `npm run dashboard` and open http://localhost:4173.
+3. **Public repository:** paste its link (GitHub, GitLab, Bitbucket or Codeberg, including `/tree/<branch>/<folder>` links). It is downloaded to a temporary folder with its full history, scanned, and deleted. No local copy is needed.
+4. **Private repository:** download it yourself (for example `git clone` with your own account) and enter the folder path. Vibeproof never uses your saved git credentials, so a private link is refused with that advice rather than fetched behind your back.
+5. **Live site:** enter its URL. Each computer has its own tokens, so verify your own domain: a DNS TXT record, or for `*.vercel.app` / `*.netlify.app` addresses, the file `public/.well-known/vibeproof-verification.txt` with your token, then redeploy. Apps on `localhost` need no verification.
+
+Scan only repositories and sites you own or are allowed to test. Reports stay in your local `reports/` folder (not committed); share them privately.
+
 ## Command line
 
 ```bash
 node dist/cli.js repo ../our-app --out reports/our-app-repo.pdf
+node dist/cli.js repo https://github.com/our-team/our-app      # public repository, no local copy needed
+node dist/cli.js repo https://github.com/our-team/mono/tree/main/apps/web   # one branch and folder
 node dist/cli.js repo ../our-app --npm-audit          # also run npm audit
 node dist/cli.js verify our-app.example.com          # show the ownership token, check if it is published
 node dist/cli.js web https://our-app.example.com --out reports/our-app-web.pdf

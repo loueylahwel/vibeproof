@@ -4,11 +4,18 @@ import { scanRepo } from './checks/repo.js';
 import { scanWeb } from './checks/web.js';
 import { writePdf } from './report/pdf.js';
 import type { ScanReport, Track } from './types.js';
+import { cloneRemote, parseRepoUrl } from './remote.js';
 import { OwnershipError, verifyOwnership } from './verify.js';
 
-/** A target is a web scan if it is a URL or looks like a bare domain; otherwise a local path. */
+/** A repository link or a local path is a repository scan; any other URL or bare domain is a web scan. */
 export function detectTrack(target: string): Track {
   const t = target.trim();
+  // Links to a repository on GitHub, GitLab, Bitbucket or Codeberg are repository scans.
+  try {
+    if (parseRepoUrl(t)) return 'repo';
+  } catch {
+    return 'repo'; // SSH link: the repository scan explains why it cannot be used
+  }
   if (/^https?:\/\//i.test(t)) return 'web';
   if (/^[\w-]+(\.[\w-]+)+(:\d+)?(\/.*)?$/.test(t) && !t.startsWith('.') && !t.includes('\\')) return 'web';
   return 'repo';
@@ -54,8 +61,21 @@ export async function runScan(req: ScanRequest, reportsDir = 'reports'): Promise
   let target = req.target;
 
   if (req.track === 'repo') {
-    target = path.resolve(req.target);
-    result = await scanRepo(target, { history: req.history ?? true, npmAudit: req.npmAudit ?? false });
+    const remote = parseRepoUrl(req.target);
+    const options = { history: req.history ?? true, npmAudit: req.npmAudit ?? false };
+    if (remote) {
+      const clone = await cloneRemote(remote, options);
+      try {
+        result = await scanRepo(clone.dir, options);
+      } finally {
+        await clone.cleanup();
+      }
+      result.notes.unshift(clone.note, 'Scan only repositories you own or are allowed to test.');
+      target = remote.display;
+    } else {
+      target = path.resolve(req.target);
+      result = await scanRepo(target, options);
+    }
   } else if (req.track === 'web') {
     const verification = await verifyOwnership(req.target);
     if (!verification.verified) throw new OwnershipError(verification);
