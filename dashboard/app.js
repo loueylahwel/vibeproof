@@ -92,11 +92,24 @@ function showVerification(v) {
     box.hidden = true;
     return;
   }
+  const repeat = !box.hidden && $('#verify-title').dataset.host === v.host;
   $('#verify-title').textContent = `Verify you own ${v.host}`;
+  $('#verify-title').dataset.host = v.host;
   $('#verify-file').textContent = v.fileUrl;
   $('#verify-token').textContent = v.token;
   $('#verify-dns').textContent = v.dnsRecord;
+
+  // Always say what happened, so a failed re-check is never silent.
+  const time = new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  $('#verify-status-title').textContent = `${repeat ? 'Still not verified' : 'Not verified'} (checked ${time})`;
+  $('#verify-checks').replaceChildren(...(v.checks || []).map((c) => el('li', { text: c })));
+  $('#verify-status').hidden = false;
   box.hidden = false;
+  if (repeat) {
+    box.classList.remove('flash');
+    void box.offsetWidth; // restart the animation
+    box.classList.add('flash');
+  }
 }
 
 async function runScan() {
@@ -107,6 +120,8 @@ async function runScan() {
     return;
   }
   setBusy(true);
+  $('#verify-again').disabled = true;
+  $('#verify-again').textContent = 'Checking...';
   try {
     const summary = await api('/api/scan', { method: 'POST', body: JSON.stringify({ target }) });
     showVerification(null);
@@ -118,6 +133,8 @@ async function runScan() {
     else showFormError(err.message);
   } finally {
     setBusy(false);
+    $('#verify-again').disabled = false;
+    $('#verify-again').textContent = 'Check again';
   }
 }
 

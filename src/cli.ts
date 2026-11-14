@@ -26,6 +26,7 @@ Ownership:
 function printVerification(v: Verification): void {
   console.log(`\n${v.verified ? 'Verified' : 'Not verified'}: ${v.host}${v.method ? ` (${v.method})` : ''}`);
   if (v.verified) return;
+  for (const c of v.checks) console.log(`  - ${c}`);
   console.log(`\nProve you own ${v.host} with either option, then run the scan again:\n`);
   console.log(`  1. File   ${v.fileUrl}\n           containing: ${v.token}\n`);
   console.log(`  2. DNS    TXT record on ${v.host}\n           value: ${v.dnsRecord}\n`);

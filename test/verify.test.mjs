@@ -53,6 +53,8 @@ test('wrong token does not prove ownership', async () => {
   try {
     const v = await verifyOwnership(site.base, { trustLocal: false, timeoutMs: 2000 });
     assert.equal(v.verified, false);
+    assert.ok(v.checks.some((c) => c.includes('does not contain the token')), 'failure must explain itself');
+    assert.ok(v.checks.some((c) => c.startsWith('DNS')), 'DNS result must be reported');
   } finally {
     await site.close();
   }

@@ -22,6 +22,8 @@ export interface Verification {
   token: string;
   fileUrl: string;
   dnsRecord: string;
+  /** What was checked and what was found, shown to the user when verification fails. */
+  checks: string[];
 }
 
 export class OwnershipError extends Error {
@@ -63,12 +65,14 @@ export async function verifyOwnership(targetUrl: string, opts: VerifyOptions = {
   const url = new URL(targetUrl);
   const host = url.hostname.toLowerCase();
   const token = tokenFor(host);
+  const checks: string[] = [];
   const result: Verification = {
     verified: false,
     host,
     token,
     fileUrl: `${url.origin}${VERIFY_FILE_PATH}`,
     dnsRecord: `${DNS_PREFIX}${token}`,
+    checks,
   };
 
   if ((opts.trustLocal ?? true) && isLocalHost(host)) return { ...result, verified: true, method: 'local' };
@@ -76,16 +80,52 @@ export async function verifyOwnership(targetUrl: string, opts: VerifyOptions = {
   try {
     const res = await fetch(result.fileUrl, { redirect: 'follow', signal: AbortSignal.timeout(opts.timeoutMs ?? 8000) });
     if (res.ok && (await res.text()).includes(token)) return { ...result, verified: true, method: 'file' };
-  } catch {
-    // unreachable or no file; try DNS
+    checks.push(res.ok ? 'File found, but it does not contain the token.' : `File: HTTP ${res.status}.`);
+  } catch (err) {
+    checks.push(`File: not reachable (${(err as Error).name === 'TimeoutError' ? 'timeout' : 'connection failed'}).`);
   }
 
-  try {
-    const records = (await dns.resolveTxt(host)).map((parts) => parts.join(''));
-    if (records.some((r) => r.trim() === result.dnsRecord)) return { ...result, verified: true, method: 'dns' };
-  } catch {
-    // no TXT records
-  }
+  // Accept the full "vscan-verification=<token>" value or the bare token.
+  const matches = (record: string) => record.replace(/^"|"$/g, '').trim() === result.dnsRecord || record.trim() === token;
+  const { records, source } = await lookupTxt(host);
+  if (records.some(matches)) return { ...result, verified: true, method: 'dns' };
+  const ours = records.filter((r) => r.includes('vscan'));
+  checks.push(ours.length
+    ? `DNS (${source}): a vscan record exists but its value does not match. Found: ${ours.join(', ')}`
+    : `DNS (${source}): ${records.length} TXT record(s), none with the token.`);
 
   return result;
+}
+
+/**
+ * Read TXT records straight from the domain's authoritative nameservers, so a
+ * record the owner just added is seen immediately instead of after the local
+ * resolver's cache expires. Falls back to the system resolver.
+ */
+async function lookupTxt(host: string): Promise<{ records: string[]; source: string }> {
+  const join = (rows: string[][]) => rows.map((parts) => parts.join(''));
+  try {
+    const labels = host.split('.');
+    for (let i = 0; i < labels.length - 1; i++) {
+      const zone = labels.slice(i).join('.');
+      let nameservers: string[];
+      try {
+        nameservers = await dns.resolveNs(zone);
+      } catch {
+        continue; // no NS at this level, try the parent zone
+      }
+      const ips = (await Promise.all(nameservers.slice(0, 3).map((ns) => dns.resolve4(ns).catch(() => [] as string[])))).flat();
+      if (!ips.length) break;
+      const resolver = new dns.Resolver({ timeout: 3000, tries: 2 });
+      resolver.setServers(ips.slice(0, 4));
+      return { records: join(await resolver.resolveTxt(host)), source: `authoritative ${nameservers[0]}` };
+    }
+  } catch {
+    // fall through to the system resolver
+  }
+  try {
+    return { records: join(await dns.resolveTxt(host)), source: 'system resolver' };
+  } catch {
+    return { records: [], source: 'system resolver' };
+  }
 }
