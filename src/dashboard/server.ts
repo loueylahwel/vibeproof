@@ -81,6 +81,8 @@ function expandHome(p: string): string {
 export async function startDashboard(opts: DashboardOptions = {}): Promise<Dashboard> {
   const reportsDir = path.resolve(opts.reportsDir ?? 'reports');
   let busy = false;
+  /** Live progress of the running scan, polled by the dashboard. */
+  let progress: { target: string; track: string; startedAt: number; stages: string[] } | null = null;
   let allowedHosts = new Set<string>();
 
   const send = (res: http.ServerResponse, status: number, body: string | Buffer, type = 'application/json; charset=utf-8', extra: Record<string, string> = {}) => {
@@ -144,6 +146,10 @@ export async function startDashboard(opts: DashboardOptions = {}): Promise<Dashb
       return json(res, 200, { version: VERSION, reportsDir, busy, cwd: process.cwd() });
     }
 
+    if (method === 'GET' && p === '/api/progress') {
+      return json(res, 200, progress ? { ...progress, elapsedMs: Date.now() - progress.startedAt } : null);
+    }
+
     if (method === 'GET' && p === '/api/reports') return json(res, 200, await listReports());
 
     let m = /^\/api\/reports\/([^/]+)$/.exec(p);
@@ -195,6 +201,8 @@ export async function startDashboard(opts: DashboardOptions = {}): Promise<Dashb
       if (!target) return json(res, 400, { error: 'Enter a repository path or a URL.' });
       const track = body.track === 'repo' || body.track === 'web' ? body.track : detectTrack(target);
       busy = true;
+      progress = { target, track, startedAt: Date.now(), stages: [] };
+      const running = progress;
       try {
         const out = await runScan({
           track,
@@ -202,14 +210,16 @@ export async function startDashboard(opts: DashboardOptions = {}): Promise<Dashb
           history: body.history !== false,
           npmAudit: body.npmAudit === true,
           supabaseUrl: typeof body.supabaseUrl === 'string' && body.supabaseUrl.trim() ? body.supabaseUrl.trim() : undefined,
+          progress: (stage) => { if (running.stages.at(-1) !== stage) running.stages.push(stage); },
         }, reportsDir);
         const id = path.basename(out.jsonPath, '.json');
-        return json(res, 200, summarize(id, out.report, true));
+        return json(res, 200, { ...summarize(id, out.report, true), stages: running.stages });
       } catch (err) {
         if (err instanceof OwnershipError) return json(res, 403, { error: err.message, verification: err.verification });
         return json(res, 400, { error: (err as Error).message });
       } finally {
         busy = false;
+        progress = null;
       }
     }
 

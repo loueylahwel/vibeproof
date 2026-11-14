@@ -90,6 +90,9 @@ test('full flow: scan a repo, list it, fetch PDF, delete it', async () => {
   assert.equal(res.status, 200, res.body);
   const summary = JSON.parse(res.body);
   assert.ok(summary.counts.critical >= 1);
+  assert.deepEqual(summary.stages.slice(0, 2), ['Reading files', 'Checking database rules and backend configuration'], 'scan reports its stages');
+  assert.equal(summary.stages.at(-1), 'Writing the report');
+  assert.equal(JSON.parse((await request('GET', '/api/progress')).body), null, 'no progress once the scan is done');
 
   const list = JSON.parse((await request('GET', '/api/reports')).body);
   assert.equal(list[0].id, summary.id);

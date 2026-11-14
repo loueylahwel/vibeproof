@@ -3,7 +3,7 @@ import path from 'node:path';
 import { scanRepo } from './checks/repo.js';
 import { scanWeb } from './checks/web.js';
 import { writePdf } from './report/pdf.js';
-import type { ScanReport, Track } from './types.js';
+import type { Progress, ScanReport, Track } from './types.js';
 import { cloneRemote, parseRepoUrl } from './remote.js';
 import { OwnershipError, verifyOwnership } from './verify.js';
 
@@ -42,6 +42,7 @@ export interface ScanRequest {
   /** PDF output path. JSON goes next to it unless jsonPath is set. */
   pdfPath?: string;
   jsonPath?: string;
+  progress?: Progress;
 }
 
 export interface ScanOutput {
@@ -62,8 +63,9 @@ export async function runScan(req: ScanRequest, reportsDir = 'reports'): Promise
 
   if (req.track === 'repo') {
     const remote = parseRepoUrl(req.target);
-    const options = { history: req.history ?? true, npmAudit: req.npmAudit ?? false };
+    const options = { history: req.history ?? true, npmAudit: req.npmAudit ?? false, progress: req.progress };
     if (remote) {
+      req.progress?.('Downloading the repository');
       const clone = await cloneRemote(remote, options);
       try {
         result = await scanRepo(clone.dir, options);
@@ -77,6 +79,7 @@ export async function runScan(req: ScanRequest, reportsDir = 'reports'): Promise
       result = await scanRepo(target, options);
     }
   } else if (req.track === 'web') {
+    req.progress?.('Checking domain ownership');
     const verification = await verifyOwnership(req.target);
     if (!verification.verified) throw new OwnershipError(verification);
     result = await scanWeb(req.target, {
@@ -86,6 +89,7 @@ export async function runScan(req: ScanRequest, reportsDir = 'reports'): Promise
       timeoutMs: 15_000,
       // Only the lab demo sets this, so its Firestore check stays on this computer.
       firestoreBase: process.env.VIBEPROOF_FIRESTORE_BASE || undefined,
+      progress: req.progress,
     });
     result.notes.unshift(verification.method === 'local'
       ? 'Target runs on this computer; ownership assumed.'
@@ -108,6 +112,7 @@ export async function runScan(req: ScanRequest, reportsDir = 'reports'): Promise
   const jsonPath = req.jsonPath ?? pdfPath.replace(/\.pdf$/i, '') + '.json';
   mkdirSync(path.dirname(path.resolve(pdfPath)), { recursive: true });
   mkdirSync(path.dirname(path.resolve(jsonPath)), { recursive: true });
+  req.progress?.('Writing the report');
   writeFileSync(jsonPath, JSON.stringify(report, null, 2));
   await writePdf(report, pdfPath);
   return { report, pdfPath, jsonPath };

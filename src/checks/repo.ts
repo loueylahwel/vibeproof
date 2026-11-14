@@ -4,7 +4,7 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 import { makeFinding } from '../findings.js';
 import { scanSecrets, type SecretHit } from '../secrets.js';
-import type { Finding } from '../types.js';
+import type { Finding, Progress } from '../types.js';
 import { auditEdgeFunctions, auditFirebase, auditSupabaseSql, stripSqlComments, type TextFile } from './backend.js';
 import { lineOf, readText, toPosix, walkFiles } from '../util.js';
 
@@ -15,6 +15,7 @@ export interface RepoOptions {
   history: boolean;
   /** Run npm audit (needs network and a package-lock.json). */
   npmAudit: boolean;
+  progress?: Progress;
 }
 
 export interface CheckResult {
@@ -69,6 +70,8 @@ export async function scanRepo(rootInput: string, opts: RepoOptions): Promise<Ch
     : null;
   if (!inGit) notes.push('Target is not a git repository: tracked-file and history checks were skipped.');
 
+  const step = opts.progress ?? (() => undefined);
+  step('Reading files');
   const files = await walkFiles(root);
   const sqlFiles: TextFile[] = [];
   const backendFiles: TextFile[] = [];
@@ -112,6 +115,7 @@ export async function scanRepo(rootInput: string, opts: RepoOptions): Promise<Ch
   }
   notes.push(`Scanned ${scanned} text files (${files.length} files total, build and dependency folders skipped).`);
 
+  step('Checking database rules and backend configuration');
   findings.push(...auditSql(sqlFiles, notes));
   findings.push(...auditSupabaseSql(sqlFiles, notes));
   findings.push(...auditEdgeFunctions(backendFiles, notes));
@@ -125,6 +129,7 @@ export async function scanRepo(rootInput: string, opts: RepoOptions): Promise<Ch
   }
 
   if (inGit && opts.history) {
+    step('Scanning git history');
     try {
       const before = findings.length;
       scanHistory(await gitOut(root, ['log', '--all', '-p', '-U0', '--no-color', '--no-ext-diff', '--format=commit %H'], 512 * 1024 * 1024), addSecret);
@@ -134,6 +139,7 @@ export async function scanRepo(rootInput: string, opts: RepoOptions): Promise<Ch
     }
   }
 
+  if (opts.npmAudit) step('Running npm audit');
   if (opts.npmAudit) findings.push(...(await npmAudit(root, notes)));
 
   return { findings, notes };

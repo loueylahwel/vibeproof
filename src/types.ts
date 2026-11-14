@@ -1,6 +1,9 @@
 export type Severity = 'critical' | 'high' | 'medium' | 'low' | 'info';
 export type Track = 'repo' | 'web';
 
+/** Called with a short, human-readable description of the stage a scan has reached. */
+export type Progress = (stage: string) => void;
+
 export const SEVERITY_ORDER: readonly Severity[] = ['critical', 'high', 'medium', 'low', 'info'];
 
 export interface Finding {

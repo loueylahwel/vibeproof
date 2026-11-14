@@ -1,6 +1,6 @@
 import { makeFinding } from '../findings.js';
 import { scanSecrets, type SecretHit } from '../secrets.js';
-import type { Finding } from '../types.js';
+import type { Finding, Progress } from '../types.js';
 import { decodeJwtPayload } from '../util.js';
 import type { CheckResult } from './repo.js';
 
@@ -12,6 +12,7 @@ export interface WebOptions {
   timeoutMs: number;
   /** Firestore REST base URL. Tests point it at a local server. */
   firestoreBase?: string;
+  progress?: Progress;
 }
 
 const USER_AGENT = 'vibeproof/0.3 (read-only academic security scan)';
@@ -70,7 +71,9 @@ export async function scanWeb(targetInput: string, opts: WebOptions): Promise<Ch
   const addSecret = (hit: SecretHit, location: string) =>
     addOnce(`secret:${hit.fingerprint}`, makeFinding(hit.ruleId, 'web', location, `${hit.patternName}: ${hit.evidence}`, hit.severity));
 
+  const step = opts.progress ?? (() => undefined);
   // 1. Page and response headers
+  step('Loading the page');
   const page = await readOnlyGet(target.href, opts.timeoutMs);
   notes.push(`Page ${target.href} returned HTTP ${page.status}.`);
   findings.push(...checkHeaders(page.headers, target));
@@ -101,6 +104,7 @@ export async function scanWeb(targetInput: string, opts: WebOptions): Promise<Ch
   for (const m of page.body.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/gi)) enqueue(m[1], target.href);
   for (const m of page.body.matchAll(/<link\b[^>]*\brel=["']modulepreload["'][^>]*\bhref=["']([^"']+)["']/gi)) enqueue(m[1], target.href);
 
+  step('Reading JavaScript bundles');
   let lazy = 0;
   while (queue.length) {
     if (sources.length > opts.maxBundles) {
@@ -122,6 +126,7 @@ export async function scanWeb(targetInput: string, opts: WebOptions): Promise<Ch
   if (thirdParty.size) notes.push(`Third-party scripts not scanned: ${[...thirdParty].join(', ')}.`);
 
   // 3. Secrets, keys, Supabase config and table names in shipped code
+  step('Looking for secrets and source maps');
   const supabaseUrls = new Set<string>();
   if (opts.supabaseUrl) supabaseUrls.add(new URL(opts.supabaseUrl).origin);
   const anonKeys = new Set<string>();
@@ -153,6 +158,7 @@ export async function scanWeb(targetInput: string, opts: WebOptions): Promise<Ch
 
   // 5. Live Supabase RLS probe: one GET with limit=1 per table, values never stored
   const anonKey = [...anonKeys][0];
+  if (supabaseUrls.size) step('Probing the Supabase API (read-only)');
   for (const sbUrl of supabaseUrls) {
     if (!anonKey) {
       notes.push(`Supabase project ${sbUrl} found but no anon key in shipped code; table probe skipped.`);
@@ -238,6 +244,7 @@ export async function scanWeb(targetInput: string, opts: WebOptions): Promise<Ch
   const projectId = /projectId\s*:\s*["']([\w-]+)["']/.exec(allCode)?.[1];
   const databaseUrl = /databaseURL\s*:\s*["'](https?:\/\/[^"']+)["']/.exec(allCode)?.[1];
   if (projectId || databaseUrl) {
+    step('Probing Firebase (read-only)');
     notes.push(`Firebase config found${projectId ? ` (project ${projectId})` : ''}.`);
     if (databaseUrl) {
       const res = await readOnlyGet(`${databaseUrl.replace(/\/$/, '')}/.json?shallow=true`, opts.timeoutMs).catch(() => null);
@@ -282,6 +289,7 @@ export async function scanWeb(targetInput: string, opts: WebOptions): Promise<Ch
   }
 
   // 6. Files that should never be served
+  step('Checking for exposed files');
   const env = await readOnlyGet(`${origin}/.env`, opts.timeoutMs).catch(() => null);
   if (env && env.status === 200 && !/<html/i.test(env.body) && /^\s*[A-Z][A-Z0-9_]*\s*=/m.test(env.body)) {
     const names = [...env.body.matchAll(/^\s*([A-Z][A-Z0-9_]*)\s*=/gm)].map((m) => m[1]);
