@@ -1,0 +1,1200 @@
+{
+  "note": "Snapshot taken before closing the gaps found by the development set. Compared against by npm run evaluate.",
+  "dev": {
+    "generatedAt": "2026-11-14T20:54:16.213Z",
+    "tool": "vibeproof",
+    "version": "0.3.0",
+    "apps": [
+      {
+        "name": "taskflow",
+        "stack": "Vite + Supabase",
+        "story": "To-do app. The builder added an admin client with the service_role key in a VITE_ variable and forgot RLS on the main table.",
+        "clean": false,
+        "planted": 3,
+        "detected": {
+          "repo": 2,
+          "web": 3,
+          "combined": 3
+        },
+        "falsePositives": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        }
+      },
+      {
+        "name": "chatpal",
+        "stack": "Next.js + OpenAI",
+        "story": "AI chat app calling OpenAI straight from a client component, with production source maps on. A Stripe key was committed early and later \"removed\".",
+        "clean": false,
+        "planted": 3,
+        "detected": {
+          "repo": 2,
+          "web": 2,
+          "combined": 3
+        },
+        "falsePositives": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        }
+      },
+      {
+        "name": "swapmeet",
+        "stack": "React + Supabase storage and RPC",
+        "story": "Marketplace. Listings are meant to be public. Seller ID scans go to a public bucket anyone can upload to, and a privileged RPC marks items sold.",
+        "clean": false,
+        "planted": 4,
+        "detected": {
+          "repo": 4,
+          "web": 1,
+          "combined": 4
+        },
+        "falsePositives": {
+          "repo": 1,
+          "web": 1,
+          "combined": 2
+        }
+      },
+      {
+        "name": "bookit",
+        "stack": "React + Supabase (tables made in the dashboard)",
+        "story": "Booking app whose tables were created by clicking in the Supabase dashboard, so the repo has no migrations. An edge function cancels bookings with the service_role key.",
+        "clean": false,
+        "planted": 5,
+        "detected": {
+          "repo": 1,
+          "web": 4,
+          "combined": 5
+        },
+        "falsePositives": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        }
+      },
+      {
+        "name": "liftlog",
+        "stack": "React + Firebase",
+        "story": "Fitness tracker still on the Firestore \"test mode\" rules, with an open Realtime Database and open Storage rules.",
+        "clean": false,
+        "planted": 4,
+        "detected": {
+          "repo": 3,
+          "web": 2,
+          "combined": 3
+        },
+        "falsePositives": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        }
+      },
+      {
+        "name": "folio-cms",
+        "stack": "Static site with a deploy script",
+        "story": "Portfolio whose .env (with a GitHub token for the deploy script) was committed, and the host serves the whole project folder including .env and .git.",
+        "clean": false,
+        "planted": 5,
+        "detected": {
+          "repo": 2,
+          "web": 4,
+          "combined": 5
+        },
+        "falsePositives": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        }
+      },
+      {
+        "name": "teampulse",
+        "stack": "React + Supabase edge functions",
+        "story": "Team dashboard with an \"allow everything\" policy, an export function with JWT checks turned off, a hard-coded database password and no lockfile.",
+        "clean": false,
+        "planted": 4,
+        "detected": {
+          "repo": 4,
+          "web": 1,
+          "combined": 4
+        },
+        "falsePositives": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        }
+      },
+      {
+        "name": "shopcart",
+        "stack": "Next.js + Supabase",
+        "story": "Shop whose admin page uses a service key named NEXT_PUBLIC_SUPABASE_SERVICE_KEY, an orders policy that trusts any signed-in user, and a Stripe key in a lazily loaded admin chunk.",
+        "clean": false,
+        "planted": 3,
+        "detected": {
+          "repo": 1,
+          "web": 1,
+          "combined": 2
+        },
+        "falsePositives": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        }
+      },
+      {
+        "name": "studyhub",
+        "stack": "React + Firebase",
+        "story": "Study notes app whose Firestore rules let any signed-in user read and write every document, with a Google service account key committed to the repo.",
+        "clean": false,
+        "planted": 2,
+        "detected": {
+          "repo": 1,
+          "web": 0,
+          "combined": 1
+        },
+        "falsePositives": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        }
+      },
+      {
+        "name": "notely",
+        "stack": "React + Supabase, done right",
+        "story": "Notes app with owner-scoped RLS, a private bucket with owner policies, a locked-down RPC and an edge function that checks the user.",
+        "clean": true,
+        "planted": 0,
+        "detected": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        },
+        "falsePositives": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        }
+      },
+      {
+        "name": "trailmap",
+        "stack": "React + Firebase, done right",
+        "story": "Hiking app whose Firestore, Realtime Database and Storage rules all require a signed-in owner.",
+        "clean": true,
+        "planted": 0,
+        "detected": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        },
+        "falsePositives": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        }
+      },
+      {
+        "name": "launchpage",
+        "stack": "Static marketing site",
+        "story": "Landing page with no backend, sensible headers and nothing secret.",
+        "clean": true,
+        "planted": 0,
+        "detected": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        },
+        "falsePositives": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        }
+      }
+    ],
+    "setups": [
+      {
+        "setup": "repo",
+        "name": "Repository only",
+        "planted": 33,
+        "detected": 20,
+        "recall": 0.6060606060606061,
+        "reachable": 24,
+        "detectedInReach": 20,
+        "reachRate": 0.8333333333333334,
+        "findings": 23,
+        "falsePositives": 1,
+        "precision": 0.9565217391304348,
+        "cleanFalsePositives": 0
+      },
+      {
+        "setup": "web",
+        "name": "Browser only",
+        "planted": 33,
+        "detected": 18,
+        "recall": 0.5454545454545454,
+        "reachable": 19,
+        "detectedInReach": 18,
+        "reachRate": 0.9473684210526315,
+        "findings": 26,
+        "falsePositives": 1,
+        "precision": 0.9615384615384616,
+        "cleanFalsePositives": 0
+      },
+      {
+        "setup": "combined",
+        "name": "Combined",
+        "planted": 33,
+        "detected": 30,
+        "recall": 0.9090909090909091,
+        "reachable": 33,
+        "detectedInReach": 30,
+        "reachRate": 0.9090909090909091,
+        "findings": 49,
+        "falsePositives": 2,
+        "precision": 0.9591836734693877,
+        "cleanFalsePositives": 0
+      }
+    ],
+    "byVisibility": [
+      {
+        "visibility": "both",
+        "planted": 10,
+        "repo": 9,
+        "web": 9,
+        "combined": 10
+      },
+      {
+        "visibility": "web",
+        "planted": 9,
+        "repo": 0,
+        "web": 9,
+        "combined": 9
+      },
+      {
+        "visibility": "repo",
+        "planted": 14,
+        "repo": 11,
+        "web": 0,
+        "combined": 11
+      }
+    ],
+    "byCategory": [
+      {
+        "category": "database",
+        "planted": 8,
+        "repo": 4,
+        "web": 5,
+        "combined": 7
+      },
+      {
+        "category": "secrets",
+        "planted": 8,
+        "repo": 7,
+        "web": 4,
+        "combined": 8
+      },
+      {
+        "category": "exposure",
+        "planted": 8,
+        "repo": 2,
+        "web": 6,
+        "combined": 8
+      },
+      {
+        "category": "storage",
+        "planted": 2,
+        "repo": 2,
+        "web": 1,
+        "combined": 2
+      },
+      {
+        "category": "functions",
+        "planted": 2,
+        "repo": 2,
+        "web": 0,
+        "combined": 2
+      },
+      {
+        "category": "firebase",
+        "planted": 5,
+        "repo": 3,
+        "web": 2,
+        "combined": 3
+      }
+    ],
+    "issues": [
+      {
+        "app": "taskflow",
+        "id": "todos-open",
+        "title": "todos table has no row level security",
+        "category": "database",
+        "visibility": "both",
+        "detectedBy": {
+          "repo": true,
+          "web": true
+        }
+      },
+      {
+        "app": "taskflow",
+        "id": "service-role-in-bundle",
+        "title": "service_role key shipped to the browser via a VITE_ variable",
+        "category": "secrets",
+        "visibility": "both",
+        "detectedBy": {
+          "repo": true,
+          "web": true
+        }
+      },
+      {
+        "app": "taskflow",
+        "id": "headers",
+        "title": "No security headers (CSP, clickjacking, nosniff)",
+        "category": "exposure",
+        "visibility": "web",
+        "detectedBy": {
+          "repo": false,
+          "web": true
+        }
+      },
+      {
+        "app": "chatpal",
+        "id": "openai-in-client",
+        "title": "OpenAI key in a client component",
+        "category": "secrets",
+        "visibility": "both",
+        "detectedBy": {
+          "repo": true,
+          "web": true
+        }
+      },
+      {
+        "app": "chatpal",
+        "id": "stripe-in-history",
+        "title": "Stripe live key left in git history",
+        "category": "secrets",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": true,
+          "web": false
+        }
+      },
+      {
+        "app": "chatpal",
+        "id": "source-maps",
+        "title": "Production source maps served publicly",
+        "category": "exposure",
+        "visibility": "web",
+        "detectedBy": {
+          "repo": false,
+          "web": true
+        }
+      },
+      {
+        "app": "swapmeet",
+        "id": "id-bucket-public",
+        "title": "ID documents stored in a public bucket",
+        "category": "storage",
+        "visibility": "both",
+        "detectedBy": {
+          "repo": true,
+          "web": true
+        }
+      },
+      {
+        "app": "swapmeet",
+        "id": "anyone-uploads",
+        "title": "Anyone can upload to the ID bucket",
+        "category": "storage",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": true,
+          "web": false
+        }
+      },
+      {
+        "app": "swapmeet",
+        "id": "rpc-anon",
+        "title": "mark_sold RPC callable by anonymous users",
+        "category": "database",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": true,
+          "web": false
+        }
+      },
+      {
+        "app": "swapmeet",
+        "id": "rpc-search-path",
+        "title": "mark_sold has no fixed search_path",
+        "category": "database",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": true,
+          "web": false
+        }
+      },
+      {
+        "app": "bookit",
+        "id": "bookings-open",
+        "title": "bookings readable by anyone (table made in the dashboard)",
+        "category": "database",
+        "visibility": "web",
+        "detectedBy": {
+          "repo": false,
+          "web": true
+        }
+      },
+      {
+        "app": "bookit",
+        "id": "admin-notes-open",
+        "title": "admin_notes readable by anyone, never named in the front end",
+        "category": "database",
+        "visibility": "web",
+        "detectedBy": {
+          "repo": false,
+          "web": true
+        }
+      },
+      {
+        "app": "bookit",
+        "id": "schema-exposed",
+        "title": "API schema lists every table to the anon key",
+        "category": "database",
+        "visibility": "web",
+        "detectedBy": {
+          "repo": false,
+          "web": true
+        }
+      },
+      {
+        "app": "bookit",
+        "id": "cancel-fn",
+        "title": "cancel-booking uses service_role without checking the caller",
+        "category": "functions",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": true,
+          "web": false
+        }
+      },
+      {
+        "app": "bookit",
+        "id": "headers",
+        "title": "No security headers (CSP, clickjacking, nosniff)",
+        "category": "exposure",
+        "visibility": "web",
+        "detectedBy": {
+          "repo": false,
+          "web": true
+        }
+      },
+      {
+        "app": "liftlog",
+        "id": "firestore-test-mode",
+        "title": "Firestore still in test mode: every document is public",
+        "category": "firebase",
+        "visibility": "both",
+        "detectedBy": {
+          "repo": true,
+          "web": true
+        }
+      },
+      {
+        "app": "liftlog",
+        "id": "rtdb-public-read",
+        "title": "Realtime Database readable by anyone",
+        "category": "firebase",
+        "visibility": "both",
+        "detectedBy": {
+          "repo": true,
+          "web": true
+        }
+      },
+      {
+        "app": "liftlog",
+        "id": "storage-open",
+        "title": "Firebase Storage rules allow anyone to read and write",
+        "category": "firebase",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": true,
+          "web": false
+        }
+      },
+      {
+        "app": "liftlog",
+        "id": "rtdb-any-user-writes",
+        "title": "Realtime Database root writable by any signed-in user",
+        "category": "firebase",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": false,
+          "web": false
+        }
+      },
+      {
+        "app": "folio-cms",
+        "id": "env-committed",
+        "title": ".env committed to git",
+        "category": "exposure",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": true,
+          "web": false
+        }
+      },
+      {
+        "app": "folio-cms",
+        "id": "github-token",
+        "title": "GitHub token leaked",
+        "category": "secrets",
+        "visibility": "both",
+        "detectedBy": {
+          "repo": true,
+          "web": true
+        }
+      },
+      {
+        "app": "folio-cms",
+        "id": "env-served",
+        "title": "/.env served by the host",
+        "category": "exposure",
+        "visibility": "web",
+        "detectedBy": {
+          "repo": false,
+          "web": true
+        }
+      },
+      {
+        "app": "folio-cms",
+        "id": "git-served",
+        "title": "/.git served by the host",
+        "category": "exposure",
+        "visibility": "web",
+        "detectedBy": {
+          "repo": false,
+          "web": true
+        }
+      },
+      {
+        "app": "folio-cms",
+        "id": "headers",
+        "title": "No security headers (CSP, clickjacking, nosniff)",
+        "category": "exposure",
+        "visibility": "web",
+        "detectedBy": {
+          "repo": false,
+          "web": true
+        }
+      },
+      {
+        "app": "teampulse",
+        "id": "posts-open",
+        "title": "posts policy allows everyone to read and write",
+        "category": "database",
+        "visibility": "both",
+        "detectedBy": {
+          "repo": true,
+          "web": true
+        }
+      },
+      {
+        "app": "teampulse",
+        "id": "export-fn-open",
+        "title": "export-csv callable without any authentication",
+        "category": "functions",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": true,
+          "web": false
+        }
+      },
+      {
+        "app": "teampulse",
+        "id": "db-password",
+        "title": "Database password hard-coded in server config",
+        "category": "secrets",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": true,
+          "web": false
+        }
+      },
+      {
+        "app": "teampulse",
+        "id": "no-lockfile",
+        "title": "No dependency lockfile",
+        "category": "exposure",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": true,
+          "web": false
+        }
+      },
+      {
+        "app": "shopcart",
+        "id": "service-key-name",
+        "title": "service_role key in NEXT_PUBLIC_SUPABASE_SERVICE_KEY used by a client component",
+        "category": "secrets",
+        "visibility": "both",
+        "detectedBy": {
+          "repo": false,
+          "web": true
+        }
+      },
+      {
+        "app": "shopcart",
+        "id": "any-user-edits-orders",
+        "title": "orders policy lets any signed-in user change every order",
+        "category": "database",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": false,
+          "web": false
+        }
+      },
+      {
+        "app": "shopcart",
+        "id": "lazy-chunk-key",
+        "title": "Stripe key in a lazily loaded admin chunk",
+        "category": "secrets",
+        "visibility": "both",
+        "detectedBy": {
+          "repo": true,
+          "web": false
+        }
+      },
+      {
+        "app": "studyhub",
+        "id": "any-user-reads-all",
+        "title": "Firestore rules let any signed-in user read and write every document",
+        "category": "firebase",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": false,
+          "web": false
+        }
+      },
+      {
+        "app": "studyhub",
+        "id": "service-account",
+        "title": "Google service account private key committed",
+        "category": "secrets",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": true,
+          "web": false
+        }
+      }
+    ],
+    "falsePositives": [
+      {
+        "app": "swapmeet",
+        "track": "repo",
+        "ruleId": "VP-DB-002",
+        "title": "Row level security policy allows all rows",
+        "severity": "high",
+        "location": "supabase/migrations/20260102_market.sql:4",
+        "evidence": "Policy \"public listings\" on table \"listings\": for select, to anon, condition is true.",
+        "clean": false,
+        "note": "Listings are public on purpose; the scanner cannot know intent, so both tracks report them."
+      },
+      {
+        "app": "swapmeet",
+        "track": "web",
+        "ruleId": "VP-DB-005",
+        "title": "Table readable with the public anon key",
+        "severity": "high",
+        "location": "/rest/v1/listings",
+        "evidence": "Anon key returned a row (probe used limit=1). Columns exposed: id, owner, secret_note. Row values were not stored.",
+        "clean": false,
+        "note": "Listings are public on purpose; the scanner cannot know intent, so both tracks report them."
+      }
+    ],
+    "missedInReach": [
+      {
+        "setup": "Repository only",
+        "app": "liftlog",
+        "id": "rtdb-any-user-writes",
+        "title": "Realtime Database root writable by any signed-in user"
+      },
+      {
+        "setup": "Repository only",
+        "app": "shopcart",
+        "id": "service-key-name",
+        "title": "service_role key in NEXT_PUBLIC_SUPABASE_SERVICE_KEY used by a client component"
+      },
+      {
+        "setup": "Repository only",
+        "app": "shopcart",
+        "id": "any-user-edits-orders",
+        "title": "orders policy lets any signed-in user change every order"
+      },
+      {
+        "setup": "Repository only",
+        "app": "studyhub",
+        "id": "any-user-reads-all",
+        "title": "Firestore rules let any signed-in user read and write every document"
+      },
+      {
+        "setup": "Browser only",
+        "app": "shopcart",
+        "id": "lazy-chunk-key",
+        "title": "Stripe key in a lazily loaded admin chunk"
+      },
+      {
+        "setup": "Combined",
+        "app": "liftlog",
+        "id": "rtdb-any-user-writes",
+        "title": "Realtime Database root writable by any signed-in user"
+      },
+      {
+        "setup": "Combined",
+        "app": "shopcart",
+        "id": "any-user-edits-orders",
+        "title": "orders policy lets any signed-in user change every order"
+      },
+      {
+        "setup": "Combined",
+        "app": "studyhub",
+        "id": "any-user-reads-all",
+        "title": "Firestore rules let any signed-in user read and write every document"
+      }
+    ]
+  },
+  "holdout": {
+    "generatedAt": "2026-11-14T20:54:16.805Z",
+    "tool": "vibeproof",
+    "version": "0.3.0",
+    "apps": [
+      {
+        "name": "recipebox",
+        "stack": "Vite + Supabase (new key format)",
+        "story": "Recipe sharing app that ships the new-format Supabase secret key, lets any signed-in user edit any recipe, and has a comments table without RLS.",
+        "clean": false,
+        "planted": 3,
+        "detected": {
+          "repo": 2,
+          "web": 1,
+          "combined": 2
+        },
+        "falsePositives": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        }
+      },
+      {
+        "name": "eventhub",
+        "stack": "Next.js + Supabase + OpenAI",
+        "story": "Event app with an admin screen using NEXT_PUBLIC_SUPABASE_ADMIN_KEY, and an AI panel loaded on demand from a Next.js chunk that contains an OpenAI key.",
+        "clean": false,
+        "planted": 3,
+        "detected": {
+          "repo": 1,
+          "web": 2,
+          "combined": 3
+        },
+        "falsePositives": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        }
+      },
+      {
+        "name": "petpals",
+        "stack": "React + Firebase",
+        "story": "Pet adoption app whose Realtime Database lets any signed-in user write anywhere and whose Firestore lets any signed-in user read every document.",
+        "clean": false,
+        "planted": 2,
+        "detected": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        },
+        "falsePositives": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        }
+      },
+      {
+        "name": "invoicely",
+        "stack": "Vite + Supabase",
+        "story": "Invoicing app with a Stripe key in a settings chunk that Vite preloads through __vite__mapDeps, a policy trusting any signed-in role, and an exposed approval RPC.",
+        "clean": false,
+        "planted": 4,
+        "detected": {
+          "repo": 3,
+          "web": 0,
+          "combined": 3
+        },
+        "falsePositives": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        }
+      },
+      {
+        "name": "gardenlog",
+        "stack": "Vite + Supabase, done right",
+        "story": "Garden planner with a plant catalogue shared with signed-in users, owner-only garden beds, a lazily loaded charts chunk and a browser Maps key.",
+        "clean": true,
+        "planted": 0,
+        "detected": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        },
+        "falsePositives": {
+          "repo": 2,
+          "web": 0,
+          "combined": 2
+        }
+      },
+      {
+        "name": "quizzy",
+        "stack": "React + Firebase, done right",
+        "story": "Quiz app where signed-in users read quizzes, owners write them, and each user writes only their own score.",
+        "clean": true,
+        "planted": 0,
+        "detected": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        },
+        "falsePositives": {
+          "repo": 0,
+          "web": 0,
+          "combined": 0
+        }
+      }
+    ],
+    "setups": [
+      {
+        "setup": "repo",
+        "name": "Repository only",
+        "planted": 12,
+        "detected": 6,
+        "recall": 0.5,
+        "reachable": 11,
+        "detectedInReach": 6,
+        "reachRate": 0.5454545454545454,
+        "findings": 8,
+        "falsePositives": 2,
+        "precision": 0.75,
+        "cleanFalsePositives": 2
+      },
+      {
+        "setup": "web",
+        "name": "Browser only",
+        "planted": 12,
+        "detected": 3,
+        "recall": 0.25,
+        "reachable": 6,
+        "detectedInReach": 3,
+        "reachRate": 0.5,
+        "findings": 5,
+        "falsePositives": 0,
+        "precision": 1,
+        "cleanFalsePositives": 0
+      },
+      {
+        "setup": "combined",
+        "name": "Combined",
+        "planted": 12,
+        "detected": 8,
+        "recall": 0.6666666666666666,
+        "reachable": 12,
+        "detectedInReach": 8,
+        "reachRate": 0.6666666666666666,
+        "findings": 13,
+        "falsePositives": 2,
+        "precision": 0.8461538461538461,
+        "cleanFalsePositives": 2
+      }
+    ],
+    "byVisibility": [
+      {
+        "visibility": "both",
+        "planted": 5,
+        "repo": 4,
+        "web": 2,
+        "combined": 5
+      },
+      {
+        "visibility": "repo",
+        "planted": 6,
+        "repo": 2,
+        "web": 0,
+        "combined": 2
+      },
+      {
+        "visibility": "web",
+        "planted": 1,
+        "repo": 0,
+        "web": 1,
+        "combined": 1
+      }
+    ],
+    "byCategory": [
+      {
+        "category": "secrets",
+        "planted": 4,
+        "repo": 3,
+        "web": 1,
+        "combined": 4
+      },
+      {
+        "category": "database",
+        "planted": 5,
+        "repo": 3,
+        "web": 1,
+        "combined": 3
+      },
+      {
+        "category": "exposure",
+        "planted": 1,
+        "repo": 0,
+        "web": 1,
+        "combined": 1
+      },
+      {
+        "category": "firebase",
+        "planted": 2,
+        "repo": 0,
+        "web": 0,
+        "combined": 0
+      }
+    ],
+    "issues": [
+      {
+        "app": "recipebox",
+        "id": "sb-secret-key",
+        "title": "Supabase secret key (sb_secret_ format) shipped in the bundle",
+        "category": "secrets",
+        "visibility": "both",
+        "detectedBy": {
+          "repo": true,
+          "web": false
+        }
+      },
+      {
+        "app": "recipebox",
+        "id": "recipes-any-user",
+        "title": "recipes update policy trusts any signed-in user",
+        "category": "database",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": false,
+          "web": false
+        }
+      },
+      {
+        "app": "recipebox",
+        "id": "comments-open",
+        "title": "comments table has no row level security",
+        "category": "database",
+        "visibility": "both",
+        "detectedBy": {
+          "repo": true,
+          "web": true
+        }
+      },
+      {
+        "app": "eventhub",
+        "id": "admin-key-name",
+        "title": "service_role key in NEXT_PUBLIC_SUPABASE_ADMIN_KEY used by a client component",
+        "category": "secrets",
+        "visibility": "both",
+        "detectedBy": {
+          "repo": false,
+          "web": true
+        }
+      },
+      {
+        "app": "eventhub",
+        "id": "lazy-openai",
+        "title": "OpenAI key in an on-demand Next.js chunk",
+        "category": "secrets",
+        "visibility": "both",
+        "detectedBy": {
+          "repo": true,
+          "web": false
+        }
+      },
+      {
+        "app": "eventhub",
+        "id": "headers",
+        "title": "No security headers (CSP, clickjacking, nosniff)",
+        "category": "exposure",
+        "visibility": "web",
+        "detectedBy": {
+          "repo": false,
+          "web": true
+        }
+      },
+      {
+        "app": "petpals",
+        "id": "rtdb-any-user-writes",
+        "title": "Realtime Database root writable by any signed-in user",
+        "category": "firebase",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": false,
+          "web": false
+        }
+      },
+      {
+        "app": "petpals",
+        "id": "firestore-any-user-reads-all",
+        "title": "Firestore lets any signed-in user read every document",
+        "category": "firebase",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": false,
+          "web": false
+        }
+      },
+      {
+        "app": "invoicely",
+        "id": "vite-chunk-stripe",
+        "title": "Stripe key in a Vite chunk listed in __vite__mapDeps",
+        "category": "secrets",
+        "visibility": "both",
+        "detectedBy": {
+          "repo": true,
+          "web": false
+        }
+      },
+      {
+        "app": "invoicely",
+        "id": "invoices-any-user",
+        "title": "invoices policy trusts any signed-in role",
+        "category": "database",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": false,
+          "web": false
+        }
+      },
+      {
+        "app": "invoicely",
+        "id": "rpc-exposed",
+        "title": "approve_invoice RPC callable by anonymous users",
+        "category": "database",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": true,
+          "web": false
+        }
+      },
+      {
+        "app": "invoicely",
+        "id": "rpc-search-path",
+        "title": "approve_invoice has no fixed search_path",
+        "category": "database",
+        "visibility": "repo",
+        "detectedBy": {
+          "repo": true,
+          "web": false
+        }
+      }
+    ],
+    "falsePositives": [
+      {
+        "app": "gardenlog",
+        "track": "repo",
+        "ruleId": "VP-ENV-002",
+        "title": "Secret-named variable has a public build prefix",
+        "severity": "high",
+        "location": ".env.example:3",
+        "evidence": "Variable name: VITE_MAPS_API_KEY",
+        "clean": true
+      },
+      {
+        "app": "gardenlog",
+        "track": "repo",
+        "ruleId": "VP-ENV-002",
+        "title": "Secret-named variable has a public build prefix",
+        "severity": "high",
+        "location": "src/Map.tsx:1",
+        "evidence": "Variable name: VITE_MAPS_API_KEY",
+        "clean": true
+      }
+    ],
+    "missedInReach": [
+      {
+        "setup": "Repository only",
+        "app": "recipebox",
+        "id": "recipes-any-user",
+        "title": "recipes update policy trusts any signed-in user"
+      },
+      {
+        "setup": "Repository only",
+        "app": "eventhub",
+        "id": "admin-key-name",
+        "title": "service_role key in NEXT_PUBLIC_SUPABASE_ADMIN_KEY used by a client component"
+      },
+      {
+        "setup": "Repository only",
+        "app": "petpals",
+        "id": "rtdb-any-user-writes",
+        "title": "Realtime Database root writable by any signed-in user"
+      },
+      {
+        "setup": "Repository only",
+        "app": "petpals",
+        "id": "firestore-any-user-reads-all",
+        "title": "Firestore lets any signed-in user read every document"
+      },
+      {
+        "setup": "Repository only",
+        "app": "invoicely",
+        "id": "invoices-any-user",
+        "title": "invoices policy trusts any signed-in role"
+      },
+      {
+        "setup": "Browser only",
+        "app": "recipebox",
+        "id": "sb-secret-key",
+        "title": "Supabase secret key (sb_secret_ format) shipped in the bundle"
+      },
+      {
+        "setup": "Browser only",
+        "app": "eventhub",
+        "id": "lazy-openai",
+        "title": "OpenAI key in an on-demand Next.js chunk"
+      },
+      {
+        "setup": "Browser only",
+        "app": "invoicely",
+        "id": "vite-chunk-stripe",
+        "title": "Stripe key in a Vite chunk listed in __vite__mapDeps"
+      },
+      {
+        "setup": "Combined",
+        "app": "recipebox",
+        "id": "recipes-any-user",
+        "title": "recipes update policy trusts any signed-in user"
+      },
+      {
+        "setup": "Combined",
+        "app": "petpals",
+        "id": "rtdb-any-user-writes",
+        "title": "Realtime Database root writable by any signed-in user"
+      },
+      {
+        "setup": "Combined",
+        "app": "petpals",
+        "id": "firestore-any-user-reads-all",
+        "title": "Firestore lets any signed-in user read every document"
+      },
+      {
+        "setup": "Combined",
+        "app": "invoicely",
+        "id": "invoices-any-user",
+        "title": "invoices policy trusts any signed-in role"
+      }
+    ]
+  }
+}

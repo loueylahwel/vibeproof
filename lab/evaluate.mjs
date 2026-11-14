@@ -14,7 +14,7 @@
 //   false alarm        a finding that matches no planted flaw of its app
 //   precision          share of findings that match a planted flaw
 import { execFileSync } from 'node:child_process';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -24,6 +24,7 @@ import { writeEvaluationPdf } from '../dist/report/evaluation-pdf.js';
 import { VERSION } from '../dist/run.js';
 import { APPS } from './catalog.mjs';
 import { startDeployment } from './deploy.mjs';
+import { HOLDOUT } from './holdout.mjs';
 
 export const SETUPS = { repo: ['repo'], web: ['web'], combined: ['repo', 'web'] };
 const SETUP_NAMES = { repo: 'Repository only', web: 'Browser only', combined: 'Combined' };
@@ -177,67 +178,94 @@ export async function runEvaluation(apps = APPS) {
 }
 
 const fmt = (x) => (x === null ? 'n/a' : `${Math.round(x * 100)}%`);
+const VIS = { repo: 'Repository only', web: 'Deployment only', both: 'Both' };
 
-export function toMarkdown(r) {
-  const lines = [
-    '# Vibeproof detection evaluation',
+function setMarkdown(r, title) {
+  return [
+    `## ${title}`,
     '',
-    `Generated ${r.generatedAt.slice(0, 10)} by vibeproof ${r.version} on ${r.apps.length} lab apps (${r.apps.filter((a) => !a.clean).length} with planted flaws, ${r.apps.filter((a) => a.clean).length} clean controls), ${r.setups[0].planted} planted flaws. Regenerate with \`npm run evaluate\`; the full report is \`evaluation-report.pdf\`.`,
-    '',
-    '## Summary',
+    `${r.apps.length} apps (${r.apps.filter((a) => !a.clean).length} with planted flaws, ${r.apps.filter((a) => a.clean).length} clean controls), ${r.setups[0].planted} planted flaws.`,
     '',
     '| Setup | Flaws found | Found within reach | Findings | False alarms | Precision | False alarms on clean apps |',
     '|---|---|---|---|---|---|---|',
     ...r.setups.map((s) => `| ${s.name} | ${s.detected}/${s.planted} (${fmt(s.recall)}) | ${s.detectedInReach}/${s.reachable} (${fmt(s.reachRate)}) | ${s.findings} | ${s.falsePositives} | ${fmt(s.precision)} | ${s.cleanFalsePositives} |`),
     '',
-    '## By where the flaw leaves evidence',
-    '',
-    '| Visible in | Planted | Repository only | Browser only | Combined |',
+    '| Evidence in | Planted | Repository only | Browser only | Combined |',
     '|---|---|---|---|---|',
-    ...r.byVisibility.map((v) => `| ${{ repo: 'Repository only', web: 'Deployment only', both: 'Both' }[v.visibility]} | ${v.planted} | ${v.repo} | ${v.web} | ${v.combined} |`),
-    '',
-    '## By category',
-    '',
-    '| Category | Planted | Repository only | Browser only | Combined |',
-    '|---|---|---|---|---|',
-    ...r.byCategory.map((c) => `| ${c.category} | ${c.planted} | ${c.repo} | ${c.web} | ${c.combined} |`),
-    '',
-    '## By app',
+    ...r.byVisibility.map((v) => `| ${VIS[v.visibility]} | ${v.planted} | ${v.repo} | ${v.web} | ${v.combined} |`),
     '',
     '| App | Stack | Planted | Repo | Web | Combined | False alarms (repo / web) |',
     '|---|---|---|---|---|---|---|',
     ...r.apps.map((a) => `| ${a.name}${a.clean ? ' (clean)' : ''} | ${a.stack} | ${a.planted} | ${a.detected.repo} | ${a.detected.web} | ${a.detected.combined} | ${a.falsePositives.repo} / ${a.falsePositives.web} |`),
     '',
-    '## Missed within reach',
+    '**Missed within reach:** ' + (r.missedInReach.length ? '' : 'none.'),
+    ...r.missedInReach.map((m) => `- ${m.setup}: ${m.app} / ${m.title}`),
     '',
-    ...(r.missedInReach.length ? r.missedInReach.map((m) => `- ${m.setup}: ${m.app} / ${m.title}`) : ['None.']),
-    '',
-    '## False alarms',
-    '',
-    ...(r.falsePositives.length
-      ? r.falsePositives.map((f) => `- ${f.app} (${f.track}${f.clean ? ', clean control' : ''}): ${f.ruleId} ${f.title}. ${f.evidence}${f.note ? ` _Note: ${f.note}_` : ''}`)
-      : ['None.']),
+    '**False alarms:** ' + (r.falsePositives.length ? '' : 'none.'),
+    ...r.falsePositives.map((f) => `- ${f.app} (${f.track}${f.clean ? ', clean control' : ''}): ${f.ruleId} ${f.title}. ${f.evidence}${f.note ? ` _Note: ${f.note}_` : ''}`),
     '',
   ];
+}
+
+export function toMarkdown({ dev, holdout, baseline }) {
+  const lines = [
+    '# Vibeproof detection evaluation',
+    '',
+    `Generated ${dev.generatedAt.slice(0, 10)} by vibeproof ${dev.version}. Regenerate with \`npm run evaluate\`; the full report is \`evaluation-report.pdf\`.`,
+    '',
+    'The **development set** (`lab/catalog.mjs`) was used while building the scanner. The **held-out set** (`lab/holdout.mjs`) was written and scored before the scanner was changed to close the gaps the development set exposed, so it shows whether those fixes generalise.',
+    '',
+  ];
+  if (baseline) {
+    lines.push('## Before and after closing the gaps', '', '| Set | Setup | Found before | Found after | False alarms before | False alarms after |', '|---|---|---|---|---|---|');
+    for (const [key, label] of [['dev', 'Development'], ['holdout', 'Held-out']]) {
+      dev && baseline[key] && [key === 'dev' ? dev : holdout][0].setups.forEach((s, i) => {
+        const b = baseline[key].setups[i];
+        lines.push(`| ${label} | ${s.name} | ${b.detected}/${b.planted} (${fmt(b.recall)}) | ${s.detected}/${s.planted} (${fmt(s.recall)}) | ${b.falsePositives} | ${s.falsePositives} |`);
+      });
+    }
+    lines.push('');
+  }
+  lines.push(...setMarkdown(dev, 'Development set'), ...setMarkdown(holdout, 'Held-out set'));
   return lines.join('\n');
 }
 
-async function main() {
-  const result = await runEvaluation();
-  const out = path.resolve('evaluation');
-  await mkdir(out, { recursive: true });
-  await writeFile(path.join(out, 'results.json'), JSON.stringify(result, null, 2));
-  await writeFile(path.join(out, 'RESULTS.md'), toMarkdown(result));
-  await writeEvaluationPdf(result, path.join(out, 'evaluation-report.pdf'));
-
-  console.log('\nSetup              Found        In reach     Findings  False alarms  Precision');
-  for (const s of result.setups) {
+function printSet(label, r) {
+  console.log(`\n${label}\nSetup              Found        In reach     Findings  False alarms  Precision`);
+  for (const s of r.setups) {
     console.log(`${s.name.padEnd(18)} ${`${s.detected}/${s.planted} ${fmt(s.recall)}`.padEnd(12)} ${`${s.detectedInReach}/${s.reachable} ${fmt(s.reachRate)}`.padEnd(12)} ${String(s.findings).padEnd(9)} ${String(s.falsePositives).padEnd(13)} ${fmt(s.precision)}`);
   }
-  if (result.missedInReach.length) console.log(`\nMissed within reach:\n${result.missedInReach.map((m) => `  ${m.setup}: ${m.app} / ${m.title}`).join('\n')}`);
-  console.log(`\nFalse alarms: ${result.falsePositives.length}`);
-  for (const f of result.falsePositives) console.log(`  ${f.app.padEnd(11)} ${f.track.padEnd(4)} ${f.ruleId}  ${f.evidence.slice(0, 90)}`);
-  console.log(`\nWrote evaluation/results.json, evaluation/RESULTS.md, evaluation/evaluation-report.pdf`);
+  if (r.missedInReach.length) console.log(`Missed within reach:\n${r.missedInReach.map((m) => `  ${m.setup}: ${m.app} / ${m.title}`).join('\n')}`);
+  for (const f of r.falsePositives) console.log(`  false alarm: ${f.app.padEnd(10)} ${f.track.padEnd(4)} ${f.ruleId}  ${f.evidence.slice(0, 80)}`);
+}
+
+async function main() {
+  const out = path.resolve('evaluation');
+  await mkdir(out, { recursive: true });
+  const dev = await runEvaluation(APPS);
+  const holdout = await runEvaluation(HOLDOUT);
+  printSet('Development set', dev);
+  printSet('Held-out set', holdout);
+
+  if (process.argv.includes('--baseline')) {
+    await writeFile(path.join(out, 'baseline.json'), JSON.stringify({
+      note: 'Snapshot taken before closing the gaps found by the development set. Compared against by npm run evaluate.',
+      dev, holdout,
+    }, null, 2));
+    console.log('\nWrote evaluation/baseline.json');
+    return;
+  }
+
+  let baseline = null;
+  try {
+    baseline = JSON.parse(await readFile(path.join(out, 'baseline.json'), 'utf8'));
+  } catch {
+    // no baseline yet
+  }
+  await writeFile(path.join(out, 'results.json'), JSON.stringify({ dev, holdout }, null, 2));
+  await writeFile(path.join(out, 'RESULTS.md'), toMarkdown({ dev, holdout, baseline }));
+  await writeEvaluationPdf({ dev, holdout, baseline }, path.join(out, 'evaluation-report.pdf'));
+  console.log('\nWrote evaluation/results.json, evaluation/RESULTS.md, evaluation/evaluation-report.pdf');
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

@@ -13,18 +13,18 @@
 // key-shaped strings.
 import { fakeJwt, FAKE_STRIPE } from './lab.mjs';
 
-const OPENAI = 'sk-' + 'proj-' + 'LabOnlyKey0'.repeat(4);
+export const OPENAI = 'sk-' + 'proj-' + 'LabOnlyKey0'.repeat(4);
 const GITHUB = 'gh' + 'p_' + 'Lab0'.repeat(9);
-const ANON = fakeJwt('anon');
-const SERVICE = fakeJwt('service_role');
+export const ANON = fakeJwt('anon');
+export const SERVICE = fakeJwt('service_role');
 
 const LOCKFILE = JSON.stringify({ name: 'app', lockfileVersion: 3, requires: true, packages: {} }, null, 2);
 const GITIGNORE = 'node_modules\ndist\n.env\n.env.local\n';
-const SECURE = 'secure';
-const NONE = 'none';
+export const SECURE = 'secure';
+export const NONE = 'none';
 
 /** Files every app has, so unrelated hygiene rules do not fire. */
-function base(name, extra = {}) {
+export function base(name, extra = {}) {
   return {
     'package.json': JSON.stringify({ name, private: true, scripts: { dev: 'vite', build: 'vite build' } }, null, 2),
     'package-lock.json': LOCKFILE,
@@ -36,11 +36,11 @@ function base(name, extra = {}) {
   };
 }
 
-const supabaseClient = (extra = '') => `import { createClient } from '@supabase/supabase-js';
+export const supabaseClient = (extra = '') => `import { createClient } from '@supabase/supabase-js';
 export const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY);
 ${extra}`;
 
-const HEADERS_ISSUE = {
+export const HEADERS_ISSUE = {
   id: 'headers',
   title: 'No security headers (CSP, clickjacking, nosniff)',
   category: 'exposure',
@@ -220,6 +220,11 @@ service cloud.firestore {
         detect: { repo: [{ rule: 'VP-FB-001', match: '.read' }], web: [{ rule: 'VP-FB-003', match: 'Realtime' }] } },
       { id: 'storage-open', title: 'Firebase Storage rules allow anyone to read and write', category: 'firebase',
         detect: { repo: [{ rule: 'VP-FB-001', match: 'allPaths' }] } },
+      // Ground-truth correction (added after the first evaluation run): the root
+      // ".write": "auth != null" rule lets any signed-in user overwrite the whole
+      // database. It was in the scenario from the start but not labelled.
+      { id: 'rtdb-any-user-writes', title: 'Realtime Database root writable by any signed-in user', category: 'firebase',
+        detect: { repo: [{ rule: 'VP-FB-001', match: '.write' }] } },
     ],
   },
 
