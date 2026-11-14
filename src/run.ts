@@ -4,6 +4,20 @@ import { scanRepo } from './checks/repo.js';
 import { scanWeb } from './checks/web.js';
 import { writePdf } from './report/pdf.js';
 import type { ScanReport, Track } from './types.js';
+import { OwnershipError, verifyOwnership } from './verify.js';
+
+/** A target is a web scan if it is a URL or looks like a bare domain; otherwise a local path. */
+export function detectTrack(target: string): Track {
+  const t = target.trim();
+  if (/^https?:\/\//i.test(t)) return 'web';
+  if (/^[\w-]+(\.[\w-]+)+(:\d+)?(\/.*)?$/.test(t) && !t.startsWith('.') && !t.includes('\\')) return 'web';
+  return 'repo';
+}
+
+export function normalizeWebTarget(target: string): string {
+  const t = target.trim();
+  return /^https?:\/\//i.test(t) ? t : `https://${t}`;
+}
 
 export const TOOL = 'vibe-security-scanner';
 export const VERSION = '0.2.0';
@@ -15,8 +29,6 @@ export interface ScanRequest {
   history?: boolean;
   /** repo: run npm audit (default false) */
   npmAudit?: boolean;
-  /** web: operator confirms ownership or written permission. Required for web scans. */
-  authorized?: boolean;
   supabaseUrl?: string;
   maxBundles?: number;
   maxTables?: number;
@@ -45,16 +57,17 @@ export async function runScan(req: ScanRequest, reportsDir = 'reports'): Promise
     target = path.resolve(req.target);
     result = await scanRepo(target, { history: req.history ?? true, npmAudit: req.npmAudit ?? false });
   } else if (req.track === 'web') {
-    if (req.authorized !== true) {
-      throw new Error('Web scans need confirmation that you own the app or have written permission to test it.');
-    }
+    const verification = await verifyOwnership(req.target);
+    if (!verification.verified) throw new OwnershipError(verification);
     result = await scanWeb(req.target, {
       supabaseUrl: req.supabaseUrl || undefined,
       maxBundles: req.maxBundles ?? 30,
       maxTables: req.maxTables ?? 25,
       timeoutMs: 15_000,
     });
-    result.notes.unshift('Operator confirmed authorization to test this target.');
+    result.notes.unshift(verification.method === 'local'
+      ? 'Target runs on this computer; ownership assumed.'
+      : `Ownership of ${verification.host} verified by ${verification.method === 'dns' ? 'DNS TXT record' : 'verification file'} before scanning.`);
   } else {
     throw new Error(`Unknown scan type: ${String(req.track)}`);
   }

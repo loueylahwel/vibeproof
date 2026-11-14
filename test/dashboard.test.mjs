@@ -29,6 +29,7 @@ const scan = (payload, headers = {}) =>
 
 before(async () => {
   dir = await mkdtemp(path.join(tmpdir(), 'vscan-dash-'));
+  process.env.VSCAN_KEY_FILE = path.join(dir, 'key');
   dash = await startDashboard({ port: 0, reportsDir: path.join(dir, 'reports'), quiet: true });
   port = Number(new URL(dash.url).port);
 });
@@ -59,10 +60,19 @@ test('rejects cross-origin requests even with the header', async () => {
   assert.equal(res.status, 403);
 });
 
-test('web scans require the authorization checkbox', async () => {
-  const res = await scan({ track: 'web', target: 'http://127.0.0.1:9/' });
-  assert.equal(res.status, 400);
-  assert.match(JSON.parse(res.body).error, /permission/);
+test('web scans of unverified domains return the verification token instead of scanning', async () => {
+  const res = await scan({ target: 'https://unverified.invalid/' });
+  assert.equal(res.status, 403);
+  const { verification } = JSON.parse(res.body);
+  assert.equal(verification.verified, false);
+  assert.equal(verification.host, 'unverified.invalid');
+  assert.match(verification.token, /^vscan-[0-9a-f]{32}$/);
+  assert.equal(verification.fileUrl, 'https://unverified.invalid/.well-known/vscan-verification.txt');
+});
+
+test('scan type is detected from the target', async () => {
+  const res = await scan({ target: 'unverified.invalid' });
+  assert.equal(JSON.parse(res.body).verification.host, 'unverified.invalid');
 });
 
 test('report ids cannot escape the reports folder', async () => {

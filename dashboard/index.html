@@ -11,56 +11,41 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">
-      <svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m8.5 12 2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <div>
-        <h1>Vibe Security Scanner</h1>
-        <p class="muted">Secrets, database access rules and client-side exposure in vibe-coded apps</p>
-      </div>
-    </div>
-    <span class="chip" id="local-chip" title="The dashboard only listens on this computer">Local only</span>
+    <svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    <h1>Vibe Security Scanner</h1>
   </header>
 
   <main class="layout">
     <aside class="sidebar">
-      <section class="card">
-        <h2>New scan</h2>
-        <div class="tabs" role="tablist">
-          <button type="button" role="tab" class="tab active" data-track="repo" aria-selected="true">Repository</button>
-          <button type="button" role="tab" class="tab" data-track="web" aria-selected="false">Live web app</button>
-        </div>
-
-        <form id="scan-form" autocomplete="off">
-          <div class="track-fields" data-for="repo">
-            <label for="repo-path">Repository path on this computer</label>
-            <input id="repo-path" name="repoPath" placeholder="~/Documents/our-app" spellcheck="false">
-            <label class="check"><input type="checkbox" name="history" checked> Scan full git history</label>
-            <label class="check"><input type="checkbox" name="npmAudit"> Run npm audit (needs internet)</label>
-            <p class="hint">Static analysis only. No code from the repository is run.</p>
-          </div>
-
-          <div class="track-fields" data-for="web" hidden>
-            <label for="web-url">App URL</label>
-            <input id="web-url" name="url" type="url" placeholder="https://our-app.vercel.app" spellcheck="false">
-            <label for="sb-url">Supabase URL <span class="muted">(optional, if not auto-detected)</span></label>
-            <input id="sb-url" name="supabaseUrl" type="url" placeholder="https://xxxx.supabase.co" spellcheck="false">
-            <label class="check consent"><input type="checkbox" name="authorized"> I own this app, or its owner gave written permission to test it.</label>
-            <p class="hint">Read-only: GET requests only, one row per table, row values are never stored.</p>
-          </div>
-
-          <button type="submit" class="primary" id="run-btn">
+      <form id="scan-form" autocomplete="off">
+        <div class="field">
+          <input id="target" name="target" placeholder="Repository path or URL" spellcheck="false" aria-label="Repository path or URL">
+          <button type="submit" id="run-btn" aria-label="Run scan">
             <span class="spinner" aria-hidden="true"></span>
-            <span class="label">Run scan</span>
+            <span class="label">Scan</span>
           </button>
-          <p class="form-error" id="form-error" role="alert" hidden></p>
-        </form>
+        </div>
+        <p class="detected" id="detected" aria-live="polite"></p>
+        <p class="form-error" id="form-error" role="alert" hidden></p>
+      </form>
+
+      <section class="verify" id="verify" hidden>
+        <h2 id="verify-title"></h2>
+        <p class="muted">Publish this token on the site with either option, then check again.</p>
+        <div class="option">
+          <span class="opt-label">File</span>
+          <code id="verify-file"></code>
+          <div class="copy-row"><code id="verify-token"></code><button type="button" class="copy" data-copy="verify-token">Copy</button></div>
+        </div>
+        <div class="option">
+          <span class="opt-label">DNS TXT</span>
+          <div class="copy-row"><code id="verify-dns"></code><button type="button" class="copy" data-copy="verify-dns">Copy</button></div>
+        </div>
+        <button type="button" class="ghost" id="verify-again">Check again</button>
       </section>
 
-      <section class="card history-card">
-        <div class="card-head">
-          <h2>Scan history</h2>
-          <span class="muted small" id="history-count"></span>
-        </div>
+      <section class="history-wrap">
+        <h2>History</h2>
         <ul id="history" class="history"></ul>
       </section>
     </aside>
@@ -70,9 +55,8 @@
 
   <template id="empty-state">
     <div class="empty">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
-      <h2>No scan selected</h2>
-      <p class="muted">Run a scan on one of your repositories or deployed apps, or pick one from the history.</p>
+      <p>Enter a repository path or a URL to start.</p>
+      <p class="muted">Web scans run only on domains you have verified, or on localhost.</p>
     </div>
   </template>
 </body>

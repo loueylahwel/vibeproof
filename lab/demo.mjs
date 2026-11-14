@@ -17,7 +17,7 @@ try {
   const repo = path.join(dir, 'lab-vibe-app');
   await createVulnerableRepo(repo);
   await run([cli, 'repo', repo, '--out', 'reports/sample-repo-report.pdf']);
-  await run([cli, 'web', `${server.base}/`, '--authorized', '--supabase-url', server.base, '--out', 'reports/sample-web-report.pdf']);
+  await run([cli, 'web', `${server.base}/`, '--supabase-url', server.base, '--out', 'reports/sample-web-report.pdf']);
 } finally {
   await server.close();
   await rm(dir, { recursive: true, force: true });

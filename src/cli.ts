@@ -3,23 +3,33 @@ import { readFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 import { startDashboard } from './dashboard/server.js';
 import { writePdf } from './report/pdf.js';
-import { runScan, VERSION, type ScanOutput } from './run.js';
+import { normalizeWebTarget, runScan, VERSION, type ScanOutput } from './run.js';
 import { SEVERITY_ORDER, type ScanReport } from './types.js';
+import { OwnershipError, verifyOwnership, type Verification } from './verify.js';
 
 const HELP = `vscan ${VERSION} - security scanner for vibe-coded web apps (academic project)
 
 Usage:
   vscan dashboard    [--port 4173]          local web dashboard on 127.0.0.1
   vscan repo <path>  [--out report.pdf] [--json report.json] [--no-history] [--npm-audit]
-  vscan web  <url>   --authorized [--supabase-url <url>] [--max-bundles 30] [--max-tables 25]
+  vscan web  <url>   [--supabase-url <url>] [--max-bundles 30] [--max-tables 25]
                      [--out report.pdf] [--json report.json]
+  vscan verify <url>                        show the ownership token for a domain
   vscan report <scan.json> --out report.pdf
 
-Rules of engagement:
-  The web command only sends GET requests, but it still touches a live system.
-  Run it only against apps you own or have written permission to test, and pass
-  --authorized to confirm that. Reports never contain full secret values.
+Ownership:
+  Web scans run only on domains you have proven you own: publish the token from
+  "vscan verify <url>" as a file on the site or as a DNS TXT record. Apps on
+  localhost need no verification. Reports never contain full secret values.
 `;
+
+function printVerification(v: Verification): void {
+  console.log(`\n${v.verified ? 'Verified' : 'Not verified'}: ${v.host}${v.method ? ` (${v.method})` : ''}`);
+  if (v.verified) return;
+  console.log(`\nProve you own ${v.host} with either option, then run the scan again:\n`);
+  console.log(`  1. File   ${v.fileUrl}\n           containing: ${v.token}\n`);
+  console.log(`  2. DNS    TXT record on ${v.host}\n           value: ${v.dnsRecord}\n`);
+}
 
 function printSummary({ report, pdfPath, jsonPath }: ScanOutput): void {
   const counts = SEVERITY_ORDER.map((s) => `${s}: ${report.findings.filter((f) => f.severity === s).length}`).join('  ');
@@ -37,7 +47,6 @@ async function main(): Promise<number> {
       json: { type: 'string' },
       'no-history': { type: 'boolean', default: false },
       'npm-audit': { type: 'boolean', default: false },
-      authorized: { type: 'boolean', default: false },
       'supabase-url': { type: 'string' },
       'max-bundles': { type: 'string', default: '30' },
       'max-tables': { type: 'string', default: '25' },
@@ -62,21 +71,29 @@ async function main(): Promise<number> {
     return 0;
   }
 
+  if (command === 'verify') {
+    const v = await verifyOwnership(normalizeWebTarget(target));
+    printVerification(v);
+    return v.verified ? 0 : 2;
+  }
+
   if (command === 'web') {
-    if (!values.authorized) {
-      console.error('Refusing to scan: pass --authorized to confirm you own this app or have written permission to test it.');
+    try {
+      printSummary(await runScan({
+        track: 'web',
+        target: normalizeWebTarget(target),
+        supabaseUrl: values['supabase-url'],
+        maxBundles: Number(values['max-bundles']),
+        maxTables: Number(values['max-tables']),
+        pdfPath: values.out,
+        jsonPath: values.json,
+      }));
+    } catch (err) {
+      if (!(err instanceof OwnershipError)) throw err;
+      console.error(err.message);
+      printVerification(err.verification);
       return 2;
     }
-    printSummary(await runScan({
-      track: 'web',
-      target,
-      authorized: true,
-      supabaseUrl: values['supabase-url'],
-      maxBundles: Number(values['max-bundles']),
-      maxTables: Number(values['max-tables']),
-      pdfPath: values.out,
-      jsonPath: values.json,
-    }));
     return 0;
   }
 

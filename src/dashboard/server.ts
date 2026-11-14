@@ -5,7 +5,8 @@ import type { AddressInfo } from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { runScan, VERSION } from '../run.js';
+import { detectTrack, normalizeWebTarget, runScan, VERSION } from '../run.js';
+import { OwnershipError } from '../verify.js';
 import { SEVERITY_ORDER, type ScanReport, type Severity } from '../types.js';
 
 /**
@@ -176,26 +177,22 @@ export async function startDashboard(opts: DashboardOptions = {}): Promise<Dashb
       if (!String(req.headers['content-type'] ?? '').startsWith('application/json')) return json(res, 415, { error: 'Send JSON.' });
       if (busy) return json(res, 409, { error: 'A scan is already running. Wait for it to finish.' });
       const body = await readJson(req);
-      const track = body.track;
       const target = typeof body.target === 'string' ? body.target.trim() : '';
-      if (track !== 'repo' && track !== 'web') return json(res, 400, { error: 'Choose a scan type.' });
-      if (!target) return json(res, 400, { error: track === 'repo' ? 'Enter a repository path.' : 'Enter a URL.' });
-      if (track === 'web' && body.authorized !== true) {
-        return json(res, 400, { error: 'Confirm that you own this app or have written permission to test it.' });
-      }
+      if (!target) return json(res, 400, { error: 'Enter a repository path or a URL.' });
+      const track = body.track === 'repo' || body.track === 'web' ? body.track : detectTrack(target);
       busy = true;
       try {
         const out = await runScan({
           track,
-          target: track === 'repo' ? expandHome(target) : target,
+          target: track === 'repo' ? expandHome(target) : normalizeWebTarget(target),
           history: body.history !== false,
           npmAudit: body.npmAudit === true,
-          authorized: body.authorized === true,
           supabaseUrl: typeof body.supabaseUrl === 'string' && body.supabaseUrl.trim() ? body.supabaseUrl.trim() : undefined,
         }, reportsDir);
         const id = path.basename(out.jsonPath, '.json');
         return json(res, 200, summarize(id, out.report, true));
       } catch (err) {
+        if (err instanceof OwnershipError) return json(res, 403, { error: err.message, verification: err.verification });
         return json(res, 400, { error: (err as Error).message });
       } finally {
         busy = false;

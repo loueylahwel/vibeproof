@@ -3,7 +3,7 @@
 'use strict';
 
 const SEVERITIES = ['critical', 'high', 'medium', 'low', 'info'];
-const state = { track: 'repo', reports: [], selectedId: null, report: null, filter: new Set(SEVERITIES), query: '' };
+const state = { reports: [], selectedId: null, report: null, filter: new Set(SEVERITIES), query: '' };
 
 const $ = (sel) => document.querySelector(sel);
 
@@ -31,19 +31,23 @@ async function api(path, options = {}) {
   }
   const res = await fetch(path, init);
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `Request failed (HTTP ${res.status})`);
+  if (!res.ok) {
+    const err = new Error(data.error || `Request failed (HTTP ${res.status})`);
+    err.data = data;
+    throw err;
+  }
   return data;
 }
 
 function toast(message) {
   const node = el('div', { class: 'toast', role: 'status', text: message });
   document.body.append(node);
-  setTimeout(() => node.remove(), 3000);
+  setTimeout(() => node.remove(), 2600);
 }
 
 function formatDate(iso) {
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? iso : d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+  return Number.isNaN(d.getTime()) ? iso : d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
 function shortTarget(target, track) {
@@ -53,33 +57,27 @@ function shortTarget(target, track) {
   return target.split('/').filter(Boolean).pop() || target;
 }
 
-/* ---------- Scan form ---------- */
-
-function setTrack(track) {
-  state.track = track;
-  document.querySelectorAll('.tab').forEach((tab) => {
-    const active = tab.dataset.track === track;
-    tab.classList.toggle('active', active);
-    tab.setAttribute('aria-selected', String(active));
-  });
-  document.querySelectorAll('.track-fields').forEach((fs) => { fs.hidden = fs.dataset.for !== track; });
-  updateRunButton();
+/** Mirrors detectTrack() on the server so the user sees what will run. */
+function detectTrack(value) {
+  const t = value.trim();
+  if (!t) return null;
+  if (/^https?:\/\//i.test(t)) return 'web';
+  if (/^[\w-]+(\.[\w-]+)+(:\d+)?(\/.*)?$/.test(t) && !t.startsWith('.')) return 'web';
+  return 'repo';
 }
 
-function updateRunButton() {
-  const form = $('#scan-form');
-  const btn = $('#run-btn');
-  if (btn.classList.contains('busy')) return;
-  btn.disabled = state.track === 'web' && !form.authorized.checked;
-  btn.title = btn.disabled ? 'Confirm you are allowed to test this app first' : '';
+/* ---------- Scan form ---------- */
+
+function updateDetected() {
+  const track = detectTrack($('#target').value);
+  $('#detected').textContent = track === 'web' ? 'Live web app, read-only' : track === 'repo' ? 'Local repository, static analysis' : '';
 }
 
 function setBusy(busy) {
   const btn = $('#run-btn');
   btn.classList.toggle('busy', busy);
   btn.disabled = busy;
-  btn.querySelector('.label').textContent = busy ? 'Scanning...' : 'Run scan';
-  if (!busy) updateRunButton();
+  btn.querySelector('.label').textContent = busy ? '' : 'Scan';
 }
 
 function showFormError(message) {
@@ -88,22 +86,36 @@ function showFormError(message) {
   node.hidden = !message;
 }
 
-async function onSubmit(event) {
-  event.preventDefault();
-  showFormError('');
-  const form = event.currentTarget;
-  const body = state.track === 'repo'
-    ? { track: 'repo', target: form.repoPath.value, history: form.history.checked, npmAudit: form.npmAudit.checked }
-    : { track: 'web', target: form.url.value, supabaseUrl: form.supabaseUrl.value, authorized: form.authorized.checked };
+function showVerification(v) {
+  const box = $('#verify');
+  if (!v) {
+    box.hidden = true;
+    return;
+  }
+  $('#verify-title').textContent = `Verify you own ${v.host}`;
+  $('#verify-file').textContent = v.fileUrl;
+  $('#verify-token').textContent = v.token;
+  $('#verify-dns').textContent = v.dnsRecord;
+  box.hidden = false;
+}
 
+async function runScan() {
+  const target = $('#target').value.trim();
+  showFormError('');
+  if (!target) {
+    $('#target').focus();
+    return;
+  }
   setBusy(true);
   try {
-    const summary = await api('/api/scan', { method: 'POST', body: JSON.stringify(body) });
-    toast(`Scan finished: ${summary.total} finding(s)`);
+    const summary = await api('/api/scan', { method: 'POST', body: JSON.stringify({ target }) });
+    showVerification(null);
+    toast(`${summary.total} finding(s)`);
     await loadReports();
     await selectReport(summary.id);
   } catch (err) {
-    showFormError(err.message);
+    if (err.data && err.data.verification) showVerification(err.data.verification);
+    else showFormError(err.message);
   } finally {
     setBusy(false);
   }
@@ -119,14 +131,11 @@ async function loadReports() {
 function renderHistory() {
   const list = $('#history');
   list.replaceChildren();
-  $('#history-count').textContent = state.reports.length ? `${state.reports.length} scan(s)` : '';
   if (!state.reports.length) {
-    list.append(el('li', { class: 'empty-note', text: 'No scans yet.' }));
+    list.append(el('li', { class: 'empty-note', text: 'No scans yet' }));
     return;
   }
   for (const r of state.reports) {
-    const pills = SEVERITIES.filter((s) => r.counts[s] > 0 && s !== 'info')
-      .map((s) => el('span', { class: `pill sev-${s}`, title: `${r.counts[s]} ${s}`, text: r.counts[s] }));
     list.append(el('li', {},
       el('button', {
         type: 'button',
@@ -135,9 +144,7 @@ function renderHistory() {
         onclick: () => selectReport(r.id),
       },
       el('span', { class: 'target', text: shortTarget(r.target, r.track) }),
-      el('span', { class: 'meta' },
-        el('span', { text: `${r.track === 'repo' ? 'Repository' : 'Web app'} - ${formatDate(r.finishedAt)}` }),
-        el('span', { class: 'pills' }, pills.length ? pills : el('span', { text: r.total ? `${r.total} info` : 'clean' }))))));
+      el('span', { class: 'meta', text: `${formatDate(r.finishedAt)}  ·  ${r.total || 'no'} finding${r.total === 1 ? '' : 's'}` }))));
   }
 }
 
@@ -165,7 +172,6 @@ async function deleteReport(id) {
     state.report = null;
     await loadReports();
     renderDetail();
-    toast('Scan deleted');
   } catch (err) {
     toast(err.message);
   }
@@ -184,31 +190,23 @@ function renderDetail() {
   const rating = SEVERITIES.find((s) => counts[s] > 0) || 'none';
   const id = encodeURIComponent(r.id);
 
-  root.append(
-    el('div', { class: 'report-head' },
-      el('div', { class: 'title' },
-        el('div', { class: 'target mono', text: r.target }),
-        el('div', { class: 'meta' },
-          el('span', { text: r.track === 'repo' ? 'Repository scan (white-box)' : 'Live web app scan (read-only)' }),
-          el('span', { text: formatDate(r.finishedAt) }),
-          el('span', { text: `${r.tool} ${r.version}` }))),
-      el('div', { class: 'actions' },
-        el('a', { class: 'btn solid', href: `/reports/${id}.pdf`, target: '_blank', rel: 'noopener', text: 'Open PDF report' }),
-        el('a', { class: 'btn', href: `/reports/${id}.pdf?download`, text: 'Download PDF' }),
-        el('a', { class: 'btn', href: `/reports/${id}.json?download`, text: 'JSON' }),
-        el('button', { type: 'button', class: 'btn danger', onclick: () => deleteReport(r.id), text: 'Delete' }))),
-    el('div', { class: 'rating' },
-      el('span', { class: 'muted', text: 'Overall risk rating' }),
-      el('span', { class: `badge sev-${rating}`, text: rating === 'none' ? 'No findings' : rating })),
-  );
+  root.append(el('div', { class: 'report-head' },
+    el('div', { class: 'title' },
+      el('div', { class: 'target mono', text: r.target }),
+      el('div', { class: 'meta' },
+        el('span', { class: `rating sev-${rating}`, text: rating === 'none' ? 'No findings' : `${rating} risk` }),
+        el('span', { text: r.track === 'repo' ? 'Repository' : 'Web app' }),
+        el('span', { text: formatDate(r.finishedAt) }))),
+    el('nav', { class: 'actions' },
+      el('a', { href: `/reports/${id}.pdf`, target: '_blank', rel: 'noopener', text: 'PDF' }),
+      el('a', { href: `/reports/${id}.json?download`, text: 'JSON' }),
+      el('button', { type: 'button', class: 'danger', onclick: () => deleteReport(r.id), text: 'Delete' }))));
 
-  // Severity tiles double as filters
   root.append(el('div', { class: 'tiles' }, SEVERITIES.map((s) => el('button', {
     type: 'button',
     class: `tile sev-${s}`,
     'aria-pressed': String(state.filter.has(s)),
     disabled: counts[s] === 0,
-    title: counts[s] ? `Show or hide ${s} findings` : undefined,
     onclick: () => {
       if (state.filter.has(s) && state.filter.size === SEVERITIES.length) state.filter = new Set([s]);
       else if (state.filter.has(s)) state.filter.delete(s);
@@ -216,31 +214,28 @@ function renderDetail() {
       if (!state.filter.size) state.filter = new Set(SEVERITIES);
       renderDetail();
     },
-  }, el('div', { class: 'n', text: counts[s] }), el('div', { class: 'l', text: s })))));
+  }, el('span', { class: 'n', text: counts[s] }), el('span', { class: 'l', text: s })))));
 
   if (!r.findings.length) {
-    root.append(el('div', { class: 'all-clear' },
-      el('strong', { text: 'No issues found by the current rule set. ' }),
-      el('span', { class: 'muted', text: 'This does not prove the app is secure; see the limitations section of the PDF report.' })));
+    root.append(el('p', { class: 'all-clear', text: 'No issues found by the current rule set. This does not prove the app is secure.' }));
   } else {
-    const search = el('input', {
-      type: 'search', placeholder: 'Filter by text, rule or file', value: state.query, 'aria-label': 'Filter findings',
-      oninput: (e) => { state.query = e.target.value; renderFindings(list, countNode); },
-    });
-    const countNode = el('span', { class: 'muted small' });
     const list = el('div', { class: 'findings' });
-    root.append(el('div', { class: 'toolbar' }, search, countNode), list);
-    renderFindings(list, countNode);
+    const search = el('input', {
+      type: 'search', placeholder: 'Filter', value: state.query, 'aria-label': 'Filter findings',
+      oninput: (e) => { state.query = e.target.value; renderFindings(list); },
+    });
+    root.append(search, list);
+    renderFindings(list);
   }
 
   if (r.notes && r.notes.length) {
     root.append(el('details', { class: 'log' },
-      el('summary', { text: `Scan log (${r.notes.length})` }),
+      el('summary', { text: 'Scan log' }),
       el('ul', {}, r.notes.map((n) => el('li', { text: n })))));
   }
 }
 
-function renderFindings(list, countNode) {
+function renderFindings(list) {
   const r = state.report;
   const q = state.query.trim().toLowerCase();
   const order = (f) => SEVERITIES.indexOf(f.severity);
@@ -249,39 +244,40 @@ function renderFindings(list, countNode) {
     .filter((f) => !q || [f.title, f.ruleId, f.location, f.evidence, f.description].join(' ').toLowerCase().includes(q))
     .sort((a, b) => order(a) - order(b) || a.ruleId.localeCompare(b.ruleId));
 
-  countNode.textContent = `Showing ${visible.length} of ${r.findings.length}`;
   list.replaceChildren();
   if (!visible.length) {
-    list.append(el('div', { class: 'no-results', text: 'No findings match the current filter.' }));
+    list.append(el('p', { class: 'no-results', text: 'Nothing matches.' }));
     return;
   }
   for (const f of visible) {
     list.append(el('details', { class: `finding sev-${f.severity}` },
       el('summary', {},
-        el('span', { class: 'badge', text: f.severity }),
+        el('span', { class: 'dot', title: f.severity }),
         el('span', { class: 'ftitle', text: f.title }),
-        el('span', { class: 'rule mono', text: f.ruleId }),
         el('span', { class: 'loc mono', text: f.location, title: f.location })),
       el('div', { class: 'body' },
-        el('div', {}, el('h3', { text: 'Description' }), el('p', { text: f.description })),
-        el('div', {}, el('h3', { text: 'Evidence (redacted)' }), el('pre', { text: f.evidence })),
-        el('div', {}, el('h3', { text: 'Recommendation' }), el('p', { text: f.remediation })),
-        el('dl', { class: 'kv' },
-          el('dt', { text: 'Location' }), el('dd', { class: 'mono', text: f.location }),
-          el('dt', { text: 'OWASP' }), el('dd', { text: f.owasp }),
-          el('dt', { text: 'CWE' }), el('dd', { text: f.cwe }),
-          el('dt', { text: 'Track' }), el('dd', { text: f.track === 'repo' ? 'Repository' : 'Web' })))));
+        el('p', { text: f.description }),
+        el('pre', { text: f.evidence }),
+        el('p', {}, el('span', { class: 'label', text: 'Fix  ' }), f.remediation),
+        el('p', { class: 'refs', text: `${f.severity.toUpperCase()}  ·  ${f.ruleId}  ·  ${f.owasp}  ·  ${f.cwe}` }))));
   }
 }
 
 /* ---------- Boot ---------- */
 
 document.addEventListener('DOMContentLoaded', async () => {
-  document.querySelectorAll('.tab').forEach((tab) => tab.addEventListener('click', () => setTrack(tab.dataset.track)));
-  const form = $('#scan-form');
-  form.addEventListener('submit', onSubmit);
-  form.authorized.addEventListener('change', updateRunButton);
-  setTrack('repo');
+  $('#scan-form').addEventListener('submit', (e) => { e.preventDefault(); runScan(); });
+  $('#target').addEventListener('input', () => { updateDetected(); showVerification(null); showFormError(''); });
+  $('#verify-again').addEventListener('click', runScan);
+  document.querySelectorAll('.copy').forEach((btn) => btn.addEventListener('click', async () => {
+    const text = document.getElementById(btn.dataset.copy).textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      toast('Copied');
+    } catch {
+      toast('Copy failed; select the text instead');
+    }
+  }));
   renderDetail();
   try {
     await loadReports();

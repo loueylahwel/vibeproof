@@ -12,7 +12,7 @@ It runs two tracks and produces a formal PDF report plus JSON data for each scan
 ## Rules of engagement
 
 - Scan only apps the team owns, or apps whose owner has given written permission. The project currently scans **our own repos only**.
-- The `web` command refuses to run without `--authorized`.
+- Web scans run only on domains you have **proven you own**. The scanner gives each domain a token; publish it as a file at `/.well-known/vscan-verification.txt` or as a DNS TXT record `vscan-verification=<token>`, and the scan checks it automatically. Apps on localhost need no verification. Tokens are derived from a local secret in `~/.config/vscan/key`.
 - The web track can only send `GET` requests (see `readOnlyGet` in `src/checks/web.ts`). Table probes use `limit=1`, and row values are never stored; reports list column names only.
 - Secret values are redacted everywhere (reports, JSON, console). A `service_role` key found in a target is decoded to read its role and never used.
 - If a real secret turns up, rotate it first, then fix the code and purge history.
@@ -34,7 +34,7 @@ npm run dashboard
 
 Then open http://localhost:4173. From the dashboard you can:
 
-- run a repository scan (path on this computer) or a live web app scan (URL, with the permission checkbox);
+- type a repository path or a URL and press Scan; the scan type is detected automatically, and an unverified domain shows its verification token;
 - browse the scan history, filter findings by severity or text, and expand each finding for evidence and the fix;
 - open or download the PDF report and the JSON data, or delete a scan.
 
@@ -45,8 +45,9 @@ The dashboard can read local folders, so it is locked down: it listens on 127.0.
 ```bash
 node dist/cli.js repo ../our-app --out reports/our-app-repo.pdf
 node dist/cli.js repo ../our-app --npm-audit          # also run npm audit
-node dist/cli.js web https://our-app.example.com --authorized --out reports/our-app-web.pdf
-node dist/cli.js web https://our-app.example.com --authorized --supabase-url https://xyz.supabase.co   # custom domain or self-hosted
+node dist/cli.js verify our-app.example.com          # show the ownership token, check if it is published
+node dist/cli.js web https://our-app.example.com --out reports/our-app-web.pdf
+node dist/cli.js web https://our-app.example.com --supabase-url https://xyz.supabase.co   # custom domain or self-hosted
 node dist/cli.js report reports/our-app-web.json --out reports/our-app-web.pdf   # re-render a PDF
 ```
 
