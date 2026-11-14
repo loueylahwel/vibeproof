@@ -4,16 +4,16 @@ import { createWriteStream } from 'node:fs';
 import PDFDocument from 'pdfkit';
 import { SEVERITY_ORDER, type Finding, type ScanReport, type Severity } from '../types.js';
 
-type Doc = PDFKit.PDFDocument;
+export type Doc = PDFKit.PDFDocument;
 
 // Black and white only: severity is carried by words, weight and grey shades,
 // so the report prints and photocopies without losing meaning.
-const MARGIN = 56;
-const INK = '#000000';
-const MUTED = '#555555';
-const RULE_LINE = '#bbbbbb';
+export const MARGIN = 56;
+export const INK = '#000000';
+export const MUTED = '#555555';
+export const RULE_LINE = '#bbbbbb';
 const ACCENT = '#000000';
-const TINT = '#f2f2f2';
+export const TINT = '#f2f2f2';
 const SEVERITY_COLOR: Record<Severity, string> = {
   critical: INK,
   high: INK,
@@ -31,7 +31,7 @@ const SEVERITY_SHADE: Record<Severity, string> = {
 };
 
 /** The standard PDF fonts only cover Latin-1; keep dynamic text printable ASCII. */
-function ascii(value: string): string {
+export function ascii(value: string): string {
   return value.replace(/[^\x20-\x7E\n]/g, '?');
 }
 
@@ -47,16 +47,17 @@ function reportId(report: ScanReport): string {
   return `VP-${day}-${hash}`;
 }
 
-function contentWidth(doc: Doc): number {
+export function contentWidth(doc: Doc): number {
   return doc.page.width - MARGIN * 2;
 }
 
-function ensureSpace(doc: Doc, height: number): void {
+export function ensureSpace(doc: Doc, height: number): void {
   if (doc.y + height > doc.page.height - doc.page.margins.bottom) doc.addPage();
 }
 
-function heading(doc: Doc, text: string): void {
-  ensureSpace(doc, 60);
+export function heading(doc: Doc, text: string): void {
+  // Room for the heading plus the start of what follows, so a heading is never stranded at a page end.
+  ensureSpace(doc, 120);
   doc.moveDown(0.6);
   doc.font('Helvetica-Bold').fontSize(15).fillColor(ACCENT).text(ascii(text), MARGIN, doc.y, { width: contentWidth(doc) });
   const y = doc.y + 3;
@@ -64,14 +65,14 @@ function heading(doc: Doc, text: string): void {
   doc.y = y + 10;
 }
 
-function subheading(doc: Doc, text: string): void {
+export function subheading(doc: Doc, text: string): void {
   ensureSpace(doc, 40);
   doc.moveDown(0.3);
   doc.font('Helvetica-Bold').fontSize(10.5).fillColor(INK).text(ascii(text), MARGIN, doc.y, { width: contentWidth(doc) });
   doc.moveDown(0.2);
 }
 
-function para(doc: Doc, text: string, opts: { size?: number; color?: string } = {}): void {
+export function para(doc: Doc, text: string, opts: { size?: number; color?: string } = {}): void {
   doc.font('Helvetica').fontSize(opts.size ?? 10).fillColor(opts.color ?? INK);
   const h = doc.heightOfString(ascii(text), { width: contentWidth(doc), lineGap: 2 });
   ensureSpace(doc, Math.min(h, 120));
@@ -79,7 +80,7 @@ function para(doc: Doc, text: string, opts: { size?: number; color?: string } = 
   doc.moveDown(0.5);
 }
 
-function bullets(doc: Doc, items: string[]): void {
+export function bullets(doc: Doc, items: string[]): void {
   doc.font('Helvetica').fontSize(10).fillColor(INK);
   for (const item of items) {
     const h = doc.heightOfString(ascii(item), { width: contentWidth(doc) - 14, lineGap: 2 });
@@ -92,7 +93,7 @@ function bullets(doc: Doc, items: string[]): void {
   doc.moveDown(0.3);
 }
 
-function codeBox(doc: Doc, text: string): void {
+export function codeBox(doc: Doc, text: string): void {
   const width = contentWidth(doc);
   doc.font('Courier').fontSize(8.5);
   const h = doc.heightOfString(ascii(text), { width: width - 16 }) + 12;
@@ -104,22 +105,23 @@ function codeBox(doc: Doc, text: string): void {
   doc.y = y + h + 8;
 }
 
-interface Column {
+export interface Column {
   header: string;
   width: number;
 }
-interface CellStyle {
+export interface CellStyle {
   color?: string;
   bold?: boolean;
 }
 
-function table(doc: Doc, columns: Column[], rows: string[][], style?: (row: number, col: number) => CellStyle): void {
+export function table(doc: Doc, columns: Column[], rows: string[][], style?: (row: number, col: number) => CellStyle): void {
   const pad = 5;
   const fontSize = 9;
   const drawHeader = () => {
     const y = doc.y;
     doc.font('Helvetica-Bold').fontSize(fontSize);
-    const h = Math.max(...columns.map((c) => doc.heightOfString(c.header, { width: c.width - pad * 2 }))) + pad * 2;
+    // Measure exactly as drawn (upper case, letter spacing) so long headers wrap inside their row.
+    const h = Math.max(...columns.map((c) => doc.heightOfString(c.header.toUpperCase(), { width: c.width - pad * 2, characterSpacing: 0.6 }))) + pad * 2;
     const total = columns.reduce((s, c) => s + c.width, 0);
     doc.moveTo(MARGIN, y).lineTo(MARGIN + total, y).lineWidth(1.2).strokeColor(INK).stroke();
     let x = MARGIN;
@@ -370,7 +372,8 @@ function appendix(doc: Doc, report: ScanReport): void {
   ], (r, c) => (c === 0 ? { bold: true, color: SEVERITY_COLOR[SEVERITY_ORDER[r]] } : {}));
 }
 
-function headersAndFooters(doc: Doc, report: ScanReport, id: string): void {
+/** Running header (title and id) on every page but the first, and a page counter on every page. */
+export function pageChrome(doc: Doc, title: string, id: string, label = 'Confidential'): void {
   const range = doc.bufferedPageRange();
   for (let i = range.start; i < range.start + range.count; i++) {
     doc.switchToPage(i);
@@ -379,14 +382,18 @@ function headersAndFooters(doc: Doc, report: ScanReport, id: string): void {
     const w = contentWidth(doc);
     if (i > range.start) {
       doc.font('Helvetica').fontSize(8).fillColor(MUTED)
-        .text(ascii(`Security Assessment Report  |  ${report.target}`), MARGIN, 28, { width: w - 120, lineBreak: false, ellipsis: true });
+        .text(ascii(title), MARGIN, 28, { width: w - 120, lineBreak: false, ellipsis: true });
       doc.text(id, MARGIN + w - 120, 28, { width: 120, align: 'right', lineBreak: false });
       doc.moveTo(MARGIN, 42).lineTo(MARGIN + w, 42).lineWidth(0.5).strokeColor(RULE_LINE).stroke();
     }
     doc.font('Helvetica').fontSize(8).fillColor(MUTED)
-      .text(`Confidential  |  Page ${i - range.start + 1} of ${range.count}`, MARGIN, doc.page.height - 36, { width: w, align: 'center', lineBreak: false });
+      .text(`${label}  |  Page ${i - range.start + 1} of ${range.count}`, MARGIN, doc.page.height - 36, { width: w, align: 'center', lineBreak: false });
     doc.page.margins.bottom = bottom;
   }
+}
+
+function headersAndFooters(doc: Doc, report: ScanReport, id: string): void {
+  pageChrome(doc, `Security Assessment Report  |  ${report.target}`, id);
 }
 
 export async function writePdf(report: ScanReport, outPath: string): Promise<void> {

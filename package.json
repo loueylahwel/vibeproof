@@ -13,7 +13,8 @@
     "demo": "npm run build && node lab/demo.mjs",
     "scan:repo": "node dist/cli.js repo",
     "scan:web": "node dist/cli.js web",
-    "dashboard": "npm run build && node dist/cli.js dashboard"
+    "dashboard": "npm run build && node dist/cli.js dashboard",
+    "evaluate": "npm run build && node lab/evaluate.mjs"
   },
   "engines": {
     "node": ">=20"

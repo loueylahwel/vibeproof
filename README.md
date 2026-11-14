@@ -62,6 +62,24 @@ npm test       # checks that both tracks find every planted flaw and nothing in 
 npm run demo   # writes reports/sample-repo-report.pdf and reports/sample-web-report.pdf
 ```
 
+## Evaluation
+
+The research question is whether scanning with repository access or from the browser alone finds more. `lab/catalog.mjs` defines 12 lab apps in the style AI app builders produce: 7 with planted flaws, 2 "hard cases" with realistic flaws in forms the rules were not written for, and 3 clean controls. Each app is built as a real git repository plus a simulated deployment (`lab/deploy.mjs`) that imitates the Supabase and Firebase APIs.
+
+```bash
+npm run evaluate   # writes evaluation/results.json, evaluation/RESULTS.md, evaluation/evaluation-report.pdf
+```
+
+Current results (32 planted flaws):
+
+| Setup | Flaws found | Found within reach | False alarms |
+|---|---|---|---|
+| Repository only | 20/32 (63%) | 20/23 (87%) | 1 |
+| Browser only | 18/32 (56%) | 18/19 (95%) | 1 |
+| Combined | 30/32 (94%) | 30/32 (94%) | 2 |
+
+13 flaws leave evidence only in the repository (storage and database policies, privileged functions, edge functions, secrets in history) and 9 only in the deployment (tables made in the dashboard, files the host serves, headers), so neither setup alone can reach every flaw. The clean controls produce no false alarms; the two false alarms are marketplace listings that are public on purpose. The four misses within reach are the hard cases, kept as known gaps rather than fixed against the test set. Full method, breakdowns and threats to validity are in `evaluation/evaluation-report.pdf`.
+
 ## Rule catalogue
 
 All rules, with severity, OWASP Top 10 (2021) and CWE mapping, are in `src/rules.ts`.
@@ -108,12 +126,13 @@ src/checks/web.ts     black-box checks (headers, bundles, source maps, Supabase 
 src/secrets.ts        secret patterns and JWT role decoding
 src/rules.ts          rule catalogue with OWASP and CWE mapping
 src/report/pdf.ts     formal PDF report
-lab/                  vulnerable lab app, mock deployment, demo script
+lab/                  lab apps (catalog.mjs), simulated deployment, evaluation runner, demo
+evaluation/           evaluation results (JSON, Markdown, PDF)
 test/                 node:test suite
 ```
 
 ## Roadmap
 
 1. Run both tracks on the team's own apps and record results.
-2. Optional gitleaks/trufflehog integration to compare detection coverage.
-3. Larger lab (5 to 10 apps, plus clean controls) and precision/recall per rule for the write-up: repo-only vs web-only vs combined.
+2. Close the known gaps from the evaluation's hard cases (service keys with other names, policies that trust any signed-in user, lazily loaded chunks, Firestore rules that trust any signed-in user), then re-evaluate on new held-out apps.
+3. Optional gitleaks/trufflehog integration to compare detection coverage.
