@@ -47,6 +47,10 @@ Every finding comes with a prompt to paste into a coding agent. It names the iss
 
 Evidence and locations can contain text from the scanned code or site, so a planted instruction could otherwise reach the agent. Prompts therefore put that text in a DATA block the agent is told to treat as untrusted, strip characters that could break out of it, keep it short, and only quote plain-looking file paths in the instructions.
 
+## Rules of engagement
+
+[`docs/RULES-OF-ENGAGEMENT.md`](docs/RULES-OF-ENGAGEMENT.md) sets what the team may scan, what is prohibited, how reports are handled and what happens when a real weakness is found; [`docs/rules-of-engagement.pdf`](docs/rules-of-engagement.pdf) is the signed copy for the supervisor. Edit the Markdown and run `npm run docs` to regenerate the PDF.
+
 ## For collaborators: testing your own apps
 
 1. Get access to this repository, then set it up once (Node 20+ and git):
