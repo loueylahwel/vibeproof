@@ -1,7 +1,7 @@
 import { once } from 'node:events';
 import { createWriteStream } from 'node:fs';
 import PDFDocument from 'pdfkit';
-import { bullets, contentWidth, ensureSpace, heading, INK, MARGIN, MUTED, pageChrome, para, table, type Doc } from './pdf.js';
+import { bullets, contentWidth, ensureSpace, heading, INK, MARGIN, MUTED, pageChrome, para, subheading, table, type Doc } from './pdf.js';
 
 /**
  * Renders a small subset of Markdown (# title, ## headings, paragraphs,
@@ -12,6 +12,7 @@ import { bullets, contentWidth, ensureSpace, heading, INK, MARGIN, MUTED, pageCh
 type Block =
   | { kind: 'title'; text: string }
   | { kind: 'heading'; text: string }
+  | { kind: 'subheading'; text: string }
   | { kind: 'para'; text: string }
   | { kind: 'bullets'; items: string[] }
   | { kind: 'table'; header: string[]; rows: string[][] };
@@ -26,6 +27,7 @@ export function parseMarkdown(md: string): Block[] {
     const line = lines[i];
     if (!line.trim()) continue;
     if (line.startsWith('# ')) blocks.push({ kind: 'title', text: plain(line.slice(2)) });
+    else if (line.startsWith('### ')) blocks.push({ kind: 'subheading', text: plain(line.slice(4)) });
     else if (line.startsWith('## ')) blocks.push({ kind: 'heading', text: plain(line.slice(3)) });
     else if (/^\s*- /.test(line)) {
       const items: string[] = [];
@@ -50,11 +52,13 @@ export function parseMarkdown(md: string): Block[] {
   return blocks;
 }
 
-function widths(doc: Doc, n: number): number[] {
+function widths(doc: Doc, n: number, header: string[] = []): number[] {
   const w = contentWidth(doc);
   if (n === 2) return [140, w - 140];
-  if (n === 4) return [100, 150, 140, w - 390];
-  return Array.from({ length: n }, () => w / n);
+  if (n === 4 && header[0] === 'Role') return [100, 150, 140, w - 390]; // sign-off table
+  // First column holds names; the rest share the remaining width.
+  const first = Math.round(w * (n >= 5 ? 0.24 : 0.3));
+  return [first, ...Array.from({ length: n - 1 }, () => (w - first) / (n - 1))];
 }
 
 /** Empty cells (for example signature lines) get room to write in. */
@@ -62,7 +66,7 @@ const fillEmpty = (rows: string[][]) => rows.map((r) => r.map((c) => c || '\n'))
 
 /** Height the table helper will use, measured with the same fonts and padding. */
 function tableHeight(doc: Doc, t: { header: string[]; rows: string[][] }): number {
-  const w = widths(doc, t.header.length);
+  const w = widths(doc, t.header.length, t.header);
   const pad = 10;
   doc.font('Helvetica-Bold').fontSize(9);
   let h = Math.max(...t.header.map((c, i) => doc.heightOfString(c.toUpperCase(), { width: w[i] - pad, characterSpacing: 0.6 }))) + pad;
@@ -105,7 +109,8 @@ export async function writeMarkdownPdf(markdown: string, outPath: string, opts: 
       continue;
     }
     afterTitle = false;
-    if (b.kind === 'heading') {
+    if (b.kind === 'subheading') subheading(doc, b.text);
+    else if (b.kind === 'heading') {
       // Keep a heading together with a short table that follows it.
       const next = blocks[index + 1];
       if (next?.kind === 'table' && next.rows.length <= 8) ensureSpace(doc, 60 + tableHeight(doc, next));
@@ -114,7 +119,7 @@ export async function writeMarkdownPdf(markdown: string, outPath: string, opts: 
     else if (b.kind === 'para') para(doc, b.text);
     else if (b.kind === 'bullets') bullets(doc, b.items);
     else if (b.kind === 'table') {
-      const w = widths(doc, b.header.length);
+      const w = widths(doc, b.header.length, b.header);
       const rows = fillEmpty(b.rows);
       // Keep short tables (such as the sign-off block) on one page.
       if (rows.length <= 8) ensureSpace(doc, tableHeight(doc, b));

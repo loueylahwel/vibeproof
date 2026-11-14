@@ -9,6 +9,10 @@ It runs two tracks and produces a formal PDF report plus JSON data for each scan
 | `repo` (white-box) | A local git repository | Secrets in files **and full git history**, tracked `.env` files, secret-named `NEXT_PUBLIC_`/`VITE_` variables, Supabase migrations without RLS or with `using (true)` policies, open storage policies and public buckets, `security definer` functions callable by anon, edge functions without caller checks, Firebase rules that are open or in test mode, `service_role` used outside server code, missing lockfile, optional `npm audit` |
 | `web` (black-box) | A deployed URL | Security headers, secrets and `service_role` JWTs in shipped JavaScript, public source maps, exposed `/.env` and `/.git/HEAD`, a **read-only** Supabase probe (can the public anon key read each table, including tables found through the API schema?), public storage buckets, and anonymous reads of the Firebase Realtime Database and Firestore |
 
+## Project report
+
+[`docs/PROJECT-REPORT.md`](docs/PROJECT-REPORT.md) is the draft write-up (research question, tool design, evaluation method, results, discussion, ethics, limitations), rendered to [`docs/project-report.pdf`](docs/project-report.pdf) by `npm run docs`. Sections marked `[TEAM: ...]` need the team's input. A test checks that its results tables match `evaluation/results.json`.
+
 ## Rules of engagement
 
 - Scan only apps the team owns, or apps whose owner has given written permission. The project currently scans **our own repos only**.

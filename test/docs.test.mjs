@@ -19,3 +19,26 @@ test('rules of engagement document has every section and a sign-off table', asyn
   }
   assert.equal(blocks.at(-1).kind, 'table');
 });
+
+test('project report numbers match the committed evaluation results', async () => {
+  const results = JSON.parse(await readFile('evaluation/results.json', 'utf8'));
+  const baseline = JSON.parse(await readFile('evaluation/baseline.json', 'utf8'));
+  const blocks = parseMarkdown(await readFile('docs/PROJECT-REPORT.md', 'utf8'));
+  const tables = blocks.filter((b) => b.kind === 'table');
+  const detection = tables.find((t) => t.header.join() === 'Set,Setup,Found,Within reach,False alarms,Precision');
+  const beforeAfter = tables.find((t) => t.header.join() === 'Set,Setup,Found before,Found after');
+  assert.ok(detection && beforeAfter, 'results tables present');
+  for (const [key, label] of [['dev', 'Development'], ['holdout', 'Held-out']]) {
+    results[key].setups.forEach((s, i) => {
+      const row = detection.rows.find((r) => r[0] === label && r[1] === s.name);
+      assert.ok(row[2].startsWith(`${s.detected}/${s.planted} `), `${label} ${s.name} found`);
+      assert.equal(row[3], `${s.detectedInReach}/${s.reachable}`, `${label} ${s.name} within reach`);
+      assert.equal(row[4], String(s.falsePositives), `${label} ${s.name} false alarms`);
+      assert.equal(row[5], `${Math.round(s.precision * 100)}%`, `${label} ${s.name} precision`);
+      const ba = beforeAfter.rows.find((r) => r[0] === label && r[1] === s.name);
+      const b = baseline[key].setups[i];
+      assert.equal(ba[2], `${b.detected}/${b.planted}`, `${label} ${s.name} before`);
+      assert.equal(ba[3], `${s.detected}/${s.planted}`, `${label} ${s.name} after`);
+    });
+  }
+});
