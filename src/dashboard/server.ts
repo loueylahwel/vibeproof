@@ -5,6 +5,7 @@ import type { AddressInfo } from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { combinedPrompt, fixPrompt } from '../prompts.js';
 import { detectTrack, normalizeWebTarget, runScan, VERSION } from '../run.js';
 import { OwnershipError } from '../verify.js';
 import { SEVERITY_ORDER, type ScanReport, type Severity } from '../types.js';
@@ -148,7 +149,20 @@ export async function startDashboard(opts: DashboardOptions = {}): Promise<Dashb
     let m = /^\/api\/reports\/([^/]+)$/.exec(p);
     if (m && method === 'GET') {
       const report = await loadReport(m[1]);
-      return report ? json(res, 200, { id: m[1], ...report }) : json(res, 404, { error: 'Report not found.' });
+      if (!report) return json(res, 404, { error: 'Report not found.' });
+      // Prompts are built on request, so reports made before this feature get them too.
+      const findings = report.findings.map((f) => ({ ...f, prompt: fixPrompt(report, f) }));
+      return json(res, 200, { id: m[1], ...report, findings });
+    }
+
+    const pm = /^\/api\/reports\/([^/]+)\/prompt$/.exec(p);
+    if (pm && method === 'GET') {
+      const report = await loadReport(pm[1]);
+      if (!report) return json(res, 404, { error: 'Report not found.' });
+      const wanted = (url.searchParams.get('i') ?? '').split(',').filter((x) => /^\d+$/.test(x)).map(Number);
+      const picked = wanted.length ? wanted.filter((i) => i < report.findings.length).map((i) => report.findings[i]) : report.findings;
+      if (!picked.length) return json(res, 400, { error: 'No findings selected.' });
+      return json(res, 200, { count: picked.length, prompt: combinedPrompt(report, picked) });
     }
     if (m && method === 'DELETE') {
       const id = m[1];

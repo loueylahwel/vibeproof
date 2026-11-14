@@ -36,9 +36,16 @@ Then open http://localhost:4173. From the dashboard you can:
 
 - paste a public repository link, a folder path, or a website URL and press Scan; the scan type is detected automatically, and an unverified domain shows its verification token;
 - browse the scan history, filter findings by severity or text, and expand each finding for evidence and the fix;
+- copy a **fix prompt** for your AI coding agent (Claude Code, Cursor, Copilot...): one per finding, or one combined prompt for every finding currently shown;
 - open or download the PDF report and the JSON data, or delete a scan.
 
 The dashboard can read local folders, so it is locked down: it listens on 127.0.0.1 only, rejects foreign `Host` headers (DNS rebinding) and cross-origin requests, and requires an `x-vibeproof` header on every request that changes something (CSRF). All finding text is rendered with `textContent`, so content from a scanned site cannot inject HTML. Use `--port` or `PORT` to change the port.
+
+## Fix prompts for AI coding agents
+
+Every finding comes with a prompt to paste into a coding agent. It names the issue, why it matters, and concrete steps for that rule (for example: a new migration that enables RLS on the named table and owner-scoped policies), plus rules for the agent: change only what is needed, never print or commit secrets, never rewrite history, and list what the developer must do outside the code (rotating keys, dashboard settings, deploying rules).
+
+Evidence and locations can contain text from the scanned code or site, so a planted instruction could otherwise reach the agent. Prompts therefore put that text in a DATA block the agent is told to treat as untrusted, strip characters that could break out of it, keep it short, and only quote plain-looking file paths in the instructions.
 
 ## For collaborators: testing your own apps
 
@@ -66,6 +73,7 @@ node dist/cli.js verify our-app.example.com          # show the ownership token,
 node dist/cli.js web https://our-app.example.com --out reports/our-app-web.pdf
 node dist/cli.js web https://our-app.example.com --supabase-url https://xyz.supabase.co   # custom domain or self-hosted
 node dist/cli.js report reports/our-app-web.json --out reports/our-app-web.pdf   # re-render a PDF
+node dist/cli.js prompt reports/our-app-repo.json --min-severity high  # fix prompt for an AI coding agent
 ```
 
 Without `--out`, reports go to `reports/<track>-<timestamp>.pdf` with a matching `.json`. The `reports/` folder is git-ignored because reports describe real weaknesses.

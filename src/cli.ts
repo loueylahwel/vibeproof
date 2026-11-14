@@ -4,7 +4,8 @@ import { parseArgs } from 'node:util';
 import { startDashboard } from './dashboard/server.js';
 import { writePdf } from './report/pdf.js';
 import { normalizeWebTarget, runScan, VERSION, type ScanOutput } from './run.js';
-import { SEVERITY_ORDER, type ScanReport } from './types.js';
+import { combinedPrompt } from './prompts.js';
+import { SEVERITY_ORDER, type ScanReport, type Severity } from './types.js';
 import { OwnershipError, verifyOwnership, type Verification } from './verify.js';
 
 const HELP = `vibeproof ${VERSION} - security scanner for vibe-coded web apps (academic project)
@@ -16,6 +17,8 @@ Usage:
                      [--out report.pdf] [--json report.json]
   vibeproof verify <url>                        show the ownership token for a domain
   vibeproof report <scan.json> --out report.pdf
+  vibeproof prompt <scan.json> [--min-severity high] [--rule VP-DB-001]
+                                            print a fix prompt for your AI coding agent
 
 Repositories:
   A link to a public repository on GitHub, GitLab, Bitbucket or Codeberg is
@@ -57,6 +60,8 @@ async function main(): Promise<number> {
       'max-bundles': { type: 'string', default: '30' },
       'max-tables': { type: 'string', default: '25' },
       port: { type: 'string' },
+      'min-severity': { type: 'string' },
+      rule: { type: 'string' },
       help: { type: 'boolean', short: 'h', default: false },
     },
   });
@@ -100,6 +105,23 @@ async function main(): Promise<number> {
       printVerification(err.verification);
       return 2;
     }
+    return 0;
+  }
+
+  if (command === 'prompt') {
+    const report = JSON.parse(readFileSync(target, 'utf8')) as ScanReport;
+    const min = values['min-severity'] as Severity | undefined;
+    if (min && !SEVERITY_ORDER.includes(min)) {
+      console.error(`--min-severity must be one of: ${SEVERITY_ORDER.join(', ')}`);
+      return 1;
+    }
+    const picked = report.findings.filter((f) =>
+      (!min || SEVERITY_ORDER.indexOf(f.severity) <= SEVERITY_ORDER.indexOf(min)) && (!values.rule || f.ruleId === values.rule));
+    if (!picked.length) {
+      console.error('No findings match.');
+      return 1;
+    }
+    process.stdout.write(`${combinedPrompt(report, picked)}\n`);
     return 0;
   }
 

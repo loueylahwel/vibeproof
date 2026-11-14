@@ -94,6 +94,12 @@ test('full flow: scan a repo, list it, fetch PDF, delete it', async () => {
   const list = JSON.parse((await request('GET', '/api/reports')).body);
   assert.equal(list[0].id, summary.id);
 
+  const detail = JSON.parse((await request('GET', `/api/reports/${summary.id}`)).body);
+  assert.ok(detail.findings.every((f) => typeof f.prompt === 'string' && f.prompt.includes(f.ruleId)), 'every finding carries a fix prompt');
+  const combined = JSON.parse((await request('GET', `/api/reports/${summary.id}/prompt?i=0,1`)).body);
+  assert.equal(combined.count, 2);
+  assert.match(combined.prompt, /found 2 issues/);
+
   const pdf = await request('GET', `/reports/${summary.id}.pdf`);
   assert.equal(pdf.status, 200);
   assert.equal(pdf.headers['content-type'], 'application/pdf');

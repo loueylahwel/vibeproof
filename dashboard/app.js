@@ -3,7 +3,7 @@
 'use strict';
 
 const SEVERITIES = ['critical', 'high', 'medium', 'low', 'info'];
-const state = { reports: [], selectedId: null, report: null, filter: new Set(SEVERITIES), query: '' };
+const state = { reports: [], selectedId: null, report: null, filter: new Set(SEVERITIES), query: '', visible: [], combined: null };
 
 const $ = (sel) => document.querySelector(sel);
 
@@ -244,12 +244,13 @@ function renderDetail() {
     root.append(el('p', { class: 'all-clear', text: 'No issues found by the current rule set. This does not prove the app is secure.' }));
   } else {
     const list = el('div', { class: 'findings' });
+    const copyAll = el('button', { type: 'button', class: 'copy-all', onclick: () => copyCombined() });
     const search = el('input', {
       type: 'search', placeholder: 'Filter', value: state.query, 'aria-label': 'Filter findings',
-      oninput: (e) => { state.query = e.target.value; renderFindings(list); },
+      oninput: (e) => { state.query = e.target.value; renderFindings(list, copyAll); },
     });
-    root.append(search, list);
-    renderFindings(list);
+    root.append(el('div', { class: 'toolbar' }, search, copyAll), list);
+    renderFindings(list, copyAll);
   }
 
   if (r.notes && r.notes.length) {
@@ -259,14 +260,69 @@ function renderDetail() {
   }
 }
 
-function renderFindings(list) {
+/** Copy within the click: modern clipboard API first, then the older execCommand path (works without permission). */
+async function copyText(text, done = 'Prompt copied') {
+  const legacy = () => {
+    const area = el('textarea', { readonly: true, 'aria-hidden': 'true' });
+    area.value = text;
+    area.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;';
+    document.body.append(area);
+    area.select();
+    let ok = false;
+    try {
+      ok = document.execCommand('copy');
+    } catch {
+      ok = false;
+    }
+    area.remove();
+    return ok;
+  };
+  let ok = false;
+  try {
+    await navigator.clipboard.writeText(text);
+    ok = true;
+  } catch {
+    ok = legacy();
+  }
+  toast(ok ? done : 'Copy failed: open the preview and select the text');
+}
+
+/** The combined prompt is fetched ahead of the click so copying happens inside the click itself. */
+async function prefetchCombined() {
+  const key = `${state.report.id}:${state.visible.join(',')}`;
+  state.combined = { key, prompt: null };
+  if (!state.visible.length) return;
+  try {
+    const { prompt, count } = await api(`/api/reports/${encodeURIComponent(state.report.id)}/prompt?i=${state.visible.join(',')}`);
+    if (state.combined.key === key) state.combined = { key, prompt, count };
+  } catch {
+    // copyCombined will retry
+  }
+}
+
+async function copyCombined() {
+  if (!state.visible.length) return;
+  const c = state.combined;
+  if (c?.prompt && c.key === `${state.report.id}:${state.visible.join(',')}`) {
+    return copyText(c.prompt, `Prompt for ${c.count} finding${c.count === 1 ? '' : 's'} copied`);
+  }
+  await prefetchCombined();
+  if (state.combined.prompt) copyText(state.combined.prompt, 'Prompt copied');
+}
+
+function renderFindings(list, copyAll) {
   const r = state.report;
   const q = state.query.trim().toLowerCase();
   const order = (f) => SEVERITIES.indexOf(f.severity);
-  const visible = r.findings
+  const indexed = r.findings.map((f, i) => ({ ...f, index: i }));
+  const visible = indexed
     .filter((f) => state.filter.has(f.severity))
     .filter((f) => !q || [f.title, f.ruleId, f.location, f.evidence, f.description].join(' ').toLowerCase().includes(q))
     .sort((a, b) => order(a) - order(b) || a.ruleId.localeCompare(b.ruleId));
+  state.visible = visible.map((f) => f.index);
+  copyAll.textContent = `Copy fix prompt for ${visible.length === r.findings.length ? 'all' : visible.length} finding${visible.length === 1 ? '' : 's'}`;
+  copyAll.disabled = !visible.length;
+  prefetchCombined();
 
   list.replaceChildren();
   if (!visible.length) {
@@ -283,6 +339,12 @@ function renderFindings(list) {
         el('p', { text: f.description }),
         el('pre', { text: f.evidence }),
         el('p', {}, el('span', { class: 'label', text: 'Fix  ' }), f.remediation),
+        el('div', { class: 'prompt-row' },
+          el('button', { type: 'button', class: 'copy-prompt', onclick: () => copyText(f.prompt), text: 'Copy fix prompt' }),
+          el('span', { class: 'hint-inline', text: 'for Claude Code, Cursor, Copilot or any coding agent' })),
+        el('details', { class: 'prompt-preview' },
+          el('summary', { text: 'Preview prompt' }),
+          el('pre', { text: f.prompt })),
         el('p', { class: 'refs', text: `${f.severity.toUpperCase()}  ·  ${f.ruleId}  ·  ${f.owasp}  ·  ${f.cwe}` }))));
   }
 }
