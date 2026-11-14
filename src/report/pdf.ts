@@ -6,17 +6,28 @@ import { SEVERITY_ORDER, type Finding, type ScanReport, type Severity } from '..
 
 type Doc = PDFKit.PDFDocument;
 
+// Black and white only: severity is carried by words, weight and grey shades,
+// so the report prints and photocopies without losing meaning.
 const MARGIN = 56;
-const INK = '#0f172a';
-const MUTED = '#475569';
-const RULE_LINE = '#cbd5e1';
-const ACCENT = '#1e3a5f';
+const INK = '#000000';
+const MUTED = '#555555';
+const RULE_LINE = '#bbbbbb';
+const ACCENT = '#000000';
+const TINT = '#f2f2f2';
 const SEVERITY_COLOR: Record<Severity, string> = {
-  critical: '#7f1d1d',
-  high: '#c2410c',
-  medium: '#b45309',
-  low: '#1d4ed8',
-  info: '#475569',
+  critical: INK,
+  high: INK,
+  medium: INK,
+  low: INK,
+  info: INK,
+};
+/** Grey shade per severity, darkest for the worst. Used for bars only. */
+const SEVERITY_SHADE: Record<Severity, string> = {
+  critical: '#000000',
+  high: '#404040',
+  medium: '#7a7a7a',
+  low: '#a8a8a8',
+  info: '#cfcfcf',
 };
 
 /** The standard PDF fonts only cover Latin-1; keep dynamic text printable ASCII. */
@@ -87,8 +98,8 @@ function codeBox(doc: Doc, text: string): void {
   const h = doc.heightOfString(ascii(text), { width: width - 16 }) + 12;
   ensureSpace(doc, h + 6);
   const y = doc.y;
-  doc.rect(MARGIN, y, width, h).fillColor('#f1f5f9').fill();
-  doc.rect(MARGIN, y, 3, h).fillColor(ACCENT).fill();
+  doc.rect(MARGIN, y, width, h).fillColor(TINT).fill();
+  doc.rect(MARGIN, y, 2, h).fillColor(ACCENT).fill();
   doc.fillColor(INK).text(ascii(text), MARGIN + 10, y + 6, { width: width - 16 });
   doc.y = y + h + 8;
 }
@@ -109,12 +120,14 @@ function table(doc: Doc, columns: Column[], rows: string[][], style?: (row: numb
     const y = doc.y;
     doc.font('Helvetica-Bold').fontSize(fontSize);
     const h = Math.max(...columns.map((c) => doc.heightOfString(c.header, { width: c.width - pad * 2 }))) + pad * 2;
-    doc.rect(MARGIN, y, columns.reduce((s, c) => s + c.width, 0), h).fillColor(ACCENT).fill();
+    const total = columns.reduce((s, c) => s + c.width, 0);
+    doc.moveTo(MARGIN, y).lineTo(MARGIN + total, y).lineWidth(1.2).strokeColor(INK).stroke();
     let x = MARGIN;
     for (const c of columns) {
-      doc.fillColor('#ffffff').text(c.header, x + pad, y + pad, { width: c.width - pad * 2 });
+      doc.fillColor(INK).text(c.header.toUpperCase(), x + pad, y + pad, { width: c.width - pad * 2, characterSpacing: 0.6 });
       x += c.width;
     }
+    doc.moveTo(MARGIN, y + h).lineTo(MARGIN + total, y + h).lineWidth(0.6).strokeColor(INK).stroke();
     doc.y = y + h;
   };
 
@@ -132,7 +145,7 @@ function table(doc: Doc, columns: Column[], rows: string[][], style?: (row: numb
     }
     const y = doc.y;
     const total = columns.reduce((s, c) => s + c.width, 0);
-    if (r % 2 === 1) doc.rect(MARGIN, y, total, h).fillColor('#f8fafc').fill();
+    if (r % 2 === 1) doc.rect(MARGIN, y, total, h).fillColor('#f7f7f7').fill();
     let x = MARGIN;
     row.forEach((cell, c) => {
       const s = style?.(r, c) ?? {};
@@ -148,11 +161,14 @@ function table(doc: Doc, columns: Column[], rows: string[][], style?: (row: numb
 }
 
 function severityBadge(doc: Doc, severity: Severity, x: number, y: number): void {
+  // Critical and high are solid black; lower severities are outlined.
   const label = severity.toUpperCase();
   doc.font('Helvetica-Bold').fontSize(8);
-  const w = doc.widthOfString(label) + 12;
-  doc.roundedRect(x, y, w, 14, 3).fillColor(SEVERITY_COLOR[severity]).fill();
-  doc.fillColor('#ffffff').text(label, x + 6, y + 3.5, { lineBreak: false });
+  const w = doc.widthOfString(label, { characterSpacing: 0.8 }) + 14;
+  const solid = severity === 'critical' || severity === 'high';
+  if (solid) doc.rect(x, y, w, 14).fillColor(INK).fill();
+  else doc.rect(x + 0.4, y + 0.4, w - 0.8, 13.2).lineWidth(0.8).strokeColor(INK).stroke();
+  doc.fillColor(solid ? '#ffffff' : INK).text(label, x + 7, y + 3.5, { lineBreak: false, characterSpacing: 0.8 });
 }
 
 function overallRating(findings: Finding[]): Severity | 'none' {
@@ -161,14 +177,17 @@ function overallRating(findings: Finding[]): Severity | 'none' {
 }
 
 function cover(doc: Doc, report: ScanReport, id: string): void {
-  const w = doc.page.width;
-  doc.rect(0, 0, w, 220).fillColor(ACCENT).fill();
-  doc.font('Helvetica').fontSize(10).fillColor('#cbd5e1').text('CONFIDENTIAL', MARGIN, 60, { characterSpacing: 2 });
-  doc.font('Helvetica-Bold').fontSize(28).fillColor('#ffffff').text('Security Assessment Report', MARGIN, 90, { width: w - MARGIN * 2 });
-  doc.font('Helvetica').fontSize(13).fillColor('#e2e8f0')
-    .text(report.track === 'repo' ? 'Source repository analysis (white-box)' : 'Deployed application analysis (black-box, read-only)', MARGIN, 160);
+  const cw = contentWidth(doc);
+  doc.font('Helvetica-Bold').fontSize(8.5).fillColor(INK).text('CONFIDENTIAL', MARGIN, 72, { characterSpacing: 2.5, lineBreak: false });
+  doc.font('Helvetica').fontSize(8.5).fillColor(MUTED).text(id, MARGIN, 72, { width: cw, align: 'right', lineBreak: false });
+  doc.moveTo(MARGIN, 90).lineTo(MARGIN + cw, 90).lineWidth(2.5).strokeColor(INK).stroke();
+  doc.font('Helvetica-Bold').fontSize(30).fillColor(INK).text('Security Assessment', MARGIN, 128, { width: cw });
+  doc.text('Report', MARGIN, doc.y, { width: cw });
+  doc.font('Helvetica').fontSize(12.5).fillColor(MUTED)
+    .text(report.track === 'repo' ? 'Source repository analysis (white-box)' : 'Deployed application analysis (black-box, read-only)', MARGIN, doc.y + 12);
+  doc.moveTo(MARGIN, doc.y + 22).lineTo(MARGIN + cw, doc.y + 22).lineWidth(0.6).strokeColor(INK).stroke();
 
-  doc.y = 270;
+  doc.y += 50;
   const counts = SEVERITY_ORDER.map((s) => report.findings.filter((f) => f.severity === s).length);
   table(doc, [{ header: 'Assessment details', width: 140 }, { header: '', width: contentWidth(doc) - 140 }], [
     ['Target', report.target],
@@ -182,9 +201,15 @@ function cover(doc: Doc, report: ScanReport, id: string): void {
 
   const rating = overallRating(report.findings);
   doc.moveDown(1);
-  doc.font('Helvetica-Bold').fontSize(11).fillColor(INK).text('Overall risk rating:', MARGIN, doc.y, { continued: true })
-    .fillColor(rating === 'none' ? '#15803d' : SEVERITY_COLOR[rating]).text(`  ${rating === 'none' ? 'NO FINDINGS' : rating.toUpperCase()}`);
+  const ry = doc.y;
+  doc.font('Helvetica').fontSize(10).fillColor(MUTED).text('OVERALL RISK RATING', MARGIN, ry + 3, { characterSpacing: 1.2, lineBreak: false });
+  if (rating === 'none') {
+    doc.font('Helvetica-Bold').fontSize(10).fillColor(INK).text('NO FINDINGS', MARGIN + 150, ry + 3, { lineBreak: false });
+  } else {
+    severityBadge(doc, rating, MARGIN + 150, ry);
+  }
 
+  doc.moveTo(MARGIN, doc.page.height - 162).lineTo(MARGIN + cw, doc.page.height - 162).lineWidth(0.6).strokeColor(INK).stroke();
   doc.font('Helvetica').fontSize(8.5).fillColor(MUTED).text(
     'This report was produced by an automated scanner as part of an academic security project. It contains security-sensitive ' +
       'information about the target and must only be shared with the target owner and the project supervisors. Secret values are ' +
@@ -212,8 +237,8 @@ function executiveSummary(doc: Doc, report: ScanReport, sorted: Finding[]): void
     const y = doc.y;
     doc.font('Helvetica-Bold').fontSize(9).fillColor(SEVERITY_COLOR[s]).text(s.toUpperCase(), MARGIN, y + 2, { width: 80 });
     doc.font('Helvetica').fillColor(INK).text(String(n), MARGIN + 90, y + 2, { width: 30, align: 'right' });
-    doc.rect(barX, y, barW, 12).fillColor('#e2e8f0').fill();
-    if (n) doc.rect(barX, y, (barW * n) / max, 12).fillColor(SEVERITY_COLOR[s]).fill();
+    doc.rect(barX, y + 1, barW, 10).lineWidth(0.5).strokeColor(RULE_LINE).stroke();
+    if (n) doc.rect(barX, y + 1, (barW * n) / max, 10).fillColor(SEVERITY_SHADE[s]).fill();
     doc.y = y + 18;
   }
   doc.moveDown(0.6);
@@ -375,10 +400,7 @@ export async function writePdf(report: ScanReport, outPath: string): Promise<voi
   executiveSummary(doc, report, sorted);
   scope(doc, report);
   overview(doc, sorted);
-  if (sorted.length) {
-    doc.addPage();
-    details(doc, sorted);
-  }
+  if (sorted.length) details(doc, sorted);
   methodology(doc, report);
   limitations(doc, report);
   appendix(doc, report);
