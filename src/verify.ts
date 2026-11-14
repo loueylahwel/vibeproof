@@ -11,8 +11,8 @@ import path from 'node:path';
  * Tokens are derived from a local secret, so nothing has to be stored per domain.
  */
 
-export const VERIFY_FILE_PATH = '/.well-known/vscan-verification.txt';
-export const DNS_PREFIX = 'vscan-verification=';
+export const VERIFY_FILE_PATH = '/.well-known/vibeproof-verification.txt';
+export const DNS_PREFIX = 'vibeproof-verification=';
 
 export interface Verification {
   verified: boolean;
@@ -33,11 +33,19 @@ export class OwnershipError extends Error {
 }
 
 function keyFile(): string {
-  return process.env.VSCAN_KEY_FILE ?? path.join(os.homedir(), '.config', 'vscan', 'key');
+  return process.env.VIBEPROOF_KEY_FILE ?? path.join(os.homedir(), '.config', 'vibeproof', 'key');
 }
+
+/** Key used before the project was renamed. Reused so existing tokens stay valid. */
+const LEGACY_KEY_FILE = path.join(os.homedir(), '.config', 'vscan', 'key');
 
 function localSecret(): Buffer {
   const file = keyFile();
+  if (!existsSync(file) && !process.env.VIBEPROOF_KEY_FILE && existsSync(LEGACY_KEY_FILE)) {
+    mkdirSync(path.dirname(file), { recursive: true });
+    writeFileSync(file, readFileSync(LEGACY_KEY_FILE, 'utf8'), { mode: 0o600 });
+    chmodSync(file, 0o600);
+  }
   if (!existsSync(file)) {
     mkdirSync(path.dirname(file), { recursive: true });
     writeFileSync(file, randomBytes(32).toString('hex'), { mode: 0o600 });
@@ -46,8 +54,18 @@ function localSecret(): Buffer {
   return Buffer.from(readFileSync(file, 'utf8').trim(), 'hex');
 }
 
+function tokenHex(host: string): string {
+  return createHmac('sha256', localSecret()).update(host.toLowerCase()).digest('hex').slice(0, 32);
+}
+
 export function tokenFor(host: string): string {
-  return 'vscan-' + createHmac('sha256', localSecret()).update(host.toLowerCase()).digest('hex').slice(0, 32);
+  return 'vibeproof-' + tokenHex(host);
+}
+
+/** Every value that proves ownership of host, including the pre-rename "vscan" format. */
+function acceptedValues(host: string): string[] {
+  const hex = tokenHex(host);
+  return [`vibeproof-${hex}`, `${DNS_PREFIX}vibeproof-${hex}`, `vscan-${hex}`, `vscan-verification=vscan-${hex}`];
 }
 
 export function isLocalHost(hostname: string): boolean {
@@ -85,13 +103,14 @@ export async function verifyOwnership(targetUrl: string, opts: VerifyOptions = {
     checks.push(`File: not reachable (${(err as Error).name === 'TimeoutError' ? 'timeout' : 'connection failed'}).`);
   }
 
-  // Accept the full "vscan-verification=<token>" value or the bare token.
-  const matches = (record: string) => record.replace(/^"|"$/g, '').trim() === result.dnsRecord || record.trim() === token;
+  // Accept the full record value or the bare token, in the current or pre-rename format.
+  const accepted = acceptedValues(host);
+  const matches = (record: string) => accepted.includes(record.replace(/^"|"$/g, '').trim());
   const { records, source } = await lookupTxt(host);
   if (records.some(matches)) return { ...result, verified: true, method: 'dns' };
-  const ours = records.filter((r) => r.includes('vscan'));
+  const ours = records.filter((r) => /vibeproof|vscan/.test(r));
   checks.push(ours.length
-    ? `DNS (${source}): a vscan record exists but its value does not match. Found: ${ours.join(', ')}`
+    ? `DNS (${source}): a verification record exists but its value does not match. Found: ${ours.join(', ')}`
     : `DNS (${source}): ${records.length} TXT record(s), none with the token.`);
 
   return result;

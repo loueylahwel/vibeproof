@@ -129,7 +129,7 @@ export async function startDashboard(opts: DashboardOptions = {}): Promise<Dashb
     if (method !== 'GET' && method !== 'HEAD') {
       const origin = req.headers.origin;
       if (origin && !allowedHosts.has(origin.replace(/^https?:\/\//, ''))) return json(res, 403, { error: 'Cross-origin request refused.' });
-      if (req.headers['x-vscan'] !== '1') return json(res, 403, { error: 'Missing x-vscan header.' });
+      if (req.headers['x-vibeproof'] !== '1') return json(res, 403, { error: 'Missing x-vibeproof header.' });
     }
     const url = new URL(req.url ?? '/', 'http://localhost');
     const p = url.pathname;
@@ -217,6 +217,6 @@ export async function startDashboard(opts: DashboardOptions = {}): Promise<Dashb
   const port = (server.address() as AddressInfo).port;
   allowedHosts = new Set([`127.0.0.1:${port}`, `localhost:${port}`]);
   const url = `http://localhost:${port}`;
-  if (!opts.quiet) console.log(`vscan dashboard running at ${url}  (reports: ${reportsDir})\nPress Ctrl+C to stop.`);
+  if (!opts.quiet) console.log(`vibeproof dashboard running at ${url}  (reports: ${reportsDir})\nPress Ctrl+C to stop.`);
   return { url, close: () => new Promise((r) => server.close(() => r())) };
 }

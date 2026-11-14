@@ -19,8 +19,8 @@ export function normalizeWebTarget(target: string): string {
   return /^https?:\/\//i.test(t) ? t : `https://${t}`;
 }
 
-export const TOOL = 'vibe-security-scanner';
-export const VERSION = '0.2.0';
+export const TOOL = 'vibeproof';
+export const VERSION = '0.3.0';
 
 export interface ScanRequest {
   track: Track;
@@ -64,6 +64,8 @@ export async function runScan(req: ScanRequest, reportsDir = 'reports'): Promise
       maxBundles: req.maxBundles ?? 30,
       maxTables: req.maxTables ?? 25,
       timeoutMs: 15_000,
+      // Only the lab demo sets this, so its Firestore check stays on this computer.
+      firestoreBase: process.env.VIBEPROOF_FIRESTORE_BASE || undefined,
     });
     result.notes.unshift(verification.method === 'local'
       ? 'Target runs on this computer; ownership assumed.'

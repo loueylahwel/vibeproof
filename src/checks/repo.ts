@@ -5,6 +5,7 @@ import { promisify } from 'node:util';
 import { makeFinding } from '../findings.js';
 import { scanSecrets, type SecretHit } from '../secrets.js';
 import type { Finding } from '../types.js';
+import { auditEdgeFunctions, auditFirebase, auditSupabaseSql, stripSqlComments, type TextFile } from './backend.js';
 import { lineOf, readText, toPosix, walkFiles } from '../util.js';
 
 const execFileP = promisify(execFile);
@@ -66,7 +67,8 @@ export async function scanRepo(rootInput: string, opts: RepoOptions): Promise<Ch
   if (!inGit) notes.push('Target is not a git repository: tracked-file and history checks were skipped.');
 
   const files = await walkFiles(root);
-  const sqlFiles: { rel: string; text: string }[] = [];
+  const sqlFiles: TextFile[] = [];
+  const backendFiles: TextFile[] = [];
   let scanned = 0;
 
   for (const file of files) {
@@ -75,7 +77,7 @@ export async function scanRepo(rootInput: string, opts: RepoOptions): Promise<Ch
 
     if (isEnvFile(base)) {
       if (tracked?.has(rel)) {
-        addOnce(`env:${rel}`, makeFinding('VSC-ENV-001', 'repo', rel, `${rel} is tracked by git.`));
+        addOnce(`env:${rel}`, makeFinding('VP-ENV-001', 'repo', rel, `${rel} is tracked by git.`));
       } else if (!tracked) {
         notes.push(`Environment file present on disk (tracking not verifiable): ${rel}`);
       }
@@ -88,7 +90,7 @@ export async function scanRepo(rootInput: string, opts: RepoOptions): Promise<Ch
     for (const hit of scanSecrets(text)) addSecret(hit, `${rel}:${hit.line}`);
 
     for (const m of text.matchAll(PUBLIC_SECRET_ENV)) {
-      addOnce(`pubenv:${m[0]}:${rel}`, makeFinding('VSC-ENV-002', 'repo', `${rel}:${lineOf(text, m.index ?? 0)}`, `Variable name: ${m[0]}`));
+      addOnce(`pubenv:${m[0]}:${rel}`, makeFinding('VP-ENV-002', 'repo', `${rel}:${lineOf(text, m.index ?? 0)}`, `Variable name: ${m[0]}`));
     }
 
     if (CODE_EXT.test(base) && !SERVER_PATH.test(rel) && !/['"]server-only['"]/.test(text)) {
@@ -97,20 +99,24 @@ export async function scanRepo(rootInput: string, opts: RepoOptions): Promise<Ch
       if (m) {
         const line = lineOf(text, m.index);
         const snippet = text.split('\n')[line - 1]?.trim().slice(0, 120) ?? '';
-        addOnce(`svc:${rel}`, makeFinding('VSC-DB-004', 'repo', `${rel}:${line}`, snippet.replace(/eyJ[\w.-]+/g, '[jwt redacted]')));
+        addOnce(`svc:${rel}`, makeFinding('VP-DB-004', 'repo', `${rel}:${line}`, snippet.replace(/eyJ[\w.-]+/g, '[jwt redacted]')));
       }
     }
 
     if (base.toLowerCase().endsWith('.sql')) sqlFiles.push({ rel, text });
+    if (rel.startsWith('supabase/') || base.endsWith('.rules') || base === 'database.rules.json') backendFiles.push({ rel, text });
   }
   notes.push(`Scanned ${scanned} text files (${files.length} files total, build and dependency folders skipped).`);
 
   findings.push(...auditSql(sqlFiles, notes));
+  findings.push(...auditSupabaseSql(sqlFiles, notes));
+  findings.push(...auditEdgeFunctions(backendFiles, notes));
+  findings.push(...auditFirebase(backendFiles, notes));
 
   if (existsSync(path.join(root, 'package.json'))) {
     const lockfiles = ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock', 'bun.lockb', 'bun.lock'];
     if (!lockfiles.some((f) => existsSync(path.join(root, f)))) {
-      findings.push(makeFinding('VSC-ENV-003', 'repo', 'package.json', 'No lockfile found next to package.json.'));
+      findings.push(makeFinding('VP-ENV-003', 'repo', 'package.json', 'No lockfile found next to package.json.'));
     }
   }
 
@@ -141,12 +147,6 @@ function scanHistory(log: string, addSecret: (hit: SecretHit, location: string) 
   }
 }
 
-function stripSqlComments(sql: string): string {
-  return sql
-    .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '))
-    .replace(/--[^\n]*/g, '');
-}
-
 const PUBLIC_TABLE = String.raw`(?:"?public"?\.)?"?([A-Za-z_][\w]*)"?`;
 
 /** Static audit of Supabase/Postgres migrations for missing or permissive RLS. */
@@ -157,7 +157,8 @@ export function auditSql(files: { rel: string; text: string }[], notes: string[]
 
   const createRe = new RegExp(String.raw`create\s+table\s+(?:if\s+not\s+exists\s+)?(?:"?(\w+)"?\.)?"?([A-Za-z_]\w*)"?`, 'gi');
   const rlsRe = new RegExp(String.raw`alter\s+table\s+(?:if\s+exists\s+)?(?:only\s+)?${PUBLIC_TABLE}\s+enable\s+row\s+level\s+security`, 'gi');
-  const policyRe = new RegExp(String.raw`create\s+policy\s+("[^"]*"|\w+)\s+on\s+${PUBLIC_TABLE}([^;]*);`, 'gi');
+  // Schema is captured so storage.objects and other schemas are not mistaken for public tables.
+  const policyRe = new RegExp(String.raw`create\s+policy\s+("[^"]*"|\w+)\s+on\s+(?:"?(\w+)"?\.)?"?([A-Za-z_]\w*)"?([^;]*);`, 'gi');
 
   for (const { rel, text: raw } of files) {
     const text = stripSqlComments(raw);
@@ -170,7 +171,8 @@ export function auditSql(files: { rel: string; text: string }[], notes: string[]
     for (const m of text.matchAll(rlsRe)) rlsEnabled.add(m[1]);
 
     for (const m of text.matchAll(policyRe)) {
-      const [, name, table, body] = m;
+      const [, name, schemaName, table, body] = m;
+      if ((schemaName ?? 'public').toLowerCase() !== 'public') continue;
       const allowsAll = /\busing\s*\(\s*true\s*\)|\bwith\s+check\s*\(\s*true\s*\)/i.test(body);
       if (!allowsAll) continue;
       const command = (/\bfor\s+(select|insert|update|delete|all)\b/i.exec(body)?.[1] ?? 'all').toLowerCase();
@@ -185,14 +187,14 @@ export function auditSql(files: { rel: string; text: string }[], notes: string[]
       else if (isAuthed && isWrite) severity = 'high';
       if (!severity) continue;
 
-      findings.push(makeFinding('VSC-DB-002', 'repo', `${rel}:${lineOf(text, m.index ?? 0)}`,
+      findings.push(makeFinding('VP-DB-002', 'repo', `${rel}:${lineOf(text, m.index ?? 0)}`,
         `Policy ${name} on table "${table}": for ${command}, to ${roles.join(', ')}, condition is true.`, severity));
     }
   }
 
   for (const [table, location] of created) {
     if (!rlsEnabled.has(table)) {
-      findings.push(makeFinding('VSC-DB-001', 'repo', location, `Table "${table}" is created without "enable row level security".`));
+      findings.push(makeFinding('VP-DB-001', 'repo', location, `Table "${table}" is created without "enable row level security".`));
     }
   }
 
@@ -222,7 +224,7 @@ async function npmAudit(root: string, notes: string[]): Promise<Finding[]> {
     const high = Number(counts.high ?? 0);
     notes.push(`npm audit: ${critical} critical, ${high} high, ${Number(counts.moderate ?? 0)} moderate, ${Number(counts.low ?? 0)} low.`);
     if (critical + high === 0) return [];
-    return [makeFinding('VSC-DEP-001', 'repo', 'package-lock.json',
+    return [makeFinding('VP-DEP-001', 'repo', 'package-lock.json',
       `npm audit (production dependencies): ${critical} critical, ${high} high. Run "npm audit" for the advisory list.`,
       critical > 0 ? 'critical' : 'high')];
   } catch {

@@ -13,15 +13,29 @@ export const FAKE_STRIPE = 'sk_' + 'live_' + '51LabOnlyNotARealKey0000AbCd';
 
 /** Planted flaws and the rule each one must trigger. */
 export const REPO_EXPECTED = [
-  'VSC-DB-001', // profiles: no RLS
-  'VSC-DB-002', // posts: write-anyone policy
-  'VSC-DB-004', // service_role used in client code
-  'VSC-DB-006', // service_role JWT in committed .env
-  'VSC-ENV-001', // .env tracked by git
-  'VSC-ENV-002', // VITE_ secret-named variable
-  'VSC-ENV-003', // no lockfile
-  'VSC-SEC-002', // Stripe key, only in git history
+  'VP-DB-001', // profiles: no RLS
+  'VP-DB-002', // posts: write-anyone policy
+  'VP-DB-004', // service_role used in client code
+  'VP-DB-006', // service_role JWT in committed .env
+  'VP-ENV-001', // .env tracked by git
+  'VP-ENV-002', // VITE_ secret-named variable
+  'VP-ENV-003', // no lockfile
+  'VP-SEC-002', // Stripe key, only in git history
+  'VP-STO-001', // storage policy: anyone can upload
+  'VP-STO-002', // public bucket created in a migration
+  'VP-DB-007', // security definer RPC callable by anon
+  'VP-DB-008', // security definer without search_path
+  'VP-FN-001', // edge function with service_role and no caller check
+  'VP-FN-002', // edge function with verify_jwt = false and no check
+  'VP-FB-001', // Firebase rules open to everyone
+  'VP-FB-002', // Firestore rules in test mode
 ];
+
+/** Safe counterparts that must NOT be reported (false-positive controls). */
+export const REPO_SAFE = {
+  functions: ['get_my_orders', 'handle_new_user'], // revoked + search_path; trigger function
+  edgeFunctions: ['stripe-webhook', 'my-profile'], // signature check; getUser check
+};
 
 const git = (cwd, ...args) =>
   execFileSync('git', ['-c', 'user.name=lab', '-c', 'user.email=lab@example.invalid', '-c', 'commit.gpgsign=false', ...args], { cwd, stdio: 'pipe' });
@@ -52,6 +66,70 @@ export const admin = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta
   await write('.env', `VITE_SUPABASE_URL=https://labprojectabcdefghij.supabase.co\nSUPABASE_SERVICE_ROLE_KEY=${fakeJwt('service_role')}\n`);
   await write('src/payments.ts', `const stripe = "${FAKE_STRIPE}";\n`);
 
+  // Storage and privileged functions
+  await write('supabase/migrations/0002_storage_and_rpc.sql', `
+insert into storage.buckets (id, name, public) values ('avatars', 'avatars', true), ('invoices', 'invoices', false);
+create policy "anyone can upload" on storage.objects for insert to public with check (bucket_id = 'invoices');
+create policy "owners read invoices" on storage.objects for select to authenticated
+  using (bucket_id = 'invoices' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- flagged: callable by anon, no search_path
+create or replace function public.delete_user(target uuid) returns void
+language plpgsql security definer as $$
+begin
+  delete from public.profiles where id = target;
+end;
+$$;
+
+-- safe: execute revoked from anon, fixed search_path
+create or replace function public.get_my_orders() returns setof public.posts
+language sql security definer set search_path = '' as $$
+  select * from public.posts where author = auth.uid();
+$$;
+revoke execute on function public.get_my_orders() from public, anon;
+
+-- safe: trigger functions cannot be called through the API
+create function public.handle_new_user() returns trigger
+language plpgsql security definer set search_path = '' as $$
+begin
+  insert into public.profiles (id) values (new.id);
+  return new;
+end;
+$$;
+`);
+
+  // Edge functions
+  await write('supabase/config.toml', `[functions.admin]\nverify_jwt = true\n\n[functions.stripe-webhook]\nverify_jwt = false\n\n[functions.public-export]\nverify_jwt = false\n`);
+  await write('supabase/functions/stripe-webhook/index.ts', `const admin = createClient(url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'));
+const event = stripe.webhooks.constructEvent(body, req.headers.get('stripe-signature'), secret);\n`);
+  await write('supabase/functions/my-profile/index.ts', `const admin = createClient(url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'));
+const { data: { user } } = await admin.auth.getUser(req.headers.get('Authorization').replace('Bearer ', ''));\n`);
+  await write('supabase/functions/public-export/index.ts', `Deno.serve(async () => new Response(JSON.stringify(await fetchReport())));\n`);
+
+  // Firebase rules
+  await write('firestore.rules', `rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.time < timestamp.date(2026, 12, 1);
+    }
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+`);
+  await write('storage.rules', `rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write;
+    }
+  }
+}
+`);
+  await write('database.rules.json', JSON.stringify({ rules: { '.read': true, users: { '$uid': { '.write': '$uid === auth.uid' } } } }, null, 2));
+
   git(dir, 'init', '-q', '-b', 'main');
   git(dir, 'add', '-A');
   git(dir, 'commit', '-q', '-m', 'initial vibe-coded app');
@@ -60,11 +138,17 @@ export const admin = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta
   git(dir, 'commit', '-q', '-am', 'move stripe key to env');
 }
 
-export const WEB_EXPECTED = ['VSC-WEB-001', 'VSC-WEB-003', 'VSC-WEB-004', 'VSC-WEB-005', 'VSC-DB-005', 'VSC-DB-006'];
+export const WEB_EXPECTED = [
+  'VP-WEB-001', 'VP-WEB-003', 'VP-WEB-004', 'VP-WEB-005', 'VP-DB-005', 'VP-DB-006',
+  'VP-DB-009', // API schema readable, reveals audit_log
+  'VP-STO-002', // public bucket "avatars"
+  'VP-FB-003', // Realtime Database and Firestore readable anonymously
+];
 
 /** Local HTTP server that imitates a deployed app plus its Supabase REST API. */
 export async function startVulnerableServer() {
   const anon = fakeJwt('anon');
+  let base = '';
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, 'http://localhost');
     if (req.method !== 'GET') {
@@ -77,7 +161,26 @@ export async function startVulnerableServer() {
     } else if (url.pathname === '/assets/index.js') {
       res.writeHead(200, { 'content-type': 'text/javascript' });
       res.end(`const sb=createClient(location.origin,"${anon}");const admin="${fakeJwt('service_role')}";` +
-        `sb.from("profiles").select();sb.from("posts").select("*");sb.from("notes").select();\n//# sourceMappingURL=index.js.map`);
+        `sb.from("profiles").select();sb.from("posts").select("*");sb.from("notes").select();` +
+        `sb.storage.from("avatars").getPublicUrl("a.png");sb.storage.from("invoices").download("x.pdf");` +
+        `const fb=initializeApp({apiKey:"lab",projectId:"lab-project",databaseURL:"${base}/rtdb"});` +
+        `getDocs(collection(db,"orders"));getDoc(doc(db,"users","u1"));` +
+        `\n//# sourceMappingURL=index.js.map`);
+    } else if (url.pathname === '/rtdb/.json') {
+      res.writeHead(200, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ users: true, orders: true }));
+    } else if (url.pathname === '/v1/projects/lab-project/databases/(default)/documents/orders') {
+      res.writeHead(200, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ documents: [{ name: 'orders/1', fields: { total: { integerValue: '42' }, email: { stringValue: 'a@b.c' } } }] }));
+    } else if (url.pathname.startsWith('/v1/projects/')) {
+      res.writeHead(403, { 'content-type': 'application/json' }).end('{"error":{"code":403}}');
+    } else if (url.pathname.startsWith('/storage/v1/bucket/')) {
+      const bucket = url.pathname.split('/').pop();
+      res.writeHead(200, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ id: bucket, name: bucket, public: bucket === 'avatars' }));
+    } else if (url.pathname === '/rest/v1/') {
+      res.writeHead(200, { 'content-type': 'application/openapi+json' });
+      res.end(JSON.stringify({ paths: { '/': {}, '/profiles': {}, '/posts': {}, '/notes': {}, '/audit_log': {}, '/rpc/delete_user': {} } }));
     } else if (url.pathname === '/assets/index.js.map') {
       res.writeHead(200, { 'content-type': 'application/json' });
       res.end('{"version":3,"sources":["src/App.tsx","src/lib/admin.ts"],"mappings":"AAAA"}');
@@ -89,12 +192,13 @@ export async function startVulnerableServer() {
       const table = url.pathname.slice('/rest/v1/'.length);
       res.writeHead(table === 'notes' ? 401 : 200, { 'content-type': 'application/json' });
       if (table === 'posts') res.end(JSON.stringify([{ id: 1, author: 'u1', body: 'private draft' }]));
+      else if (table === 'audit_log') res.end(JSON.stringify([{ id: 1, actor: 'admin', action: 'login' }]));
       else res.end('[]');
     } else {
       res.writeHead(404).end('not found');
     }
   });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
-  const base = `http://127.0.0.1:${server.address().port}`;
+  base = `http://127.0.0.1:${server.address().port}`;
   return { base, close: () => new Promise((r) => server.close(r)) };
 }

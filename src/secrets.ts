@@ -25,43 +25,43 @@ interface Pattern {
 const PATTERNS: Pattern[] = [
   {
     name: 'Private key block',
-    ruleId: 'VSC-SEC-001',
+    ruleId: 'VP-SEC-001',
     severity: 'critical',
     regex: /-----BEGIN (?:RSA |EC |OPENSSH |DSA |PGP )?PRIVATE KEY(?: BLOCK)?-----/g,
   },
   {
     name: 'AWS access key ID',
-    ruleId: 'VSC-SEC-002',
+    ruleId: 'VP-SEC-002',
     severity: 'critical',
     regex: /\b(?:AKIA|ASIA)[0-9A-Z]{16}\b/g,
   },
   {
     name: 'Stripe live secret key',
-    ruleId: 'VSC-SEC-002',
+    ruleId: 'VP-SEC-002',
     severity: 'critical',
     regex: /\bsk_live_[0-9a-zA-Z]{16,}\b/g,
   },
   {
     name: 'GitHub token',
-    ruleId: 'VSC-SEC-002',
+    ruleId: 'VP-SEC-002',
     severity: 'critical',
     regex: /\bgh[pousr]_[A-Za-z0-9]{36,}\b/g,
   },
   {
     name: 'OpenAI API key',
-    ruleId: 'VSC-SEC-002',
+    ruleId: 'VP-SEC-002',
     severity: 'high',
     regex: /\bsk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{32,}\b/g,
   },
   {
     name: 'Slack token',
-    ruleId: 'VSC-SEC-002',
+    ruleId: 'VP-SEC-002',
     severity: 'high',
     regex: /\bxox[baprs]-[A-Za-z0-9-]{10,}\b/g,
   },
   {
     name: 'Hard-coded credential assignment',
-    ruleId: 'VSC-SEC-003',
+    ruleId: 'VP-SEC-003',
     severity: 'high',
     regex: /\b(?:api[_-]?key|secret[_-]?key|secret|password|passwd|access[_-]?token|auth[_-]?token)\b["']?\s*[:=]\s*["'`]([^"'`\s]{12,})["'`]/gi,
     valueInGroup1: true,
@@ -79,7 +79,7 @@ export function scanSecrets(text: string): SecretHit[] {
     const payload = decodeJwtPayload(token[0]);
     if (payload?.role === 'service_role') {
       hits.push({
-        ruleId: 'VSC-DB-006',
+        ruleId: 'VP-DB-006',
         patternName: 'Supabase service_role JWT',
         severity: 'critical',
         line: lineOf(text, token.index ?? 0),

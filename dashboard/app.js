@@ -26,7 +26,7 @@ function el(tag, props = {}, ...children) {
 async function api(path, options = {}) {
   const init = { ...options, headers: { ...(options.headers || {}) } };
   if (init.method && init.method !== 'GET') {
-    init.headers['x-vscan'] = '1';
+    init.headers['x-vibeproof'] = '1';
     if (init.body) init.headers['content-type'] = 'application/json';
   }
   const res = await fetch(path, init);

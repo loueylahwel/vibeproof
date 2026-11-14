@@ -10,9 +10,11 @@ export interface WebOptions {
   maxBundles: number;
   maxTables: number;
   timeoutMs: number;
+  /** Firestore REST base URL. Tests point it at a local server. */
+  firestoreBase?: string;
 }
 
-const USER_AGENT = 'vscan-research/0.1 (read-only academic security scan)';
+const USER_AGENT = 'vibeproof/0.3 (read-only academic security scan)';
 
 interface HttpResult {
   status: number;
@@ -38,8 +40,16 @@ async function readOnlyGet(url: string, timeoutMs: number, headers: Record<strin
 const JWT_REGEX = /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g;
 const SUPABASE_URL_REGEX = /https:\/\/[a-z0-9]{20}\.supabase\.co\b/g;
 const TABLE_REGEXES = [
-  /\.from\(\s*["'`]([A-Za-z_]\w*)["'`]\s*\)/g,
+  /(?<!storage\s*)\.from\(\s*["'`]([A-Za-z_]\w*)["'`]\s*\)/g,
   /\/rest\/v1\/([A-Za-z_]\w*)/g,
+];
+const BUCKET_REGEXES = [
+  /\.storage\s*\.from\(\s*["'`]([\w.-]+)["'`]\s*\)/g,
+  /\/storage\/v1\/object\/(?:public|sign|authenticated)\/([\w.-]+)\//g,
+];
+const FIRESTORE_COLLECTION_REGEXES = [
+  /\b(?:collection|doc)\(\s*\w+\s*,\s*["'`]([\w-]+)["'`]/g,
+  /\.collection\(\s*["'`]([\w-]+)["'`]\s*\)/g,
 ];
 
 export async function scanWeb(targetInput: string, opts: WebOptions): Promise<CheckResult> {
@@ -90,6 +100,7 @@ export async function scanWeb(targetInput: string, opts: WebOptions): Promise<Ch
   if (opts.supabaseUrl) supabaseUrls.add(new URL(opts.supabaseUrl).origin);
   const anonKeys = new Set<string>();
   const tables = new Set<string>();
+  const buckets = new Set<string>();
 
   for (const src of sources) {
     for (const hit of scanSecrets(src.text)) addSecret(hit, hit.line > 1 ? `${src.url} (line ${hit.line})` : src.url);
@@ -98,6 +109,7 @@ export async function scanWeb(targetInput: string, opts: WebOptions): Promise<Ch
       if (decodeJwtPayload(m[0])?.role === 'anon') anonKeys.add(m[0]);
     }
     for (const re of TABLE_REGEXES) for (const m of src.text.matchAll(re)) tables.add(m[1]);
+    for (const re of BUCKET_REGEXES) for (const m of src.text.matchAll(re)) buckets.add(m[1]);
 
     // 4. Source maps
     const mapRef = /[#@]\s*sourceMappingURL=(\S+)/.exec(src.text);
@@ -107,7 +119,7 @@ export async function scanWeb(targetInput: string, opts: WebOptions): Promise<Ch
         const res = await readOnlyGet(mapUrl.href, opts.timeoutMs);
         if (res.status === 200 && /"mappings"\s*:/.test(res.body)) {
           const fileCount = /"sources"\s*:\s*\[([^\]]*)\]/.exec(res.body)?.[1].split(',').filter(Boolean).length ?? 0;
-          addOnce(`map:${mapUrl.href}`, makeFinding('VSC-WEB-005', 'web', mapUrl.href, `Source map served with HTTP 200 (${fileCount} original source file(s) listed).`));
+          addOnce(`map:${mapUrl.href}`, makeFinding('VP-WEB-005', 'web', mapUrl.href, `Source map served with HTTP 200 (${fileCount} original source file(s) listed).`));
         }
       }
     }
@@ -120,8 +132,43 @@ export async function scanWeb(targetInput: string, opts: WebOptions): Promise<Ch
       notes.push(`Supabase project ${sbUrl} found but no anon key in shipped code; table probe skipped.`);
       continue;
     }
+    const anonHeaders = { apikey: anonKey, authorization: `Bearer ${anonKey}`, accept: 'application/json' };
+
+    // Schema discovery: the REST root may list every exposed table, including ones the bundle never names.
+    const root = await readOnlyGet(`${sbUrl}/rest/v1/`, opts.timeoutMs, { ...anonHeaders, accept: 'application/openapi+json, application/json' }).catch(() => null);
+    if (root?.status === 200) {
+      try {
+        const paths = Object.keys((JSON.parse(root.body) as { paths?: Record<string, unknown> }).paths ?? {});
+        const listed = paths.map((p) => p.slice(1)).filter((n) => /^[A-Za-z_]\w*$/.test(n));
+        const rpcs = paths.filter((p) => p.startsWith('/rpc/')).map((p) => p.slice(5));
+        if (listed.length || rpcs.length) {
+          const hidden = listed.filter((n) => !tables.has(n));
+          listed.forEach((n) => tables.add(n));
+          findings.push(makeFinding('VP-DB-009', 'web', `${sbUrl}/rest/v1/`,
+            `Schema lists ${listed.length} table(s) or view(s) and ${rpcs.length} function(s): ${listed.slice(0, 12).join(', ')}${listed.length > 12 ? ', ...' : ''}.`));
+          if (hidden.length) notes.push(`Tables found only through the API schema (not named in shipped code): ${hidden.join(', ')}.`);
+          if (rpcs.length) notes.push(`Database functions exposed at /rest/v1/rpc (not called; calling them needs POST): ${rpcs.join(', ')}.`);
+        }
+      } catch {
+        // not an OpenAPI document
+      }
+    }
+
+    // Storage buckets named in shipped code: GET bucket metadata only (listing files needs POST).
+    for (const bucket of [...buckets].slice(0, 10)) {
+      const res = await readOnlyGet(`${sbUrl}/storage/v1/bucket/${encodeURIComponent(bucket)}`, opts.timeoutMs, anonHeaders).catch(() => null);
+      if (res?.status !== 200) continue;
+      try {
+        if ((JSON.parse(res.body) as { public?: boolean }).public === true) {
+          findings.push(makeFinding('VP-STO-002', 'web', `${sbUrl}/storage/v1/bucket/${bucket}`, `Bucket "${bucket}" is public: every file in it is downloadable by URL.`));
+        }
+      } catch {
+        // ignore
+      }
+    }
+
     if (!tables.size) {
-      notes.push(`Supabase project ${sbUrl} found but no table names in shipped code; table probe skipped.`);
+      notes.push(`Supabase project ${sbUrl} found but no table names in shipped code or API schema; table probe skipped.`);
       continue;
     }
     const list = [...tables].slice(0, opts.maxTables);
@@ -148,7 +195,7 @@ export async function scanWeb(targetInput: string, opts: WebOptions): Promise<Ch
       }
       if (Array.isArray(rows) && rows.length > 0 && typeof rows[0] === 'object' && rows[0] !== null) {
         const columns = Object.keys(rows[0] as object);
-        findings.push(makeFinding('VSC-DB-005', 'web', `${sbUrl}/rest/v1/${table}`,
+        findings.push(makeFinding('VP-DB-005', 'web', `${sbUrl}/rest/v1/${table}`,
           `Anon key returned a row (probe used limit=1). Columns exposed: ${columns.join(', ')}. Row values were not stored.`));
       } else {
         emptyTables.push(table);
@@ -160,16 +207,64 @@ export async function scanWeb(targetInput: string, opts: WebOptions): Promise<Ch
   }
   if (!supabaseUrls.size) notes.push('No Supabase project URL found in shipped code.');
 
+  // 5b. Firebase: unauthenticated read-only requests to the backend named in the app's own config
+  const allCode = sources.map((s) => s.text).join('\n');
+  const projectId = /projectId\s*:\s*["']([\w-]+)["']/.exec(allCode)?.[1];
+  const databaseUrl = /databaseURL\s*:\s*["'](https?:\/\/[^"']+)["']/.exec(allCode)?.[1];
+  if (projectId || databaseUrl) {
+    notes.push(`Firebase config found${projectId ? ` (project ${projectId})` : ''}.`);
+    if (databaseUrl) {
+      const res = await readOnlyGet(`${databaseUrl.replace(/\/$/, '')}/.json?shallow=true`, opts.timeoutMs).catch(() => null);
+      if (res?.status === 200 && res.body.trim() !== 'null') {
+        let keys: string[] = [];
+        try {
+          const data: unknown = JSON.parse(res.body);
+          keys = typeof data === 'object' && data !== null ? Object.keys(data) : [];
+        } catch {
+          // ignore
+        }
+        findings.push(makeFinding('VP-FB-003', 'web', `${databaseUrl}/.json`,
+          `Realtime Database root readable without signing in. Top-level keys: ${keys.slice(0, 12).join(', ') || '(value)'}. Values were not stored.`));
+      } else if (res) {
+        notes.push(`Realtime Database root refused anonymous read (HTTP ${res.status}).`);
+      }
+    }
+    if (projectId) {
+      const collections = new Set<string>();
+      for (const re of FIRESTORE_COLLECTION_REGEXES) for (const m of allCode.matchAll(re)) collections.add(m[1]);
+      const refused: string[] = [];
+      for (const col of [...collections].slice(0, 10)) {
+        const url = `${opts.firestoreBase ?? 'https://firestore.googleapis.com'}/v1/projects/${projectId}/databases/(default)/documents/${encodeURIComponent(col)}?pageSize=1`;
+        const res = await readOnlyGet(url, opts.timeoutMs).catch(() => null);
+        if (res?.status !== 200) {
+          refused.push(`${col} (${res ? `HTTP ${res.status}` : 'no response'})`);
+          continue;
+        }
+        try {
+          const docs = (JSON.parse(res.body) as { documents?: { fields?: Record<string, unknown> }[] }).documents ?? [];
+          if (docs.length) {
+            findings.push(makeFinding('VP-FB-003', 'web', `firestore: ${projectId}/${col}`,
+              `Collection "${col}" returned a document without signing in. Fields exposed: ${Object.keys(docs[0].fields ?? {}).join(', ') || '(none)'}. Values were not stored.`));
+          }
+        } catch {
+          // ignore
+        }
+      }
+      if (collections.size) notes.push(`Firestore: ${collections.size} collection(s) named in shipped code tested anonymously.`);
+      if (refused.length) notes.push(`Firestore collections that refused anonymous read: ${refused.join(', ')}.`);
+    }
+  }
+
   // 6. Files that should never be served
   const env = await readOnlyGet(`${origin}/.env`, opts.timeoutMs).catch(() => null);
   if (env && env.status === 200 && !/<html/i.test(env.body) && /^\s*[A-Z][A-Z0-9_]*\s*=/m.test(env.body)) {
     const names = [...env.body.matchAll(/^\s*([A-Z][A-Z0-9_]*)\s*=/gm)].map((m) => m[1]);
-    findings.push(makeFinding('VSC-WEB-006', 'web', `${origin}/.env`, `Environment file served. Variable names: ${names.slice(0, 12).join(', ')}.`, 'critical'));
+    findings.push(makeFinding('VP-WEB-006', 'web', `${origin}/.env`, `Environment file served. Variable names: ${names.slice(0, 12).join(', ')}.`, 'critical'));
     for (const hit of scanSecrets(env.body)) addSecret(hit, `${origin}/.env (line ${hit.line})`);
   }
   const gitHead = await readOnlyGet(`${origin}/.git/HEAD`, opts.timeoutMs).catch(() => null);
   if (gitHead && gitHead.status === 200 && /^ref:\s/.test(gitHead.body.trim())) {
-    findings.push(makeFinding('VSC-WEB-006', 'web', `${origin}/.git/HEAD`, 'Git metadata is served; the repository may be downloadable.'));
+    findings.push(makeFinding('VP-WEB-006', 'web', `${origin}/.git/HEAD`, 'Git metadata is served; the repository may be downloadable.'));
   }
 
   return { findings, notes };
@@ -179,15 +274,15 @@ export function checkHeaders(headers: Headers, target: URL): Finding[] {
   const out: Finding[] = [];
   const loc = target.href;
   const csp = headers.get('content-security-policy') ?? '';
-  if (!csp) out.push(makeFinding('VSC-WEB-001', 'web', loc, 'Header absent: Content-Security-Policy.'));
+  if (!csp) out.push(makeFinding('VP-WEB-001', 'web', loc, 'Header absent: Content-Security-Policy.'));
   if (target.protocol === 'https:' && !headers.get('strict-transport-security')) {
-    out.push(makeFinding('VSC-WEB-002', 'web', loc, 'Header absent: Strict-Transport-Security.'));
+    out.push(makeFinding('VP-WEB-002', 'web', loc, 'Header absent: Strict-Transport-Security.'));
   }
   if (!headers.get('x-frame-options') && !/frame-ancestors/i.test(csp)) {
-    out.push(makeFinding('VSC-WEB-003', 'web', loc, 'Headers absent: X-Frame-Options and CSP frame-ancestors.'));
+    out.push(makeFinding('VP-WEB-003', 'web', loc, 'Headers absent: X-Frame-Options and CSP frame-ancestors.'));
   }
   if ((headers.get('x-content-type-options') ?? '').toLowerCase() !== 'nosniff') {
-    out.push(makeFinding('VSC-WEB-004', 'web', loc, 'Header absent or not "nosniff": X-Content-Type-Options.'));
+    out.push(makeFinding('VP-WEB-004', 'web', loc, 'Header absent or not "nosniff": X-Content-Type-Options.'));
   }
   return out;
 }

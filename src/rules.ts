@@ -12,8 +12,8 @@ export interface Rule {
 
 /** Central catalogue. Every finding the scanner can produce maps to one rule here. */
 export const RULES: Record<string, Rule> = {
-  'VSC-SEC-001': {
-    id: 'VSC-SEC-001',
+  'VP-SEC-001': {
+    id: 'VP-SEC-001',
     title: 'Private key material exposed',
     defaultSeverity: 'critical',
     description: 'A private cryptographic key is present in readable source or history.',
@@ -21,8 +21,8 @@ export const RULES: Record<string, Rule> = {
     owasp: 'A02:2021 Cryptographic Failures',
     cwe: 'CWE-321',
   },
-  'VSC-SEC-002': {
-    id: 'VSC-SEC-002',
+  'VP-SEC-002': {
+    id: 'VP-SEC-002',
     title: 'Live API secret key exposed',
     defaultSeverity: 'critical',
     description: 'A provider secret key (payment, cloud, source hosting, or AI API) is hard-coded or committed.',
@@ -30,8 +30,8 @@ export const RULES: Record<string, Rule> = {
     owasp: 'A02:2021 Cryptographic Failures',
     cwe: 'CWE-798',
   },
-  'VSC-SEC-003': {
-    id: 'VSC-SEC-003',
+  'VP-SEC-003': {
+    id: 'VP-SEC-003',
     title: 'Hard-coded credential',
     defaultSeverity: 'high',
     description: 'A credential-like value is assigned to a key, secret, or password variable in source code.',
@@ -39,8 +39,8 @@ export const RULES: Record<string, Rule> = {
     owasp: 'A07:2021 Identification and Authentication Failures',
     cwe: 'CWE-798',
   },
-  'VSC-ENV-001': {
-    id: 'VSC-ENV-001',
+  'VP-ENV-001': {
+    id: 'VP-ENV-001',
     title: 'Environment file committed to git',
     defaultSeverity: 'high',
     description: 'A .env file is tracked by git, so its values are in the repository and its history.',
@@ -48,8 +48,8 @@ export const RULES: Record<string, Rule> = {
     owasp: 'A05:2021 Security Misconfiguration',
     cwe: 'CWE-540',
   },
-  'VSC-ENV-002': {
-    id: 'VSC-ENV-002',
+  'VP-ENV-002': {
+    id: 'VP-ENV-002',
     title: 'Secret-named variable has a public build prefix',
     defaultSeverity: 'high',
     description: 'Variables with a prefix such as NEXT_PUBLIC_ or VITE_ are inlined into the browser bundle at build time. A name that suggests a secret means the value is likely shipped to every visitor.',
@@ -57,8 +57,8 @@ export const RULES: Record<string, Rule> = {
     owasp: 'A05:2021 Security Misconfiguration',
     cwe: 'CWE-200',
   },
-  'VSC-ENV-003': {
-    id: 'VSC-ENV-003',
+  'VP-ENV-003': {
+    id: 'VP-ENV-003',
     title: 'No dependency lockfile',
     defaultSeverity: 'low',
     description: 'package.json exists without a lockfile, so installed dependency versions are not pinned and cannot be audited reliably.',
@@ -66,8 +66,8 @@ export const RULES: Record<string, Rule> = {
     owasp: 'A06:2021 Vulnerable and Outdated Components',
     cwe: 'CWE-1104',
   },
-  'VSC-DB-001': {
-    id: 'VSC-DB-001',
+  'VP-DB-001': {
+    id: 'VP-DB-001',
     title: 'Table without row level security',
     defaultSeverity: 'high',
     description: 'A table in the public schema is created without "enable row level security". In Supabase, the anon API key can then read and write its rows directly.',
@@ -75,8 +75,8 @@ export const RULES: Record<string, Rule> = {
     owasp: 'A01:2021 Broken Access Control',
     cwe: 'CWE-284',
   },
-  'VSC-DB-002': {
-    id: 'VSC-DB-002',
+  'VP-DB-002': {
+    id: 'VP-DB-002',
     title: 'Row level security policy allows all rows',
     defaultSeverity: 'high',
     description: 'A policy uses "using (true)" or "with check (true)" for anonymous, public, or any authenticated user. Any caller matching the role can access every row.',
@@ -84,8 +84,8 @@ export const RULES: Record<string, Rule> = {
     owasp: 'A01:2021 Broken Access Control',
     cwe: 'CWE-284',
   },
-  'VSC-DB-004': {
-    id: 'VSC-DB-004',
+  'VP-DB-004': {
+    id: 'VP-DB-004',
     title: 'Supabase service_role key referenced in code that may reach the browser',
     defaultSeverity: 'high',
     description: 'The service_role key bypasses all row level security. It is referenced in a file that is not in a server-only path. Verify that the file is never bundled for the browser.',
@@ -93,8 +93,8 @@ export const RULES: Record<string, Rule> = {
     owasp: 'A01:2021 Broken Access Control',
     cwe: 'CWE-200',
   },
-  'VSC-DB-005': {
-    id: 'VSC-DB-005',
+  'VP-DB-005': {
+    id: 'VP-DB-005',
     title: 'Table readable with the public anon key',
     defaultSeverity: 'high',
     description: 'A live probe with the anon key (taken from shipped JavaScript) returned at least one row from this table. Rows are readable by anyone who loads the site.',
@@ -102,8 +102,8 @@ export const RULES: Record<string, Rule> = {
     owasp: 'A01:2021 Broken Access Control',
     cwe: 'CWE-284',
   },
-  'VSC-DB-006': {
-    id: 'VSC-DB-006',
+  'VP-DB-006': {
+    id: 'VP-DB-006',
     title: 'Supabase service_role key exposed',
     defaultSeverity: 'critical',
     description: 'A JWT whose role claim is service_role is present in source, history, or shipped JavaScript. Anyone holding it can read and write every table, bypassing RLS.',
@@ -111,8 +111,8 @@ export const RULES: Record<string, Rule> = {
     owasp: 'A02:2021 Cryptographic Failures',
     cwe: 'CWE-798',
   },
-  'VSC-WEB-001': {
-    id: 'VSC-WEB-001',
+  'VP-WEB-001': {
+    id: 'VP-WEB-001',
     title: 'Missing Content-Security-Policy header',
     defaultSeverity: 'medium',
     description: 'The page response has no Content-Security-Policy header, so injected scripts are not restricted.',
@@ -120,8 +120,8 @@ export const RULES: Record<string, Rule> = {
     owasp: 'A05:2021 Security Misconfiguration',
     cwe: 'CWE-693',
   },
-  'VSC-WEB-002': {
-    id: 'VSC-WEB-002',
+  'VP-WEB-002': {
+    id: 'VP-WEB-002',
     title: 'Missing Strict-Transport-Security header',
     defaultSeverity: 'low',
     description: 'The HTTPS response has no HSTS header, so browsers may first connect over plain HTTP.',
@@ -129,8 +129,8 @@ export const RULES: Record<string, Rule> = {
     owasp: 'A05:2021 Security Misconfiguration',
     cwe: 'CWE-319',
   },
-  'VSC-WEB-003': {
-    id: 'VSC-WEB-003',
+  'VP-WEB-003': {
+    id: 'VP-WEB-003',
     title: 'Clickjacking protection missing',
     defaultSeverity: 'low',
     description: 'Neither X-Frame-Options nor a CSP frame-ancestors directive is set, so the page can be framed by another site.',
@@ -138,8 +138,8 @@ export const RULES: Record<string, Rule> = {
     owasp: 'A05:2021 Security Misconfiguration',
     cwe: 'CWE-1021',
   },
-  'VSC-WEB-004': {
-    id: 'VSC-WEB-004',
+  'VP-WEB-004': {
+    id: 'VP-WEB-004',
     title: 'Missing X-Content-Type-Options header',
     defaultSeverity: 'low',
     description: 'The response does not set X-Content-Type-Options: nosniff, so browsers may guess content types.',
@@ -147,8 +147,8 @@ export const RULES: Record<string, Rule> = {
     owasp: 'A05:2021 Security Misconfiguration',
     cwe: 'CWE-693',
   },
-  'VSC-WEB-005': {
-    id: 'VSC-WEB-005',
+  'VP-WEB-005': {
+    id: 'VP-WEB-005',
     title: 'Source maps publicly accessible',
     defaultSeverity: 'medium',
     description: 'A JavaScript source map is served publicly. It reveals the original source code, comments, and internal paths.',
@@ -156,8 +156,8 @@ export const RULES: Record<string, Rule> = {
     owasp: 'A05:2021 Security Misconfiguration',
     cwe: 'CWE-540',
   },
-  'VSC-WEB-006': {
-    id: 'VSC-WEB-006',
+  'VP-WEB-006': {
+    id: 'VP-WEB-006',
     title: 'Sensitive file publicly reachable',
     defaultSeverity: 'high',
     description: 'A file that should never be served (an environment file or git metadata) is reachable over HTTP.',
@@ -165,14 +165,104 @@ export const RULES: Record<string, Rule> = {
     owasp: 'A05:2021 Security Misconfiguration',
     cwe: 'CWE-538',
   },
-  'VSC-DEP-001': {
-    id: 'VSC-DEP-001',
+  'VP-DEP-001': {
+    id: 'VP-DEP-001',
     title: 'Dependencies with known critical or high vulnerabilities',
     defaultSeverity: 'high',
     description: 'npm audit reports known vulnerabilities in production dependencies.',
     remediation: 'Run npm audit fix, or upgrade the affected packages to patched versions. Review the advisories for exploitability.',
     owasp: 'A06:2021 Vulnerable and Outdated Components',
     cwe: 'CWE-1104',
+  },
+  'VP-DB-007': {
+    id: 'VP-DB-007',
+    title: 'Privileged database function callable by anyone',
+    defaultSeverity: 'high',
+    description: 'A function in the public schema runs with "security definer" (the rights of its owner, which bypasses row level security) and EXECUTE is not revoked from public or anon. Supabase exposes it at /rest/v1/rpc/<name>, so any visitor can call it.',
+    remediation: 'Run "revoke execute on function <name> from public, anon;" and grant it only to the roles that need it, or move the function to a schema that is not exposed through the API. Check inside the function who the caller is (auth.uid()).',
+    owasp: 'A01:2021 Broken Access Control',
+    cwe: 'CWE-269',
+  },
+  'VP-DB-008': {
+    id: 'VP-DB-008',
+    title: 'Privileged function without a fixed search_path',
+    defaultSeverity: 'medium',
+    description: 'A "security definer" function does not set search_path. A caller who can create objects in a schema on the path can make it run their code with the owner\'s rights.',
+    remediation: 'Add "set search_path = \'\'" to the function definition and reference tables with their schema (public.table).',
+    owasp: 'A05:2021 Security Misconfiguration',
+    cwe: 'CWE-426',
+  },
+  'VP-DB-009': {
+    id: 'VP-DB-009',
+    title: 'API schema readable with the anon key',
+    defaultSeverity: 'low',
+    description: 'The Supabase REST root (/rest/v1/) returns the OpenAPI description to the public anon key. It lists every exposed table, column and function, which tells an attacker exactly what to probe.',
+    remediation: 'Expose only the schemas the app needs, keep internal tables out of the public schema, and make sure every listed table has row level security.',
+    owasp: 'A05:2021 Security Misconfiguration',
+    cwe: 'CWE-200',
+  },
+  'VP-STO-001': {
+    id: 'VP-STO-001',
+    title: 'Storage policy lets anyone read or write files',
+    defaultSeverity: 'high',
+    description: 'A policy on storage.objects applies to anonymous or public callers and does not check who the user is. Anyone can list and download, or upload, overwrite and delete, the files it covers.',
+    remediation: 'Limit the policy to authenticated users and tie it to the owner, for example "(storage.foldername(name))[1] = auth.uid()::text". Allow anonymous access only to files that are meant to be public.',
+    owasp: 'A01:2021 Broken Access Control',
+    cwe: 'CWE-284',
+  },
+  'VP-STO-002': {
+    id: 'VP-STO-002',
+    title: 'Public storage bucket',
+    defaultSeverity: 'low',
+    description: 'The bucket is public, so every file in it can be downloaded by anyone who has or guesses its URL, without any policy check.',
+    remediation: 'Keep the bucket public only for content that is meant to be public (for example avatars). Store private files in a private bucket and serve them with signed URLs.',
+    owasp: 'A01:2021 Broken Access Control',
+    cwe: 'CWE-552',
+  },
+  'VP-FN-001': {
+    id: 'VP-FN-001',
+    title: 'Edge function uses the service_role key without checking the caller',
+    defaultSeverity: 'high',
+    description: 'The function creates a client with the service_role key, which bypasses all row level security, but never verifies who is calling (no auth.getUser, JWT verification or signature check). Anyone who can reach the function acts with full database rights.',
+    remediation: 'Verify the caller first: read the Authorization header and call supabase.auth.getUser(token), then check that the user may perform the action. For webhooks, verify the provider signature.',
+    owasp: 'A01:2021 Broken Access Control',
+    cwe: 'CWE-306',
+  },
+  'VP-FN-002': {
+    id: 'VP-FN-002',
+    title: 'Edge function open to unauthenticated calls',
+    defaultSeverity: 'medium',
+    description: 'JWT verification is turned off for this function (verify_jwt = false) and the code has no authentication or signature check of its own, so anyone on the internet can call it.',
+    remediation: 'Turn verify_jwt back on, or add an explicit check in the code (user token, or the webhook provider\'s signature).',
+    owasp: 'A07:2021 Identification and Authentication Failures',
+    cwe: 'CWE-306',
+  },
+  'VP-FB-001': {
+    id: 'VP-FB-001',
+    title: 'Firebase security rules allow access to everyone',
+    defaultSeverity: 'high',
+    description: 'A Firestore, Storage or Realtime Database rule allows access with no condition (or a condition that is always true). Anyone with the project ID, which is public in every Firebase web app, can use it.',
+    remediation: 'Require a signed-in user and tie access to the data owner, for example "allow read, write: if request.auth != null && request.auth.uid == userId;". Deploy the rules and test them with the Firebase emulator.',
+    owasp: 'A01:2021 Broken Access Control',
+    cwe: 'CWE-284',
+  },
+  'VP-FB-002': {
+    id: 'VP-FB-002',
+    title: 'Firebase rules still in test mode',
+    defaultSeverity: 'high',
+    description: 'The rules allow everything until a date ("request.time < timestamp.date(...)"), which is the default "test mode" Firebase creates. Until that date the data is open to everyone; after it, the app breaks and is often "fixed" by opening it again.',
+    remediation: 'Replace the date condition with real rules based on request.auth before launch.',
+    owasp: 'A05:2021 Security Misconfiguration',
+    cwe: 'CWE-284',
+  },
+  'VP-FB-003': {
+    id: 'VP-FB-003',
+    title: 'Firebase data readable without signing in',
+    defaultSeverity: 'high',
+    description: 'A live read-only request without any credentials returned data from the app\'s Firebase backend (Realtime Database or Firestore). Anyone can read it.',
+    remediation: 'Fix the security rules so reads require a signed-in user with access to that data, then re-test.',
+    owasp: 'A01:2021 Broken Access Control',
+    cwe: 'CWE-284',
   },
 };
 

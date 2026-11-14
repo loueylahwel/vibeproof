@@ -25,11 +25,11 @@ function request(method, urlPath, { headers = {}, body } = {}) {
   });
 }
 const scan = (payload, headers = {}) =>
-  request('POST', '/api/scan', { headers: { 'content-type': 'application/json', 'x-vscan': '1', ...headers }, body: JSON.stringify(payload) });
+  request('POST', '/api/scan', { headers: { 'content-type': 'application/json', 'x-vibeproof': '1', ...headers }, body: JSON.stringify(payload) });
 
 before(async () => {
-  dir = await mkdtemp(path.join(tmpdir(), 'vscan-dash-'));
-  process.env.VSCAN_KEY_FILE = path.join(dir, 'key');
+  dir = await mkdtemp(path.join(tmpdir(), 'vibeproof-dash-'));
+  process.env.VIBEPROOF_KEY_FILE = path.join(dir, 'key');
   dash = await startDashboard({ port: 0, reportsDir: path.join(dir, 'reports'), quiet: true });
   port = Number(new URL(dash.url).port);
 });
@@ -50,7 +50,7 @@ test('rejects foreign Host headers (DNS rebinding)', async () => {
   assert.equal(res.status, 403);
 });
 
-test('rejects state-changing requests without the x-vscan header (CSRF)', async () => {
+test('rejects state-changing requests without the x-vibeproof header (CSRF)', async () => {
   const res = await request('POST', '/api/scan', { headers: { 'content-type': 'application/json' }, body: '{}' });
   assert.equal(res.status, 403);
 });
@@ -66,8 +66,8 @@ test('web scans of unverified domains return the verification token instead of s
   const { verification } = JSON.parse(res.body);
   assert.equal(verification.verified, false);
   assert.equal(verification.host, 'unverified.invalid');
-  assert.match(verification.token, /^vscan-[0-9a-f]{32}$/);
-  assert.equal(verification.fileUrl, 'https://unverified.invalid/.well-known/vscan-verification.txt');
+  assert.match(verification.token, /^vibeproof-[0-9a-f]{32}$/);
+  assert.equal(verification.fileUrl, 'https://unverified.invalid/.well-known/vibeproof-verification.txt');
 });
 
 test('scan type is detected from the target', async () => {
@@ -98,7 +98,7 @@ test('full flow: scan a repo, list it, fetch PDF, delete it', async () => {
   assert.equal(pdf.status, 200);
   assert.equal(pdf.headers['content-type'], 'application/pdf');
 
-  const del = await request('DELETE', `/api/reports/${summary.id}`, { headers: { 'x-vscan': '1' } });
+  const del = await request('DELETE', `/api/reports/${summary.id}`, { headers: { 'x-vibeproof': '1' } });
   assert.equal(del.status, 200);
   assert.equal(JSON.parse((await request('GET', '/api/reports')).body).length, 0);
 });

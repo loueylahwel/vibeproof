@@ -7,19 +7,19 @@ import { normalizeWebTarget, runScan, VERSION, type ScanOutput } from './run.js'
 import { SEVERITY_ORDER, type ScanReport } from './types.js';
 import { OwnershipError, verifyOwnership, type Verification } from './verify.js';
 
-const HELP = `vscan ${VERSION} - security scanner for vibe-coded web apps (academic project)
+const HELP = `vibeproof ${VERSION} - security scanner for vibe-coded web apps (academic project)
 
 Usage:
-  vscan dashboard    [--port 4173]          local web dashboard on 127.0.0.1
-  vscan repo <path>  [--out report.pdf] [--json report.json] [--no-history] [--npm-audit]
-  vscan web  <url>   [--supabase-url <url>] [--max-bundles 30] [--max-tables 25]
+  vibeproof dashboard    [--port 4173]          local web dashboard on 127.0.0.1
+  vibeproof repo <path>  [--out report.pdf] [--json report.json] [--no-history] [--npm-audit]
+  vibeproof web  <url>   [--supabase-url <url>] [--max-bundles 30] [--max-tables 25]
                      [--out report.pdf] [--json report.json]
-  vscan verify <url>                        show the ownership token for a domain
-  vscan report <scan.json> --out report.pdf
+  vibeproof verify <url>                        show the ownership token for a domain
+  vibeproof report <scan.json> --out report.pdf
 
 Ownership:
   Web scans run only on domains you have proven you own: publish the token from
-  "vscan verify <url>" as a file on the site or as a DNS TXT record. Apps on
+  "vibeproof verify <url>" as a file on the site or as a DNS TXT record. Apps on
   localhost need no verification. Reports never contain full secret values.
 `;
 

@@ -9,8 +9,8 @@ import { isLocalHost, tokenFor, verifyOwnership } from '../dist/verify.js';
 
 let dir;
 before(async () => {
-  dir = await mkdtemp(path.join(tmpdir(), 'vscan-verify-'));
-  process.env.VSCAN_KEY_FILE = path.join(dir, 'key');
+  dir = await mkdtemp(path.join(tmpdir(), 'vibeproof-verify-'));
+  process.env.VIBEPROOF_KEY_FILE = path.join(dir, 'key');
 });
 after(async () => {
   await rm(dir, { recursive: true, force: true });
@@ -18,7 +18,7 @@ after(async () => {
 
 async function serveToken(body) {
   const server = http.createServer((req, res) => {
-    if (req.url === '/.well-known/vscan-verification.txt') res.writeHead(200).end(body);
+    if (req.url === '/.well-known/vibeproof-verification.txt') res.writeHead(200).end(body);
     else res.writeHead(404).end();
   });
   await new Promise((r) => server.listen(0, '127.0.0.1', r));

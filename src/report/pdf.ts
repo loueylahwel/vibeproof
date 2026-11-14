@@ -44,7 +44,7 @@ function sortFindings(findings: Finding[]): Finding[] {
 function reportId(report: ScanReport): string {
   const day = report.finishedAt.slice(0, 10).replace(/-/g, '');
   const hash = createHash('sha256').update(report.target + report.finishedAt).digest('hex').slice(0, 6).toUpperCase();
-  return `VSC-${day}-${hash}`;
+  return `VP-${day}-${hash}`;
 }
 
 function contentWidth(doc: Doc): number {
@@ -325,6 +325,10 @@ function methodology(doc: Doc, report: ScanReport): void {
       'Environment hygiene: .env files tracked by git, and secret-named variables carrying a public build prefix (NEXT_PUBLIC_, VITE_, REACT_APP_, NUXT_PUBLIC_, EXPO_PUBLIC_, PUBLIC_).',
       'Database access rules: static parsing of SQL migrations for public tables without row level security and policies whose condition is "true".',
       'Client exposure: references to the service_role key outside server-only paths.',
+      'Supabase storage: public buckets and storage.objects policies that let anonymous callers read or write files without a user check.',
+      'Privileged database functions: security definer functions still executable by anon (callable through /rest/v1/rpc) and without a fixed search_path.',
+      'Edge functions: functions that use the service_role key without verifying the caller, and functions with JWT verification turned off and no check of their own.',
+      'Firebase: Firestore and Storage rules and database.rules.json for unconditional access and leftover test-mode rules.',
       'Dependencies: lockfile presence and, when enabled, npm audit for production dependencies.',
     ]);
   } else {
@@ -332,7 +336,9 @@ function methodology(doc: Doc, report: ScanReport): void {
       'Response headers of the target page: CSP, HSTS, clickjacking protection, MIME sniffing protection.',
       'Same-origin JavaScript bundles and the HTML page: secret detection and JWT role decoding.',
       'Public source maps referenced by the bundles.',
-      'Supabase: discovery of the project URL, anon key and table names in shipped code, then one read-only request per table.',
+      'Supabase: discovery of the project URL, anon key and table names in shipped code and in the API schema at /rest/v1/, then one read-only request per table.',
+      'Supabase storage: metadata of each bucket named in shipped code, to find public buckets.',
+      'Firebase: the Realtime Database root and the Firestore collections named in shipped code, requested without credentials.',
       'Commonly exposed files: /.env and /.git/HEAD.',
     ]);
   }
@@ -347,7 +353,7 @@ function limitations(doc: Doc, report: ScanReport): void {
   ];
   bullets(doc, report.track === 'repo'
     ? [...common, 'Database rules changed in the Supabase dashboard, or created by dynamic SQL, are not visible in the repository.', 'Values set only in the hosting provider (for example Vercel or Netlify environment variables) are not visible here; a web scan of the deployment covers them.']
-    : [...common, 'Only tables named in shipped code were probed. Other tables in the same project may also be exposed.', 'Only same-origin scripts are scanned; code loaded later by dynamic import or from other origins may be missed.']);
+    : [...common, 'Only tables named in shipped code or listed in the API schema were probed. If the schema is hidden, other tables may also be exposed.', 'Database functions and storage file listings need POST requests, which this scan never sends; they are covered by the repository scan.', 'Only same-origin scripts are scanned; code loaded later by dynamic import or from other origins may be missed.']);
 }
 
 function appendix(doc: Doc, report: ScanReport): void {

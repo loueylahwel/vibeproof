@@ -1,11 +1,11 @@
 {
-  "name": "vibe-security-scanner",
-  "version": "0.2.0",
+  "name": "vibeproof",
+  "version": "0.3.0",
   "private": true,
   "description": "Scanner for vibe-coded web apps: secrets, Supabase RLS, client-side key exposure. University project.",
   "type": "module",
   "bin": {
-    "vscan": "dist/cli.js"
+    "vibeproof": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
