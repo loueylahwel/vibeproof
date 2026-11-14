@@ -64,21 +64,26 @@ npm run demo   # writes reports/sample-repo-report.pdf and reports/sample-web-re
 
 ## Evaluation
 
-The research question is whether scanning with repository access or from the browser alone finds more. `lab/catalog.mjs` defines 12 lab apps in the style AI app builders produce: 7 with planted flaws, 2 "hard cases" with realistic flaws in forms the rules were not written for, and 3 clean controls. Each app is built as a real git repository plus a simulated deployment (`lab/deploy.mjs`) that imitates the Supabase and Firebase APIs.
+The research question is whether scanning with repository access or from the browser alone finds more. Each lab app is built as a real git repository plus a simulated deployment (`lab/deploy.mjs`) that imitates the Supabase and Firebase APIs.
+
+- **Development set** (`lab/catalog.mjs`): 12 apps, 33 planted flaws, including two "hard case" apps with realistic flaws in forms the first rules did not cover, and 3 clean controls. Used while building the scanner.
+- **Held-out set** (`lab/holdout.mjs`): 6 apps, 12 planted flaws, 2 clean controls. Written and scored with the unchanged scanner, and that baseline (`evaluation/baseline.json`) committed before any fix, so it shows whether the fixes generalise.
 
 ```bash
-npm run evaluate   # writes evaluation/results.json, evaluation/RESULTS.md, evaluation/evaluation-report.pdf
+npm run evaluate              # writes evaluation/results.json, RESULTS.md and evaluation-report.pdf
+node lab/evaluate.mjs --baseline   # re-snapshot the "before" numbers (only before a new round of fixes)
 ```
 
-Current results (32 planted flaws):
+| Set | Setup | Found before fixes | Found now | False alarms |
+|---|---|---|---|---|
+| Development | Repository only | 20/33 | 24/33 | 1 |
+| Development | Browser only | 18/33 | 19/33 | 1 |
+| Development | **Combined** | 30/33 | **33/33** | 2 |
+| Held-out | Repository only | 6/12 | 11/12 | 2 |
+| Held-out | Browser only | 3/12 | 6/12 | 0 |
+| Held-out | **Combined** | 8/12 | **12/12** | 2 |
 
-| Setup | Flaws found | Found within reach | False alarms |
-|---|---|---|---|
-| Repository only | 20/32 (63%) | 20/23 (87%) | 1 |
-| Browser only | 18/32 (56%) | 18/19 (95%) | 1 |
-| Combined | 30/32 (94%) | 30/32 (94%) | 2 |
-
-13 flaws leave evidence only in the repository (storage and database policies, privileged functions, edge functions, secrets in history) and 9 only in the deployment (tables made in the dashboard, files the host serves, headers), so neither setup alone can reach every flaw. The clean controls produce no false alarms; the two false alarms are marketplace listings that are public on purpose. The four misses within reach are the hard cases, kept as known gaps rather than fixed against the test set. Full method, breakdowns and threats to validity are in `evaluation/evaluation-report.pdf`.
+Neither setup alone reaches every flaw: on the development set 14 flaws leave evidence only in the repository (storage and database policies, privileged functions, edge functions, secrets in history) and 9 only in the deployment (tables made in the dashboard, files the host serves, headers). Every flaw within reach of a setup is now found on both sets. The remaining false alarms are known and documented: marketplace listings that are public on purpose, and a browser Maps key whose name looks secret (left unfixed rather than special-cased after seeing the held-out set). Method, before/after, breakdowns and threats to validity are in `evaluation/evaluation-report.pdf`.
 
 ## Rule catalogue
 
@@ -134,5 +139,5 @@ test/                 node:test suite
 ## Roadmap
 
 1. Run both tracks on the team's own apps and record results.
-2. Close the known gaps from the evaluation's hard cases (service keys with other names, policies that trust any signed-in user, lazily loaded chunks, Firestore rules that trust any signed-in user), then re-evaluate on new held-out apps.
+2. Apps from an outside source (for example public vibe-coded repositories with the owners' permission) as a truly independent test set.
 3. Optional gitleaks/trufflehog integration to compare detection coverage.

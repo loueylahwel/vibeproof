@@ -24,8 +24,11 @@ export interface CheckResult {
 
 const CODE_EXT = /\.(?:[cm]?[jt]sx?|vue|svelte|astro|html)$/i;
 const SERVER_PATH = /(^|\/)(api|server|functions|scripts|migrations|supabase\/functions|netlify\/functions|lib\/server)(\/|$)|\.server\.[jt]sx?$|(^|\/)middleware\.[jt]s$/i;
-const PUBLIC_SECRET_ENV = /\b(?:NEXT_PUBLIC_|VITE_|REACT_APP_|NUXT_PUBLIC_|EXPO_PUBLIC_|PUBLIC_)[A-Z0-9_]*(?:SECRET|PRIVATE|SERVICE_ROLE|PASSWORD|API_KEY|TOKEN)[A-Z0-9_]*\b/g;
-const SERVICE_ROLE_REF = /service_role/gi;
+const PUBLIC_SECRET_ENV = /\b(?:NEXT_PUBLIC_|VITE_|REACT_APP_|NUXT_PUBLIC_|EXPO_PUBLIC_|PUBLIC_)[A-Z0-9_]*(?:SECRET|PRIVATE|SERVICE_ROLE|SERVICE_KEY|ADMIN_KEY|PASSWORD|API_KEY|TOKEN)[A-Z0-9_]*\b/g;
+/** Names that look secret but are public by design (Firebase web key, Supabase anon/publishable key). */
+const PUBLIC_BY_DESIGN = /FIREBASE_API_KEY|PUBLISHABLE|ANON_KEY/;
+/** References to a Supabase key that bypasses RLS, under its common names. */
+const SERVICE_ROLE_REF = /service_role|SERVICE_KEY|ADMIN_KEY/gi;
 
 function isEnvFile(name: string): boolean {
   return /^\.env(\..+)?$/.test(name) && !/\.(example|sample|template|dist)$/i.test(name);
@@ -90,6 +93,7 @@ export async function scanRepo(rootInput: string, opts: RepoOptions): Promise<Ch
     for (const hit of scanSecrets(text)) addSecret(hit, `${rel}:${hit.line}`);
 
     for (const m of text.matchAll(PUBLIC_SECRET_ENV)) {
+      if (PUBLIC_BY_DESIGN.test(m[0])) continue;
       addOnce(`pubenv:${m[0]}:${rel}`, makeFinding('VP-ENV-002', 'repo', `${rel}:${lineOf(text, m.index ?? 0)}`, `Variable name: ${m[0]}`));
     }
 
@@ -149,6 +153,53 @@ function scanHistory(log: string, addSecret: (hit: SecretHit, location: string) 
 
 const PUBLIC_TABLE = String.raw`(?:"?public"?\.)?"?([A-Za-z_][\w]*)"?`;
 
+/** Text inside the parentheses after "using" or "with check", with nested parentheses balanced. */
+function clause(body: string, keyword: 'using' | 'with check'): string | null {
+  const m = new RegExp(String.raw`\b${keyword.replace(' ', String.raw`\s+`)}\s*\(`, 'i').exec(body);
+  if (!m) return null;
+  let depth = 1;
+  let i = m.index + m[0].length;
+  const start = i;
+  for (; i < body.length && depth > 0; i++) {
+    if (body[i] === '(') depth++;
+    else if (body[i] === ')') depth--;
+  }
+  return body.slice(start, i - 1);
+}
+
+/** Lower-case, no whitespace, no outer parentheses, "(select auth.x())" unwrapped. */
+function normalizeCondition(cond: string): string {
+  let c = cond.toLowerCase().replace(/\s+/g, '').replace(/\(select(auth\.\w+\(\))\)/g, '$1');
+  while (/^\(.*\)$/.test(c) && clauseBalanced(c.slice(1, -1))) c = c.slice(1, -1);
+  return c;
+}
+
+function clauseBalanced(c: string): boolean {
+  let depth = 0;
+  for (const ch of c) {
+    if (ch === '(') depth++;
+    else if (ch === ')' && --depth < 0) return false;
+  }
+  return depth === 0;
+}
+
+function isTrue(cond: string | null): boolean {
+  return cond !== null && normalizeCondition(cond) === 'true';
+}
+
+const ANY_SIGNED_IN_USER = new Set([
+  "auth.role()='authenticated'",
+  "'authenticated'=auth.role()",
+  'auth.uid()isnotnull',
+  'auth.jwt()isnotnull',
+  "auth.role()<>'anon'",
+  "auth.role()!='anon'",
+]);
+
+function trustsAnyUser(cond: string | null): boolean {
+  return cond !== null && ANY_SIGNED_IN_USER.has(normalizeCondition(cond));
+}
+
 /** Static audit of Supabase/Postgres migrations for missing or permissive RLS. */
 export function auditSql(files: { rel: string; text: string }[], notes: string[]): Finding[] {
   const findings: Finding[] = [];
@@ -173,8 +224,8 @@ export function auditSql(files: { rel: string; text: string }[], notes: string[]
     for (const m of text.matchAll(policyRe)) {
       const [, name, schemaName, table, body] = m;
       if ((schemaName ?? 'public').toLowerCase() !== 'public') continue;
-      const allowsAll = /\busing\s*\(\s*true\s*\)|\bwith\s+check\s*\(\s*true\s*\)/i.test(body);
-      if (!allowsAll) continue;
+      const usingCond = clause(body, 'using');
+      const checkCond = clause(body, 'with check');
       const command = (/\bfor\s+(select|insert|update|delete|all)\b/i.exec(body)?.[1] ?? 'all').toLowerCase();
       const rolesMatch = /\bto\s+([\w\s,]+?)(?=\s+using\b|\s+with\b|$)/i.exec(body);
       const roles = rolesMatch ? rolesMatch[1].toLowerCase().split(/[\s,]+/).filter(Boolean) : ['public'];
@@ -183,12 +234,19 @@ export function auditSql(files: { rel: string; text: string }[], notes: string[]
       const isAuthed = roles.includes('authenticated');
 
       let severity: 'critical' | 'high' | null = null;
-      if (isAnon) severity = isWrite ? 'critical' : 'high';
-      else if (isAuthed && isWrite) severity = 'high';
+      let why = 'condition is true';
+      if (isTrue(usingCond) || isTrue(checkCond)) {
+        if (isAnon) severity = isWrite ? 'critical' : 'high';
+        else if (isAuthed && isWrite) severity = 'high';
+      } else if (['update', 'delete', 'all'].includes(command) && trustsAnyUser(usingCond) && (isAnon || isAuthed)) {
+        // Any signed-in user may change or delete every row, not only their own.
+        severity = 'high';
+        why = 'condition only checks that the user is signed in';
+      }
       if (!severity) continue;
 
       findings.push(makeFinding('VP-DB-002', 'repo', `${rel}:${lineOf(text, m.index ?? 0)}`,
-        `Policy ${name} on table "${table}": for ${command}, to ${roles.join(', ')}, condition is true.`, severity));
+        `Policy ${name} on table "${table}": for ${command}, to ${roles.join(', ')}, ${why}.`, severity));
     }
   }
 

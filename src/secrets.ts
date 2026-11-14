@@ -24,6 +24,12 @@ interface Pattern {
 
 const PATTERNS: Pattern[] = [
   {
+    name: 'Supabase secret key (sb_secret_)',
+    ruleId: 'VP-DB-006',
+    severity: 'critical',
+    regex: /\bsb_secret_[A-Za-z0-9_-]{20,}\b/g,
+  },
+  {
     name: 'Private key block',
     ruleId: 'VP-SEC-001',
     severity: 'critical',

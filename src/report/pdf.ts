@@ -355,7 +355,7 @@ function limitations(doc: Doc, report: ScanReport): void {
   ];
   bullets(doc, report.track === 'repo'
     ? [...common, 'Database rules changed in the Supabase dashboard, or created by dynamic SQL, are not visible in the repository.', 'Values set only in the hosting provider (for example Vercel or Netlify environment variables) are not visible here; a web scan of the deployment covers them.']
-    : [...common, 'Only tables named in shipped code or listed in the API schema were probed. If the schema is hidden, other tables may also be exposed.', 'Database functions and storage file listings need POST requests, which this scan never sends; they are covered by the repository scan.', 'Only same-origin scripts are scanned; code loaded later by dynamic import or from other origins may be missed.']);
+    : [...common, 'Only tables named in shipped code or listed in the API schema were probed. If the schema is hidden, other tables may also be exposed.', 'Database functions and storage file listings need POST requests, which this scan never sends; they are covered by the repository scan.', 'Only same-origin scripts are scanned. Chunks loaded later are followed when referenced by import(), Vite preload lists, Next.js chunk paths or modulepreload links; code loaded in other ways or from other origins may be missed.']);
 }
 
 function appendix(doc: Doc, report: ScanReport): void {

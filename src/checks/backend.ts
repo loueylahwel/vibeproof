@@ -161,6 +161,7 @@ export function auditEdgeFunctions(files: TextFile[], notes: string[]): Finding[
 /* ---------------- Firebase security rules ---------------- */
 
 const FIREBASE_WRITE = /\b(write|create|update|delete)\b/;
+const ANY_SIGNED_IN_RULE = /^(request\.auth!=null|request\.auth\.uid!=null|null!=request\.auth)$/;
 
 export function auditFirebase(files: TextFile[], notes: string[]): Finding[] {
   const findings: Finding[] = [];
@@ -182,6 +183,13 @@ export function auditFirebase(files: TextFile[], notes: string[]): Finding[] {
           findings.push(makeFinding('VP-FB-001', 'repo', location, shown, FIREBASE_WRITE.test(ops) ? 'critical' : 'high'));
         } else if (/request\.time\s*<\s*timestamp\.date/i.test(cond)) {
           findings.push(makeFinding('VP-FB-002', 'repo', location, shown));
+        } else if (ANY_SIGNED_IN_RULE.test(cond.replace(/\s+/g, ''))) {
+          // Anyone can create an account, so "signed in" alone protects nothing for
+          // writes, or for reads that cover the whole database ({document=**}).
+          const write = FIREBASE_WRITE.test(ops);
+          if (write || /=\*\*\}/.test(path)) {
+            findings.push(makeFinding('VP-FB-001', 'repo', location, `${shown} (any signed-in user)`, write ? 'high' : 'medium'));
+          }
         }
       }
     }
@@ -204,6 +212,14 @@ export function auditFirebase(files: TextFile[], notes: string[]): Finding[] {
               findings.push(makeFinding('VP-FB-001', 'repo', rel, shown, key === '.write' ? 'critical' : 'high'));
             } else if (typeof value === 'string' && /\bnow\s*</.test(value)) {
               findings.push(makeFinding('VP-FB-002', 'repo', rel, shown));
+            } else if (typeof value === 'string' && /^(auth!=null|auth\.uid!=null|null!=auth)$/.test(value.replace(/\s+/g, ''))) {
+              // Any signed-in user may write this path (unless it is per-user, under a $variable),
+              // or read the whole database when the rule sits at the root.
+              if (key === '.write' && !trail.includes('$')) {
+                findings.push(makeFinding('VP-FB-001', 'repo', rel, `${shown} (any signed-in user)`, 'high'));
+              } else if (key === '.read' && trail === '') {
+                findings.push(makeFinding('VP-FB-001', 'repo', rel, `${shown} (any signed-in user)`, 'medium'));
+              }
             }
           } else if (!key.startsWith('.')) {
             walk(value, `${trail}/${key}`);

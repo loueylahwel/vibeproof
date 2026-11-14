@@ -75,24 +75,50 @@ export async function scanWeb(targetInput: string, opts: WebOptions): Promise<Ch
   notes.push(`Page ${target.href} returned HTTP ${page.status}.`);
   findings.push(...checkHeaders(page.headers, target));
 
-  // 2. Same-origin JavaScript bundles
+  // 2. Same-origin JavaScript: script tags, modulepreload links, and every chunk
+  //    those scripts load later (dynamic import(), Vite preload lists, Next.js chunks).
   const sources: { url: string; text: string }[] = [{ url: target.href, text: page.body }];
   const thirdParty = new Set<string>();
-  for (const m of page.body.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/gi)) {
-    const src = new URL(m[1], target.href);
-    if (src.origin !== origin) {
-      thirdParty.add(src.host);
-      continue;
+  const queue: URL[] = [];
+  const queued = new Set<string>();
+  const enqueue = (ref: string, relativeTo: string) => {
+    let url: URL;
+    try {
+      url = new URL(ref, relativeTo);
+    } catch {
+      return;
     }
+    if (url.origin !== origin) {
+      thirdParty.add(url.host);
+      return;
+    }
+    url.hash = '';
+    if (!queued.has(url.href)) {
+      queued.add(url.href);
+      queue.push(url);
+    }
+  };
+  for (const m of page.body.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/gi)) enqueue(m[1], target.href);
+  for (const m of page.body.matchAll(/<link\b[^>]*\brel=["']modulepreload["'][^>]*\bhref=["']([^"']+)["']/gi)) enqueue(m[1], target.href);
+
+  let lazy = 0;
+  while (queue.length) {
     if (sources.length > opts.maxBundles) {
-      notes.push(`Bundle limit (${opts.maxBundles}) reached; remaining scripts skipped.`);
+      notes.push(`Bundle limit (${opts.maxBundles}) reached; ${queue.length} script(s) not scanned.`);
       break;
     }
-    const res = await readOnlyGet(src.href, opts.timeoutMs);
-    if (res.status === 200) sources.push({ url: src.href, text: res.body });
-    else notes.push(`Script ${src.pathname} returned HTTP ${res.status}.`);
+    const src = queue.shift() as URL;
+    const res = await readOnlyGet(src.href, opts.timeoutMs).catch(() => null);
+    if (res?.status !== 200 || /^\s*</.test(res.body)) {
+      notes.push(`Script ${src.pathname} ${res ? `returned HTTP ${res.status}` : 'could not be fetched'}${res?.status === 200 ? ' (HTML, not JavaScript)' : ''}.`);
+      continue;
+    }
+    sources.push({ url: src.href, text: res.body });
+    const before = queue.length;
+    for (const ref of chunkReferences(res.body)) enqueue(ref.path, ref.fromRoot ? `${origin}/` : src.href);
+    lazy += queue.length - before;
   }
-  notes.push(`Scanned ${sources.length - 1} same-origin script(s) plus the HTML page.`);
+  notes.push(`Scanned ${sources.length - 1} same-origin script(s) plus the HTML page${lazy ? `, including ${lazy} lazily loaded chunk(s)` : ''}.`);
   if (thirdParty.size) notes.push(`Third-party scripts not scanned: ${[...thirdParty].join(', ')}.`);
 
   // 3. Secrets, keys, Supabase config and table names in shipped code
@@ -268,6 +294,18 @@ export async function scanWeb(targetInput: string, opts: WebOptions): Promise<Ch
   }
 
   return { findings, notes };
+}
+
+/**
+ * Script paths a bundle may load later. Dynamic import() paths are relative to
+ * the bundle; Vite preload lists ("assets/x.js") and Next.js chunk paths
+ * ("_next/static/chunks/x.js") are relative to the site root.
+ */
+export function chunkReferences(code: string): { path: string; fromRoot: boolean }[] {
+  const refs: { path: string; fromRoot: boolean }[] = [];
+  for (const m of code.matchAll(/\bimport\(\s*["'`]([^"'`\s]+\.m?js)["'`]\s*\)/g)) refs.push({ path: m[1], fromRoot: false });
+  for (const m of code.matchAll(/["'`]\/?((?:assets|_next\/static\/chunks)\/[\w.\-/[\]]+\.m?js)["'`]/g)) refs.push({ path: m[1], fromRoot: true });
+  return refs;
 }
 
 export function checkHeaders(headers: Headers, target: URL): Finding[] {

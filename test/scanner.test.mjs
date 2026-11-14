@@ -110,3 +110,32 @@ test('PDF report renders', async () => {
   assert.equal(pdf.subarray(0, 5).toString(), '%PDF-');
   assert.ok(pdf.length > 3000);
 });
+
+test('lazily loaded chunks are discovered from import(), Vite and Next.js references', async () => {
+  const { chunkReferences } = await import('../dist/checks/web.js');
+  const refs = chunkReferences('import("./a.js");m.f=["assets/b-1.js"];x("/_next/static/chunks/c.js");y="other.css"');
+  assert.deepEqual(refs, [
+    { path: './a.js', fromRoot: false },
+    { path: 'assets/b-1.js', fromRoot: true },
+    { path: '_next/static/chunks/c.js', fromRoot: true },
+  ]);
+});
+
+test('policies trusting any signed-in user: writes flagged, reads not', async () => {
+  const { auditSql } = await import('../dist/checks/repo.js');
+  const sql = `create table public.t (id int);
+alter table public.t enable row level security;
+create policy "w" on public.t for update to authenticated using ((select auth.role()) = 'authenticated');
+create policy "d" on public.t for delete to authenticated using (auth.uid() IS NOT NULL);
+create policy "r" on public.t for select to authenticated using (auth.uid() is not null);
+create policy "own" on public.t for update to authenticated using (auth.uid() = owner);`;
+  const found = auditSql([{ rel: 'm.sql', text: sql }], []).filter((f) => f.ruleId === 'VP-DB-002');
+  assert.deepEqual(found.map((f) => f.evidence.match(/Policy "(\w+)"/)[1]), ['w', 'd']);
+  assert.ok(found.every((f) => f.severity === 'high'));
+});
+
+test('Supabase sb_secret_ keys are critical', () => {
+  const [hit] = scanSecrets('const k = "' + 'sb_' + 'secret_' + 'abcdEFGH1234abcdEFGH1234' + '";');
+  assert.equal(hit.ruleId, 'VP-DB-006');
+  assert.equal(hit.severity, 'critical');
+});
