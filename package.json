@@ -1,6 +1,6 @@
 {
   "name": "vibe-security-scanner",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Scanner for vibe-coded web apps: secrets, Supabase RLS, client-side key exposure. University project.",
   "type": "module",
@@ -9,10 +9,11 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "npm run build && node --test test/scanner.test.mjs",
+    "test": "npm run build && node --test test/*.test.mjs",
     "demo": "npm run build && node lab/demo.mjs",
     "scan:repo": "node dist/cli.js repo",
-    "scan:web": "node dist/cli.js web"
+    "scan:web": "node dist/cli.js web",
+    "dashboard": "npm run build && node dist/cli.js dashboard"
   },
   "engines": {
     "node": ">=20"

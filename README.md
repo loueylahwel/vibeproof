@@ -26,7 +26,21 @@ npm install
 npm run build
 ```
 
-## Usage
+## Dashboard
+
+```bash
+npm run dashboard
+```
+
+Then open http://localhost:4173. From the dashboard you can:
+
+- run a repository scan (path on this computer) or a live web app scan (URL, with the permission checkbox);
+- browse the scan history, filter findings by severity or text, and expand each finding for evidence and the fix;
+- open or download the PDF report and the JSON data, or delete a scan.
+
+The dashboard can read local folders, so it is locked down: it listens on 127.0.0.1 only, rejects foreign `Host` headers (DNS rebinding) and cross-origin requests, and requires an `x-vscan` header on every request that changes something (CSRF). All finding text is rendered with `textContent`, so content from a scanned site cannot inject HTML. Use `--port` or `PORT` to change the port.
+
+## Command line
 
 ```bash
 node dist/cli.js repo ../our-app --out reports/our-app-repo.pdf
@@ -73,6 +87,9 @@ All rules, with severity, OWASP Top 10 (2021) and CWE mapping, are in `src/rules
 
 ```
 src/cli.ts            command line entry point
+src/run.ts            runs one scan and writes JSON + PDF (shared by CLI and dashboard)
+src/dashboard/        local dashboard server
+dashboard/            dashboard UI (HTML, CSS, JS, no build step)
 src/checks/repo.ts    white-box checks (files, git history, SQL migrations, npm audit)
 src/checks/web.ts     black-box checks (headers, bundles, source maps, Supabase probe)
 src/secrets.ts        secret patterns and JWT role decoding
