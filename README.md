@@ -13,6 +13,10 @@ It runs two tracks and produces a formal PDF report plus JSON data for each scan
 
 [`docs/PROJECT-REPORT.md`](docs/PROJECT-REPORT.md) is the draft write-up (research question, tool design, evaluation method, results, discussion, ethics, limitations), rendered to [`docs/project-report.pdf`](docs/project-report.pdf) by `npm run docs`. Sections marked `[TEAM: ...]` need the team's input. A test checks that its results tables match `evaluation/results.json`.
 
+## Vulnerability guides
+
+Short guides to the 12 kinds of weakness Vibeproof looks for (what each is, why it matters, how to scan for it, how to check it by hand), in English ([`docs/vulnerability-guide.pdf`](docs/vulnerability-guide.pdf)) and French ([`docs/guide-vulnerabilites.pdf`](docs/guide-vulnerabilites.pdf)). Sources are the Markdown files next to them; a test checks that both cover every rule.
+
 ## Rules of engagement
 
 - Scan only apps the team owns, or apps whose owner has given written permission. The project currently scans **our own repos only**.

@@ -42,3 +42,16 @@ test('project report numbers match the committed evaluation results', async () =
     });
   }
 });
+
+test('both vulnerability guides cover every rule', async () => {
+  const { RULES } = await import('../dist/rules.js');
+  for (const file of ['docs/VULNERABILITY-GUIDE.md', 'docs/GUIDE-VULNERABILITES.md']) {
+    const text = await readFile(file, 'utf8');
+    const ids = new Set(text.match(/VP-[A-Z]+-\d{3}/g));
+    // "VP-WEB-001 to VP-WEB-004" / "VP-WEB-001 à VP-WEB-004" covers the whole range.
+    for (const m of text.matchAll(/VP-([A-Z]+)-(\d{3}) (?:to|à) VP-\1-(\d{3})/g)) {
+      for (let n = Number(m[2]); n <= Number(m[3]); n++) ids.add(`VP-${m[1]}-${String(n).padStart(3, '0')}`);
+    }
+    for (const id of Object.keys(RULES)) assert.ok(ids.has(id), `${file} does not mention ${id}`);
+  }
+});

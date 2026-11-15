@@ -31,8 +31,12 @@ const SEVERITY_SHADE: Record<Severity, string> = {
 };
 
 /** The standard PDF fonts only cover Latin-1; keep dynamic text printable ASCII. */
+/**
+ * Keep only characters the standard PDF fonts can draw (WinAnsi: ASCII, Latin-1
+ * accents such as French é è à ç, and common typographic marks).
+ */
 export function ascii(value: string): string {
-  return value.replace(/[^\x20-\x7E\n]/g, '?');
+  return value.replace(/[^\x20-\x7E\n\u00A0-\u00FF\u0152\u0153\u2013\u2014\u2018\u2019\u201C\u201D\u2026\u20AC]/g, '?');
 }
 
 function sortFindings(findings: Finding[]): Finding[] {
@@ -373,7 +377,7 @@ function appendix(doc: Doc, report: ScanReport): void {
 }
 
 /** Running header (title and id) on every page but the first, and a page counter on every page. */
-export function pageChrome(doc: Doc, title: string, id: string, label = 'Confidential'): void {
+export function pageChrome(doc: Doc, title: string, id: string, label = 'Confidential', pageOf = ['Page', 'of']): void {
   const range = doc.bufferedPageRange();
   for (let i = range.start; i < range.start + range.count; i++) {
     doc.switchToPage(i);
@@ -387,7 +391,7 @@ export function pageChrome(doc: Doc, title: string, id: string, label = 'Confide
       doc.moveTo(MARGIN, 42).lineTo(MARGIN + w, 42).lineWidth(0.5).strokeColor(RULE_LINE).stroke();
     }
     doc.font('Helvetica').fontSize(8).fillColor(MUTED)
-      .text(`${label}  |  Page ${i - range.start + 1} of ${range.count}`, MARGIN, doc.page.height - 36, { width: w, align: 'center', lineBreak: false });
+      .text(`${label}  |  ${pageOf[0]} ${i - range.start + 1} ${pageOf[1]} ${range.count}`, MARGIN, doc.page.height - 36, { width: w, align: 'center', lineBreak: false });
     doc.page.margins.bottom = bottom;
   }
 }

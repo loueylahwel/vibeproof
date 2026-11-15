@@ -25,7 +25,7 @@ export function parseMarkdown(md: string): Block[] {
   const lines = md.replace(/\r/g, '').split('\n');
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    if (!line.trim()) continue;
+    if (!line.trim() || line.trim().startsWith('<!--')) continue;
     if (line.startsWith('# ')) blocks.push({ kind: 'title', text: plain(line.slice(2)) });
     else if (line.startsWith('### ')) blocks.push({ kind: 'subheading', text: plain(line.slice(4)) });
     else if (line.startsWith('## ')) blocks.push({ kind: 'heading', text: plain(line.slice(3)) });
@@ -79,7 +79,7 @@ function tableHeight(doc: Doc, t: { header: string[]; rows: string[][] }): numbe
   return h + 12;
 }
 
-export async function writeMarkdownPdf(markdown: string, outPath: string, opts: { label?: string; id?: string } = {}): Promise<void> {
+export async function writeMarkdownPdf(markdown: string, outPath: string, opts: { label?: string; id?: string; lang?: 'en' | 'fr' } = {}): Promise<void> {
   const blocks = parseMarkdown(markdown);
   const title = blocks.find((b) => b.kind === 'title')?.text ?? 'Document';
   const doc = new PDFDocument({
@@ -127,7 +127,7 @@ export async function writeMarkdownPdf(markdown: string, outPath: string, opts: 
     }
   }
 
-  pageChrome(doc, title, opts.id ?? '', opts.label ?? 'Project document');
+  pageChrome(doc, title, opts.id ?? '', opts.label ?? 'Project document', opts.lang === 'fr' ? ['Page', 'sur'] : ['Page', 'of']);
   doc.end();
   await once(stream, 'finish');
 }
