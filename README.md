@@ -40,7 +40,18 @@ npm run build
 npm run dashboard
 ```
 
-Then open http://localhost:4173. From the dashboard you can:
+Then open http://localhost:4173.
+
+To keep it always running instead (Linux), install it as a systemd user service: it starts at login (or at boot when lingering is enabled), restarts if it stops, and rebuilds before each start so it runs the current code.
+
+```bash
+sh scripts/install-dashboard-service.sh            # install or update
+systemctl --user restart vibeproof-dashboard       # restart after changing code
+journalctl --user -u vibeproof-dashboard -f        # logs
+sh scripts/install-dashboard-service.sh --remove   # uninstall
+```
+
+Re-run the installer after moving the project or changing the Node version (the service stores absolute paths). While the service runs, do not also start `npm run dashboard`: both use port 4173. From the dashboard you can:
 
 - paste a public repository link, a folder path, or a website URL and press Scan; the scan type is detected automatically, and an unverified domain shows its verification token;
 - browse the scan history, filter findings by severity or text, and expand each finding for evidence and the fix;
