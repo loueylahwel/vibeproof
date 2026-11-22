@@ -4,273 +4,426 @@
       position: absolute;
       inset: 0;
       overflow: hidden;
-      background: #ffffff;
+      background: #05060a;
       font-family: "Inter", sans-serif;
-      color: #0a0a0a;
+      color: #eaf2f7;
     }
-    /* the camera carries the two-world ground, so the seam and the words stay together */
-    #blind-cam { position: absolute; inset: 0; transform-origin: 960px 540px; }
-    #blind-ground { position: absolute; left: -816px; top: -624px; }
-    /* CODE world: the left half, hard seam at x 960 */
-    #blind-dark { position: absolute; left: -816px; top: -624px; width: 1776px; height: 2304px; background: #0b0b0c; }
-    #blind-dark svg { position: absolute; left: 0; top: 0; }
+    /* ---- v7 shared world (ground, glow, floor grid, dust, vignette) ---- */
+    #blind-ground { position: absolute; inset: 0; background: #05060a; }
+    #blind-glow { position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 55% at 50% 45%, rgba(61,255,162,0.07), transparent 70%); }
+    #blind-floor-wrap { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;
+      perspective: 900px; perspective-origin: 50% 30%; overflow: hidden; }
+    #blind-floor { position: absolute; left: -1200px; width: 4320px; top: 560px; height: 1400px;
+      transform-origin: 50% 0%; transform: rotateX(72deg);
+      background-image:
+        linear-gradient(to right, rgba(61,255,162,0.10) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(61,255,162,0.10) 1px, transparent 1px);
+      background-size: 80px 80px;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 100%);
+              mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 100%); }
+    #blind-dust { position: absolute; inset: 0; }
+    #blind-dust i { position: absolute; left: 0; top: 0; border-radius: 50%; background: #eaf2f7; }
+    #blind-vignette { position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.6)); }
 
-    /* kinetic type: a line is a mask, its words rise through it. Words blend so
-       one line reads light on the dark half and ink on the light half. */
-    .blind-display {
-      position: absolute; left: 80px; top: 100px; padding: 4px 16px 18px 16px; overflow: hidden;
-      font-weight: 900; font-size: 100px; line-height: 1.05; letter-spacing: -0.02em; white-space: nowrap;
-    }
-    .blind-line {
-      position: absolute; left: 84px; top: 104px; padding: 4px 12px 10px 12px; overflow: hidden;
-      font-weight: 700; font-size: 44px; line-height: 56px; letter-spacing: -0.01em; white-space: nowrap;
-    }
-    .blind-w { display: inline-block; }
-    .blind-x { color: #f5f5f5; mix-blend-mode: difference; }
-    .blind-mk { position: relative; isolation: isolate; margin: 0 0.06em 0 0.1em; color: #f2f2f2; }
-    .blind-bar {
-      position: absolute; left: -0.09em; right: -0.09em; top: calc(50% - 0.45em); height: 0.9em;
-      background: #ff4d4f; z-index: -1;
-    }
-    .blind-mask { overflow: hidden; padding: 0 6px 6px 6px; margin-left: -6px; white-space: nowrap; }
+    /* ---- transition wrapper, camera (push), rig (beat re-targets, 3D space) ---- */
+    #blind-fx, #blind-cam, #blind-rig { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+    #blind-fx { transform-origin: 960px 540px; }
+    #blind-cam { transform-origin: 700px 330px; }
+    #blind-rig { perspective: 1600px; perspective-origin: 960px 560px; }
+    #blind-focus { position: absolute; left: 0; top: 160px; width: 1100px; height: 900px;
+      background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(61,255,162,0.08), transparent 70%); }
 
-    .blind-label { position: absolute; font-weight: 700; font-size: 28px; line-height: 36px; white-space: nowrap; }
-    .blind-panel {
-      position: absolute; top: 280px; width: 820px; height: 660px;
-      border: 2px solid #0a0a0a; border-radius: 10px; background: #ffffff; overflow: hidden;
-    }
-    /* the code half lives in the CODE world */
-    #blind-code { background: #17171a; border-color: #2c2c30; color: #f2f2f2; }
-    #blind-code .blind-muted { color: #8a8a8a; }
-    .blind-site-muted { color: #6b6b6b; }
-    .blind-trow {
-      position: absolute; height: 44px;
-      font-family: "JetBrains Mono", monospace; font-size: 28px; line-height: 44px; white-space: nowrap;
-    }
+    /* ---- HUD chapter label ---- */
+    #blind-hud { position: absolute; left: 96px; top: 60px; height: 30px; white-space: nowrap;
+      font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 22px; line-height: 30px;
+      letter-spacing: 0.22em; text-transform: uppercase; color: #3dffa2;
+      text-shadow: 0 0 14px rgba(61,255,162,0.45); }
+    #blind-hud-c { display: inline-block; width: 13px; height: 24px; margin-left: 2px; vertical-align: -4px;
+      background: #3dffa2; box-shadow: 0 0 12px rgba(61,255,162,0.6); }
+
+    /* ---- kinetic type ---- */
+    .blind-ln { position: absolute; overflow: hidden; white-space: nowrap; width: max-content;
+      padding: 6px 18px 16px 18px; margin-left: -18px; }
+    .blind-w { display: inline-block; position: relative; }
+    .blind-display { left: 96px; top: 92px; font-weight: 900; font-size: 100px; line-height: 1.05; letter-spacing: -0.025em; }
+    .blind-line { left: 96px; top: 138px; font-weight: 800; font-size: 52px; line-height: 64px; letter-spacing: -0.015em; }
+    .blind-ul { position: absolute; left: 0; right: 0; bottom: -2px; height: 6px; border-radius: 3px;
+      transform: scaleX(0); transform-origin: 0% 50%; }
+
+    /* ---- the two halves ---- */
+    .blind-lab { position: absolute; top: 232px; height: 40px; display: flex; align-items: center; gap: 14px;
+      font-weight: 800; font-size: 30px; letter-spacing: -0.01em; white-space: nowrap; }
+    .blind-lab b { width: 10px; height: 10px; border-radius: 50%; background: #3dffa2;
+      box-shadow: 0 0 10px rgba(61,255,162,0.7); }
+    .blind-panel { position: absolute; top: 290px; width: 780px; height: 660px; border-radius: 14px;
+      background: #0b0f16; border: 1px solid rgba(61,255,162,0.16); }
+    #blind-code { left: 116px; transform-origin: 100% 50%; }
+    #blind-site { left: 1024px; transform-origin: 0% 50%; }
+    .blind-rim { position: absolute; inset: -1px; border-radius: 14px; pointer-events: none;
+      box-shadow: 0 0 0 1px #3dffa2, 0 0 28px rgba(61,255,162,0.45), 0 0 80px rgba(61,255,162,0.18); opacity: 0; }
+    .blind-sheen { position: absolute; inset: 0; border-radius: 14px; overflow: hidden; pointer-events: none; }
+    .blind-sheen i { position: absolute; top: -10%; left: 0; width: 30%; height: 120%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent); }
+    .blind-trow { position: absolute; height: 44px; font-family: "JetBrains Mono", monospace; font-size: 28px;
+      line-height: 44px; white-space: nowrap; color: #cfe3f0; }
     .blind-trow svg { position: absolute; left: 0; top: 9px; }
     .blind-trow span { position: absolute; left: 42px; top: 0; }
-    .blind-ghost {
-      position: absolute; height: 40px;
-      border: 2px dashed rgba(10, 10, 10, 0.45); border-radius: 8px;
-    }
-    #blind-ghost1 { border-color: rgba(242, 242, 242, 0.45); }
-    .blind-tag {
-      position: absolute; height: 44px; padding: 0 14px;
-      border: 2px solid #e5342f; border-radius: 8px; background: #e5342f; color: #ffffff;
-      font-weight: 700; font-size: 28px; line-height: 40px; white-space: nowrap;
-    }
-    #blind-nothere1-t { border-color: #ff4d4f; background: #ff4d4f; }
-    .blind-sep { position: absolute; left: 32px; right: 32px; height: 2px; background: rgba(10, 10, 10, 0.12); }
-    #blind-code .blind-sep { background: rgba(242, 242, 242, 0.14); }
-    .blind-commit { position: absolute; left: 80px; font-size: 28px; line-height: 36px; white-space: nowrap; }
-    .blind-mono { font-family: "JetBrains Mono", monospace; font-size: 28px; line-height: 36px; white-space: nowrap; }
-    .blind-code {
-      position: absolute; left: 32px; top: 414px; width: 752px; height: 224px;
-      background: #f2f2f0; border-radius: 10px;
-    }
-    .blind-cl { position: absolute; left: 24px; height: 44px; font-family: "JetBrains Mono", monospace; font-size: 28px; line-height: 44px; white-space: nowrap; }
-    .blind-cl i { font-style: normal; color: #9a9a9a; display: inline-block; width: 44px; }
-    #blind-scan { position: absolute; left: 32px; top: 24px; width: 756px; height: 2px; background: #f2f2f2; opacity: 0; }
+    .blind-ghost { position: absolute; height: 40px; border: 2px dashed rgba(122,134,153,0.55); border-radius: 8px; }
+    .blind-tag { position: absolute; height: 44px; padding: 0 16px; border: 1.5px solid #ff3b5c; border-radius: 8px;
+      background: rgba(255,59,92,0.10); color: #ff3b5c; font-weight: 800; font-size: 28px; line-height: 41px;
+      white-space: nowrap; }
+    .blind-sep { position: absolute; left: 28px; right: 28px; height: 1px; background: rgba(122,134,153,0.22); }
+    .blind-muted { position: absolute; font-weight: 700; font-size: 28px; line-height: 36px; color: #7a8699; white-space: nowrap; }
+    .blind-commit { position: absolute; left: 80px; font-weight: 500; font-size: 28px; line-height: 36px; color: #cfe3f0; white-space: nowrap; }
+    .blind-mono { position: absolute; font-family: "JetBrains Mono", monospace; font-size: 28px; line-height: 36px; white-space: nowrap; }
+    .blind-codebox { position: absolute; left: 28px; top: 414px; width: 724px; height: 224px; border-radius: 10px;
+      background: #070a10; border: 1px solid rgba(122,134,153,0.18); }
+    .blind-cl { position: absolute; left: 24px; height: 44px; font-family: "JetBrains Mono", monospace; font-size: 28px;
+      line-height: 44px; white-space: nowrap; color: #cfe3f0; }
+    .blind-cl i { font-style: normal; color: #3c4656; display: inline-block; width: 44px; }
+    .blind-cl .k { color: #7fd8ff; }
+    .blind-cl .s { color: #ffc46b; }
+    /* scan line: 2 px green line with a glow and a 40 px fading trail above it */
+    .blind-scan { position: absolute; left: 0; width: 100%; height: 42px; opacity: 0; pointer-events: none; }
+    .blind-scan::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 40px;
+      background: linear-gradient(to bottom, rgba(61,255,162,0), rgba(61,255,162,0.22)); }
+    .blind-scan::after { content: ""; position: absolute; left: 0; right: 0; top: 40px; height: 2px; background: #3dffa2;
+      box-shadow: 0 0 10px rgba(61,255,162,0.9), 0 0 28px rgba(61,255,162,0.45); }
+    #blind-hotrow { position: absolute; left: 16px; top: 404px; width: 748px; height: 48px; border-radius: 8px;
+      background: rgba(255,59,92,0.10); border-left: 3px solid #ff3b5c; }
+    #blind-hotlab { left: 290px; top: 406px; font-weight: 800; font-size: 28px; line-height: 36px; color: #ff3b5c;
+      text-shadow: 0 0 18px rgba(255,59,92,0.6); padding: 2px 10px 6px 10px; margin-left: -10px; }
+
+    /* ---- out: full-width green scan line ---- */
+    #blind-wipe { position: absolute; left: 0; top: 0; width: 1920px; height: 122px; pointer-events: none; }
+    #blind-wipe::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 120px;
+      background: linear-gradient(to bottom, rgba(61,255,162,0), rgba(61,255,162,0.20)); }
+    #blind-wipe::after { content: ""; position: absolute; left: 0; right: 0; top: 120px; height: 2px; background: #3dffa2;
+      box-shadow: 0 0 12px rgba(61,255,162,0.95), 0 0 40px rgba(61,255,162,0.5); }
   </style>
 
   <div id="root" data-composition-id="blind" data-width="1920" data-height="1080">
-    <div id="blind-cam" data-layout-allow-overflow>
-      <!-- ground: SITE (light) everywhere, CODE (dark) left of x 960 -->
-      <svg id="blind-ground" width="3552" height="2304" data-layout-ignore>
-        <defs>
-          <pattern id="blind-gridpat" width="48" height="48" patternUnits="userSpaceOnUse">
-            <path d="M48 0 V48 M0 48 H48" fill="none" stroke="#0a0a0a" stroke-opacity="0.05" stroke-width="1" />
-          </pattern>
-        </defs>
-        <rect width="3552" height="2304" fill="#ffffff" />
-        <rect width="3552" height="2304" fill="url(#blind-gridpat)" />
-      </svg>
-      <div id="blind-dark" data-layout-ignore>
-        <svg width="1776" height="2304">
-          <defs>
-            <pattern id="blind-gridpat-d" width="48" height="48" patternUnits="userSpaceOnUse">
-              <path d="M48 0 V48 M0 48 H48" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1" />
-            </pattern>
-          </defs>
-          <rect width="1776" height="2304" fill="url(#blind-gridpat-d)" />
-        </svg>
-      </div>
+    <div id="blind-ground"></div>
+    <div id="blind-glow"></div>
+    <div id="blind-floor-wrap"><div id="blind-floor"></div></div>
+    <div id="blind-dust"></div>
+    <div id="blind-vignette"></div>
 
-      <div id="blind-lab-code" class="blind-label" style="left: 96px; top: 232px; color: #f2f2f2"><div class="blind-mask"><span class="blind-w">Its</span> <span class="blind-w">code</span></div></div>
-      <div id="blind-lab-site" class="blind-label" style="left: 1004px; top: 232px"><div class="blind-mask"><span class="blind-w">Its</span> <span class="blind-w">live</span> <span class="blind-w">site</span></div></div>
+    <div id="blind-fx">
+      <div id="blind-cam">
+        <div id="blind-rig">
+          <div id="blind-focus"></div>
 
-      <!-- CODE half -->
-      <div id="blind-code" class="blind-panel" style="left: 96px">
-        <div class="blind-trow" style="left: 32px; top: 32px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="#f2f2f2" stroke-width="2"/></svg><span>supabase/</span></div>
-        <div class="blind-trow" style="left: 68px; top: 76px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="#f2f2f2" stroke-width="2"/></svg><span>migrations/</span></div>
-        <div class="blind-trow" style="left: 104px; top: 120px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="#f2f2f2" stroke-width="2"/></svg><span>20260101_init.sql</span></div>
-        <div id="blind-ghost1" class="clip blind-ghost" data-start="4.8" data-duration="13.2" style="left: 104px; top: 166px; width: 400px"></div>
-        <div id="blind-nothere1" class="clip" data-start="6.4" data-duration="11.6" style="position: absolute; left: 524px; top: 164px; width: 160px; height: 44px"><div id="blind-nothere1-t" class="blind-tag">not here</div></div>
-        <div class="blind-trow" style="left: 32px; top: 212px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="#f2f2f2" stroke-width="2"/></svg><span>src/</span></div>
-        <!-- the search for the table's file -->
-        <div id="blind-scan"></div>
+          <div id="blind-lab-code" class="blind-lab" style="left: 120px"><b></b><div class="blind-ln" style="position: relative; padding: 2px 8px 6px 8px; margin: 0"><span class="blind-w">Its</span> <span class="blind-w">code</span></div></div>
+          <div id="blind-lab-site" class="blind-lab" style="left: 1028px"><b></b><div class="blind-ln" style="position: relative; padding: 2px 8px 6px 8px; margin: 0"><span class="blind-w">Its</span> <span class="blind-w">live</span> <span class="blind-w">site</span></div></div>
 
-        <div class="blind-sep" style="top: 284px"></div>
-        <div class="blind-label blind-muted" style="left: 32px; top: 306px">git history</div>
-        <svg style="position: absolute; left: 32px; top: 360px" width="32" height="260">
-          <path d="M16 12 V236" stroke="#f2f2f2" stroke-width="2" />
-          <circle cx="16" cy="12" r="8" fill="#17171a" stroke="#f2f2f2" stroke-width="2" />
-          <circle cx="16" cy="68" r="8" fill="#17171a" stroke="#f2f2f2" stroke-width="2" />
-          <circle cx="16" cy="124" r="8" fill="#17171a" stroke="#f2f2f2" stroke-width="2" />
-          <circle cx="16" cy="180" r="8" fill="#17171a" stroke="#f2f2f2" stroke-width="2" />
-          <circle cx="16" cy="236" r="8" fill="#17171a" stroke="#f2f2f2" stroke-width="2" />
-        </svg>
-        <div class="blind-commit" style="top: 354px">edit README</div>
-        <div class="blind-commit" style="top: 410px">remove key</div>
-        <div class="blind-commit" style="top: 466px">add admin key</div>
-        <div class="blind-commit" style="top: 522px">add todos table</div>
-        <div class="blind-commit" style="top: 578px">first commit</div>
-        <!-- the flagged commit -->
-        <div id="blind-hot" class="clip" data-start="9.5" data-duration="8.5" style="position: absolute; left: 32px; top: 410px; width: 32px; height: 36px">
-          <svg id="blind-hot-dot" width="32" height="36" style="position: absolute; left: 0; top: 0; overflow: visible">
-            <circle cx="16" cy="18" r="15" fill="none" stroke="#ff4d4f" stroke-width="3" />
-            <circle cx="16" cy="18" r="9" fill="#ff4d4f" />
-          </svg>
-        </div>
-        <div id="blind-hotlab" class="clip blind-label" data-start="9.5" data-duration="8.5" style="left: 270px; top: 410px; color: #ff4d4f"><div class="blind-mask"><span class="blind-w">key</span> <span class="blind-w">deleted,</span> <span class="blind-w">still</span> <span class="blind-w">in</span> <span class="blind-w">history</span></div></div>
-      </div>
+          <!-- CODE half -->
+          <div id="blind-code" class="blind-panel">
+            <div class="blind-trow" style="left: 32px; top: 32px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="#7a8699" stroke-width="2"/></svg><span>supabase/</span></div>
+            <div class="blind-trow" style="left: 68px; top: 76px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="#7a8699" stroke-width="2"/></svg><span>migrations/</span></div>
+            <div class="blind-trow" style="left: 104px; top: 120px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="#7a8699" stroke-width="2"/></svg><span>20260101_init.sql</span></div>
+            <div id="blind-ghost1" class="clip blind-ghost" data-start="5.5" data-duration="12.5" style="left: 104px; top: 168px; width: 400px"></div>
+            <div id="blind-nothere1" class="clip blind-tag" data-start="6" data-duration="12" style="left: 524px; top: 166px">not here</div>
+            <div class="blind-trow" style="left: 32px; top: 216px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="#7a8699" stroke-width="2"/></svg><span>src/</span></div>
 
-      <!-- SITE half -->
-      <div id="blind-site" class="blind-panel" style="left: 1004px">
-        <svg style="position: absolute; left: 32px; top: 20px" width="384" height="330">
-          <path d="M2 36 V292 A190 32 0 0 0 382 292 V36" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" />
-          <ellipse cx="192" cy="36" rx="190" ry="32" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" />
-          <rect x="30" y="124" width="150" height="30" fill="#f2f2f0" />
-          <rect x="30" y="124" width="150" height="120" fill="none" stroke="#0a0a0a" stroke-width="2" />
-          <path d="M30 154 H180 M30 184 H180 M30 214 H180 M80 124 V244 M130 124 V244" fill="none" stroke="#0a0a0a" stroke-width="2" />
-        </svg>
-        <div class="blind-mono" style="position: absolute; left: 62px; top: 102px">todos</div>
-        <div id="blind-bookings" class="clip" data-start="3" data-duration="15" style="position: absolute; left: 230px; top: 96px; width: 160px; height: 172px">
-          <div id="blind-bookings-t" style="position: absolute; left: 0; top: 0; width: 160px; height: 172px">
-            <div class="blind-mono" style="position: absolute; left: 0; top: 6px">bookings</div>
-            <svg style="position: absolute; left: 0; top: 46px" width="154" height="124">
-              <rect x="2" y="2" width="150" height="30" fill="#f2f2f0" />
-              <rect x="2" y="2" width="150" height="120" fill="none" stroke="#0a0a0a" stroke-width="2" />
-              <path d="M2 32 H152 M2 62 H152 M2 92 H152 M52 2 V122 M102 2 V122" fill="none" stroke="#0a0a0a" stroke-width="2" />
+            <div class="blind-sep" style="top: 284px"></div>
+            <div class="blind-muted" style="left: 32px; top: 304px">git history</div>
+            <div id="blind-hotrow" class="clip" data-start="9.5" data-duration="8.5"></div>
+            <svg style="position: absolute; left: 32px; top: 360px" width="32" height="260">
+              <path d="M16 12 V236" stroke="#3c4656" stroke-width="2" />
+              <circle cx="16" cy="12" r="8" fill="#0b0f16" stroke="#7a8699" stroke-width="2" />
+              <circle cx="16" cy="68" r="8" fill="#0b0f16" stroke="#7a8699" stroke-width="2" />
+              <circle cx="16" cy="124" r="8" fill="#0b0f16" stroke="#7a8699" stroke-width="2" />
+              <circle cx="16" cy="180" r="8" fill="#0b0f16" stroke="#7a8699" stroke-width="2" />
+              <circle cx="16" cy="236" r="8" fill="#0b0f16" stroke="#7a8699" stroke-width="2" />
             </svg>
+            <div class="blind-commit" style="top: 354px">edit README</div>
+            <div class="blind-commit" style="top: 410px">remove key</div>
+            <div class="blind-commit" style="top: 466px">add admin key</div>
+            <div class="blind-commit" style="top: 522px">add todos table</div>
+            <div class="blind-commit" style="top: 578px">first commit</div>
+            <!-- the flagged commit -->
+            <svg id="blind-hot-dot" class="clip" data-start="9.5" data-duration="8.5" width="40" height="40"
+              style="position: absolute; left: 28px; top: 408px; overflow: visible; filter: drop-shadow(0 0 8px rgba(255,59,92,0.9)) drop-shadow(0 0 22px rgba(255,59,92,0.5))">
+              <circle cx="20" cy="20" r="15" fill="none" stroke="#ff3b5c" stroke-width="3" />
+              <circle cx="20" cy="20" r="9" fill="#ff3b5c" />
+            </svg>
+            <div id="blind-hotlab" class="clip blind-ln" data-start="9.5" data-duration="8.5"><span class="blind-w">key</span> <span class="blind-w">deleted,</span> <span class="blind-w">still</span> <span class="blind-w">in</span> <span class="blind-w">history</span></div>
+
+            <div id="blind-scan1" class="blind-scan"></div>
+            <div id="blind-scanA" class="blind-scan"></div>
+            <div class="blind-sheen"><i></i></div>
+            <div class="blind-rim"></div>
           </div>
-        </div>
-        <div class="blind-label" style="left: 448px; top: 40px">Supabase</div>
-        <div id="blind-note" class="clip" data-start="3.6" data-duration="14.4" style="position: absolute; left: 392px; top: 164px; width: 300px; height: 80px">
-          <div id="blind-note-line" style="position: absolute; left: 0; top: 35px; width: 48px; height: 2px; background: #0a0a0a"></div>
-          <div class="blind-label blind-site-muted" style="left: 54px; top: 0"><div class="blind-mask"><span class="blind-w">made</span> <span class="blind-w">in</span> <span class="blind-w">the</span></div></div>
-          <div class="blind-label blind-site-muted" style="left: 54px; top: 36px"><div class="blind-mask"><span class="blind-w">dashboard</span></div></div>
-        </div>
 
-        <div class="blind-sep" style="top: 360px"></div>
-        <div class="blind-mono blind-site-muted" style="position: absolute; left: 32px; top: 372px">assets/index.js</div>
-        <div class="blind-code">
-          <div class="blind-cl" style="top: 24px"><i>1</i>const url = "https://…supabase.co";</div>
-          <div class="blind-cl" style="top: 68px"><i>2</i>const anon = "eyJhbGciOi…";</div>
-          <div class="blind-cl" style="top: 112px"><i>3</i>createClient(url, anon);</div>
-          <div class="blind-cl" style="top: 156px"><i>4</i></div>
+          <!-- SITE half -->
+          <div id="blind-site" class="blind-panel">
+            <svg style="position: absolute; left: 32px; top: 20px" width="384" height="330">
+              <path d="M2 36 V292 A190 32 0 0 0 382 292 V36" fill="#0d121b" stroke="rgba(234,242,247,0.5)" stroke-width="2" />
+              <ellipse cx="192" cy="36" rx="190" ry="32" fill="#141b26" stroke="rgba(234,242,247,0.5)" stroke-width="2" />
+              <rect x="30" y="124" width="150" height="30" fill="rgba(234,242,247,0.08)" />
+              <rect x="30" y="124" width="150" height="120" fill="none" stroke="rgba(234,242,247,0.45)" stroke-width="2" />
+              <path d="M30 154 H180 M30 184 H180 M30 214 H180 M80 124 V244 M130 124 V244" fill="none" stroke="rgba(234,242,247,0.45)" stroke-width="2" />
+            </svg>
+            <div class="blind-mono" style="left: 62px; top: 100px; color: #cfe3f0">todos</div>
+            <div id="blind-bookings" class="clip" data-start="3" data-duration="15" style="position: absolute; left: 230px; top: 96px; width: 160px; height: 172px">
+              <!-- neutral copy, and a red glowing copy on top that fades when focus moves on -->
+              <div class="blind-mono" style="left: 0; top: 4px; color: #cfe3f0">bookings</div>
+              <svg style="position: absolute; left: 0; top: 46px" width="154" height="124">
+                <rect x="2" y="2" width="150" height="30" fill="rgba(234,242,247,0.08)" />
+                <rect x="2" y="2" width="150" height="120" fill="none" stroke="rgba(234,242,247,0.45)" stroke-width="2" />
+                <path d="M2 32 H152 M2 62 H152 M2 92 H152 M52 2 V122 M102 2 V122" fill="none" stroke="rgba(234,242,247,0.45)" stroke-width="2" />
+              </svg>
+              <div id="blind-bk-hot" style="position: absolute; left: 0; top: 0; width: 160px; height: 172px">
+                <div class="blind-mono" style="left: 0; top: 4px; color: #ff3b5c; text-shadow: 0 0 18px rgba(255,59,92,0.6)">bookings</div>
+                <svg style="position: absolute; left: 0; top: 46px; overflow: visible; filter: drop-shadow(0 0 8px rgba(255,59,92,0.8)) drop-shadow(0 0 24px rgba(255,59,92,0.35))" width="154" height="124">
+                  <rect x="2" y="2" width="150" height="30" fill="rgba(255,59,92,0.30)" />
+                  <rect x="2" y="2" width="150" height="120" fill="rgba(255,59,92,0.06)" stroke="#ff3b5c" stroke-width="2" />
+                  <path d="M2 32 H152 M2 62 H152 M2 92 H152 M52 2 V122 M102 2 V122" fill="none" stroke="#ff3b5c" stroke-width="2" />
+                </svg>
+              </div>
+            </div>
+            <div class="blind-muted" style="left: 448px; top: 40px">Supabase</div>
+            <div id="blind-note" class="clip" data-start="3.5" data-duration="14.5" style="position: absolute; left: 400px; top: 164px; width: 380px; height: 80px">
+              <div id="blind-note-line" style="position: absolute; left: 0; top: 35px; width: 40px; height: 2px; background: #cfe3f0"></div>
+              <div class="blind-ln" style="left: 50px; top: -6px; padding: 4px 8px 6px 8px; margin: 0; font-weight: 700; font-size: 28px; line-height: 36px; color: #cfe3f0"><span class="blind-w">made</span> <span class="blind-w">in</span> <span class="blind-w">the</span></div>
+              <div class="blind-ln" style="left: 50px; top: 30px; padding: 4px 8px 6px 8px; margin: 0; font-weight: 700; font-size: 28px; line-height: 36px; color: #cfe3f0"><span class="blind-w">dashboard</span></div>
+            </div>
+
+            <div class="blind-sep" style="top: 360px"></div>
+            <div class="blind-mono" style="left: 32px; top: 372px; color: #7a8699">assets/index.js</div>
+            <div class="blind-codebox"></div>
+            <div class="blind-cl" style="left: 56px; top: 438px"><i>1</i><span class="k">const</span> url = <span class="s">"https://…supabase.co"</span>;</div>
+            <div class="blind-cl" style="left: 56px; top: 482px"><i>2</i><span class="k">const</span> anon = <span class="s">"eyJhbGciOi…"</span>;</div>
+            <div class="blind-cl" style="left: 56px; top: 526px"><i>3</i>createClient(url, anon);</div>
+            <div class="blind-cl" style="left: 56px; top: 570px"><i>4</i></div>
+            <div id="blind-ghost2" class="clip blind-ghost" data-start="11.5" data-duration="6.5" style="left: 128px; top: 572px; width: 340px"></div>
+            <div id="blind-nothere2" class="clip blind-tag" data-start="12" data-duration="6" style="left: 488px; top: 570px">not here</div>
+
+            <div id="blind-scan2" class="blind-scan"></div>
+            <div id="blind-scanB" class="blind-scan"></div>
+            <div class="blind-sheen"><i></i></div>
+            <div class="blind-rim"></div>
+          </div>
+
+          <div id="blind-d1" class="clip blind-ln blind-display" data-start="0" data-duration="3"><span class="blind-w">Each</span> <span class="blind-w">side</span> <span class="blind-w">has</span> <span class="blind-w">blind</span> <span class="blind-w">spots</span></div>
+          <div id="blind-l1" class="clip blind-ln blind-line" data-start="3" data-duration="6.5"><span class="blind-w">A</span> <span class="blind-w">table</span> <span class="blind-w">made</span> <span class="blind-w">in</span> <span class="blind-w">the</span> <span id="blind-mk-dash" class="blind-w">dashboard<i class="blind-ul" style="background: #ff3b5c; box-shadow: 0 0 14px rgba(255,59,92,0.7)"></i></span> <span class="blind-w">leaves</span> <span class="blind-w">no</span> <span class="blind-w">trace</span> <span class="blind-w">in</span> <span class="blind-w">the</span> <span class="blind-w">code</span></div>
+          <div id="blind-l2" class="clip blind-ln blind-line" data-start="9.5" data-duration="5.5"><span class="blind-w">A</span> <span class="blind-w">key</span> <span class="blind-w">deleted</span> <span class="blind-w">from</span> <span class="blind-w">the</span> <span class="blind-w">code</span> <span class="blind-w">still</span> <span class="blind-w">lives</span> <span class="blind-w">in</span> <span class="blind-w">git</span> <span class="blind-w">history</span></div>
+          <div id="blind-l3" class="clip blind-ln blind-line" data-start="15" data-duration="3"><span class="blind-w">So</span> <span class="blind-w">Vibeproof</span> <span class="blind-w">scans</span> <span id="blind-mk-both" class="blind-w">both<i class="blind-ul" style="background: #3dffa2; box-shadow: 0 0 14px rgba(61,255,162,0.7)"></i></span></div>
         </div>
-        <div id="blind-ghost2" class="clip blind-ghost" data-start="11" data-duration="7" style="left: 100px; top: 572px; width: 360px"></div>
-        <div id="blind-nothere2" class="clip" data-start="11.2" data-duration="6.8" style="position: absolute; left: 480px; top: 570px; width: 160px; height: 44px"><div id="blind-nothere2-t" class="blind-tag">not here</div></div>
       </div>
-
-      <div id="blind-d1" class="clip blind-display" data-start="0" data-duration="3"><span class="blind-w blind-x">Each</span> <span class="blind-w blind-x">side</span> <span class="blind-w blind-x">has</span> <span class="blind-w blind-x">blind</span> <span class="blind-w blind-x">spots</span></div>
-      <div id="blind-l1" class="clip blind-line" data-start="3" data-duration="6.5"><span class="blind-w blind-x">A</span> <span class="blind-w blind-x">table</span> <span class="blind-w blind-x">made</span> <span class="blind-w blind-x">in</span> <span class="blind-w blind-x">the</span> <span id="blind-mk-dash" class="blind-w blind-mk">dashboard<i class="blind-bar"></i></span> <span class="blind-w blind-x">leaves</span> <span class="blind-w blind-x">no</span> <span class="blind-w blind-x">trace</span> <span class="blind-w blind-x">in</span> <span class="blind-w blind-x">the</span> <span class="blind-w blind-x">code</span></div>
-      <div id="blind-l2" class="clip blind-line" data-start="9.5" data-duration="5.5"><span class="blind-w blind-x">A</span> <span class="blind-w blind-x">key</span> <span class="blind-w blind-x">deleted</span> <span class="blind-w blind-x">from</span> <span class="blind-w blind-x">the</span> <span class="blind-w blind-x">code</span> <span class="blind-w blind-x">still</span> <span class="blind-w blind-x">lives</span> <span class="blind-w blind-x">in</span> <span class="blind-w blind-x">git</span> <span class="blind-w blind-x">history</span></div>
-      <div id="blind-l3" class="clip blind-line" data-hold data-start="15" data-duration="3"><span class="blind-w blind-x">So</span> <span class="blind-w blind-x">Vibeproof</span> <span class="blind-w blind-x">scans</span> <span id="blind-mk-both" class="blind-w blind-mk">both<i class="blind-bar"></i></span></div>
+      <div id="blind-hud"><span id="blind-hud-t"></span><span id="blind-hud-c"></span></div>
     </div>
+
+    <div id="blind-wipe" class="clip" data-start="17.7333" data-duration="0.2667"></div>
   </div>
 
   <script>
     (function () {
       const tl = gsap.timeline({ paused: true });
       const F = 1 / 30;
-      const D = 18;
-      const CAM = "#blind-cam";
+      const DUR = 18;
+      const FILM_START = 82;
+      const P = "#blind";
 
-      // kinetic type
-      function lineIn(sel, t) {
-        tl.fromTo(sel + " .blind-w", { yPercent: 110 }, { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, t);
-      }
-      function lineOut(sel, end) {
+      // ---- shared world: ground grid scroll + dust from FILM time (continuous across cuts)
+      (function world(tl, id, FILM_START, DUR) {
+        let s = 20261122;
+        const rnd = () => { s |= 0; s = (s + 0x6d2b79f5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+        const box = document.getElementById(id + "-dust");
+        const dots = [];
+        for (let k = 0; k < 54; k++) {
+          const d = { x: rnd() * 1920, y: rnd() * 1180, z: 0.3 + rnd() * 0.7, ph: rnd() * 6.283 };
+          const el = document.createElement("i");
+          const size = 1 + d.z * 2;
+          el.style.width = el.style.height = size + "px";
+          el.style.opacity = (0.12 + d.z * 0.23).toFixed(3);
+          box.appendChild(el); d.el = el; dots.push(d);
+        }
+        const floor = document.getElementById(id + "-floor");
+        const draw = (T) => {
+          if (floor) floor.style.backgroundPosition = "0px " + ((T * 40) % 80) + "px";
+          for (const d of dots) {
+            const y = ((d.y - T * 14 * d.z) % 1180 + 1180) % 1180 - 50;
+            const x = d.x + Math.sin(T * 0.35 + d.ph) * 18 * d.z;
+            d.el.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px)";
+          }
+        };
+        const p = { t: 0 };
+        tl.fromTo(p, { t: 0 }, { t: DUR, duration: DUR, ease: "none", onUpdate: () => draw(FILM_START + p.t) }, 0);
+        draw(FILM_START);
+      })(tl, "blind", FILM_START, DUR);
+
+      // ---- transitions: in (scale 0.94 -> 1, fade 6 f), out (scale -> 1.15, fade, green scan line)
+      tl.fromTo(P + "-fx", { scale: 0.94 }, { scale: 1, duration: 16 * F, ease: "expo.out" }, 0);
+      tl.fromTo(P + "-fx", { opacity: 0 }, { opacity: 1, duration: 6 * F, ease: "power2.out" }, 0);
+      tl.fromTo(P + "-fx", { scale: 1 }, { scale: 1.15, duration: 12 * F, ease: "power2.in", immediateRender: false }, DUR - 12 * F);
+      tl.fromTo(P + "-fx", { opacity: 1 }, { opacity: 0, duration: 6 * F, ease: "power2.in", immediateRender: false }, DUR - 6 * F);
+      tl.fromTo(P + "-wipe", { y: -122 }, { y: 1080, duration: 8 * F, ease: "power1.in" }, DUR - 8 * F);
+
+      // ---- HUD: types 1 char per frame, block cursor blinks on the beat, gone after 2 s
+      (function hud(text) {
+        const t = document.querySelector(P + "-hud-t");
+        const c = document.querySelector(P + "-hud-c");
+        const p = { t: 0 };
+        const draw = () => {
+          const f = Math.floor(p.t * 30 + 1e-4);
+          t.textContent = text.slice(0, Math.min(text.length, f));
+          c.style.opacity = p.t < 2 && f % 15 < 8 ? 1 : 0;
+        };
+        tl.fromTo(p, { t: 0 }, { t: 3, duration: 3, ease: "none", onUpdate: draw }, 0);
+        draw();
+      })("05 / Blind spots");
+
+      // ---- camera: slow push + beat re-targets
+      tl.fromTo(P + "-cam", { scale: 1 }, { scale: 1.05, duration: DUR, ease: "sine.inOut" }, 0);
+      let rx = 0, ry = 0;
+      const aim = (x, y, at, dur) => {
+        tl.fromTo(P + "-rig", { x: rx, y: ry }, { x: x, y: y, duration: dur || 24 * F, ease: "power2.inOut", immediateRender: false }, at);
+        rx = x; ry = y;
+      };
+      let fx = 410;
+      const focus = (x, at) => {
+        tl.fromTo(P + "-focus", { x: fx }, { x: x, duration: 30 * F, ease: "sine.inOut", immediateRender: false }, at);
+        fx = x;
+      };
+      gsap.set(P + "-focus", { x: 410 });
+
+      // ---- kinetic type
+      const wordsIn = (sel, t) =>
+        tl.fromTo(sel + " .blind-w", { yPercent: 115 }, { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, t);
+      const wordsOut = (sel, end) => {
         const n = document.querySelectorAll(sel + " .blind-w").length;
-        tl.fromTo(sel + " .blind-w", { yPercent: 0 }, { yPercent: -110, duration: 8 * F, ease: "power2.in", stagger: F, immediateRender: false }, end - (8 + n) * F);
-      }
-      function marker(sel, t) {
-        tl.fromTo(sel + " .blind-bar", { scaleX: 0, transformOrigin: "0% 50%" }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, t);
-        tl.fromTo(sel, { color: "#f2f2f2" }, { color: "#ffffff", duration: 6 * F, ease: "power2.out" }, t + 2 * F);
-      }
-      function recoil(sel, t, dx, dy) {
-        tl.fromTo(sel, { x: 0, y: 0 }, { x: dx, y: dy, duration: 2 * F, ease: "power2.out", immediateRender: false }, t);
-        tl.fromTo(sel, { x: dx, y: dy }, { x: 0, y: 0, duration: 10 * F, ease: "power2.out", immediateRender: false }, t + 2 * F);
-      }
-      // badges slam in; things that appear overshoot
-      function slam(sel, t) {
+        tl.fromTo(sel + " .blind-w", { yPercent: 0 }, { yPercent: -115, duration: 8 * F, ease: "power2.in", stagger: F, immediateRender: false }, end - (8 + n - 1) * F);
+      };
+      const marker = (sel, t, col, rgb) => {
+        tl.fromTo(sel, { color: "#eaf2f7", textShadow: "0 0 18px rgba(" + rgb + ",0)" },
+          { color: col, textShadow: "0 0 18px rgba(" + rgb + ",0.6)", duration: 6 * F, ease: "power2.out" }, t);
+        tl.fromTo(sel + " .blind-ul", { scaleX: 0 }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, t);
+      };
+      const slam = (sel, t) => {
         tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 2 * F, ease: "none" }, t);
         tl.fromTo(sel, { scale: 1.45 }, { scale: 1, duration: 9 * F, ease: "power4.out" }, t);
-      }
-      function pop(sel, t) {
-        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 3 * F, ease: "none" }, t);
-        tl.fromTo(sel, { scale: 0.9, transformOrigin: "50% 50%" }, { scale: 1, duration: 16 * F, ease: "back.out(1.7)" }, t);
-      }
+      };
+      const pop = (sel, t) => {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 4 * F, ease: "none" }, t);
+        tl.fromTo(sel, { scale: 0.9 }, { scale: 1, duration: 16 * F, ease: "back.out(1.7)" }, t);
+      };
+      const sheen = (panel, t, again) =>
+        tl.fromTo(panel + " .blind-sheen i", { xPercent: -130, skewX: -15 }, { xPercent: 360, skewX: -15, duration: 18 * F, ease: "power2.inOut", immediateRender: !again }, t);
+      // scan line from y0 to y1 (panel px); rows brighten as it passes
+      const scan = (sel, y0, y1, t, dur, rows) => {
+        tl.fromTo(sel, { y: y0 - 40 }, { y: y1 - 40, duration: dur, ease: "sine.inOut" }, t);
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 4 * F, ease: "none" }, t);
+        tl.fromTo(sel, { opacity: 1 }, { opacity: 0, duration: 6 * F, ease: "power2.in", immediateRender: false }, t + dur - 6 * F);
+        (rows || []).forEach(([el, y]) => {
+          const p = Math.min(1, Math.max(0, (y - y0) / (y1 - y0)));
+          const at = t + (dur * Math.acos(1 - 2 * p)) / Math.PI;
+          tl.fromTo(el, { color: "#3dffa2", textShadow: "0 0 14px rgba(61,255,162,0.7)" },
+            { color: "#cfe3f0", textShadow: "0 0 14px rgba(61,255,162,0)", duration: 0.6, ease: "power2.out", immediateRender: false }, at);
+        });
+      };
+      // focus moves on: a red tag cools to muted grey
+      const dim = (sel, t) =>
+        tl.fromTo(sel, { color: "#ff3b5c", borderColor: "rgba(255,59,92,1)", backgroundColor: "rgba(255,59,92,0.10)" },
+          { color: "#7a8699", borderColor: "rgba(122,134,153,0.6)", backgroundColor: "rgba(122,134,153,0.06)", duration: 12 * F, ease: "power2.inOut", immediateRender: false }, t);
+      const glowPulse = (sel, t) =>
+        tl.fromTo(sel, { scale: 1.06 }, { scale: 1, duration: 12 * F, ease: "power2.out", immediateRender: false }, t);
 
-      // camera: push, vertical re-targets (x stays 0 so the seam holds at x 960), cuts in and out
-      tl.fromTo(CAM, { scale: 1 }, { scale: 1.06, duration: D, ease: "sine.inOut" }, 0);
-      tl.fromTo(CAM, { x: 420 }, { x: 0, duration: 18 * F, ease: "expo.out" }, 0);
-      let cy = 0;
-      function cam(t, y) {
-        tl.fromTo(CAM, { y: cy }, { y: y, duration: 20 * F, ease: "power2.inOut", immediateRender: false }, t);
-        cy = y;
-      }
-      cam(3.0, 40);   // the new table and the line
-      cam(6.4, 0);    // "not here" in the code
-      cam(9.5, -40);  // the flagged commit
-      cam(13.0, 10);  // both "not here" tags
-      cam(15.0, 50);  // the closing line
-      cam(16.6, 10);
-      tl.fromTo(CAM, { x: 0 }, { x: -420, duration: 10 * F, ease: "power3.in", immediateRender: false }, D - 10 * F);
+      // ---- panels in 3D: tilted, opening like a book, turning toward camera beat by beat
+      const panelIn = (sel, side, t) => {
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 6 * F, ease: "power2.out" }, t);
+        tl.fromTo(sel, { y: 80, rotationY: 26 * side, rotationX: 10 }, { y: 0, rotationY: 12 * side, rotationX: 6, duration: 20 * F, ease: "expo.out" }, t);
+        sheen(sel, t + 6 * F);
+      };
+      const turn = (sel, side, a, b, t, dur) =>
+        tl.fromTo(sel, { rotationY: a * side, rotationX: a / 2 }, { rotationY: b * side, rotationX: b / 2, duration: dur, ease: "sine.inOut", immediateRender: false }, t);
 
-      // labels
-      tl.fromTo("#blind-lab-code .blind-w", { yPercent: 110 }, { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, 0.15);
-      tl.fromTo("#blind-lab-site .blind-w", { yPercent: 110 }, { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, 0.25);
+      // 0.0 the opener, the two halves arrive
+      wordsIn(P + "-d1", 0);
+      panelIn(P + "-code", 1, 0.5);
+      wordsIn(P + "-lab-code", 0.5);
+      panelIn(P + "-site", -1, 1.0);
+      wordsIn(P + "-lab-site", 1.0);
+      aim(0, 6, 1.5, 30 * F);
+      turn(P + "-code", 1, 12, 9, 1.5, 1.5);
+      turn(P + "-site", -1, 12, 9, 1.5, 1.5);
+      wordsOut(P + "-d1", 3.0);
 
-      // lines
-      lineIn("#blind-d1", 0.05);
-      lineOut("#blind-d1", 3.0);
-      lineIn("#blind-l1", 3.0);
-      marker("#blind-mk-dash", 3.75);
-      lineOut("#blind-l1", 9.5);
-      lineIn("#blind-l2", 9.5);
-      lineOut("#blind-l2", 15.0);
-      lineIn("#blind-l3", 15.0);
-      marker("#blind-mk-both", 15.55);
+      // 3.0 a table made in the dashboard: the site sees it, the code has no file for it
+      wordsIn(P + "-l1", 3.0);
+      aim(-20, 0, 3.0);
+      focus(864, 3.0);
+      pop(P + "-bookings", 3.0);
+      tl.fromTo(P + "-bk-hot", { opacity: 0 }, { opacity: 1, duration: 8 * F, ease: "power2.out" }, 3.0);
+      tl.fromTo(P + "-note-line", { scaleX: 0, transformOrigin: "0% 50%" }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, 3.5);
+      wordsIn(P + "-note", 3.5);
+      marker(P + "-mk-dash", 4.0, "#ff3b5c", "255,59,92");
+      turn(P + "-code", 1, 9, 7, 3.0, 2.5);
+      turn(P + "-site", -1, 9, 6, 3.0, 2.5);
+      // 4.0 the code side searches its tree for that table ...
+      aim(20, 0, 4.0, 30 * F);
+      focus(-44, 4.0);
+      scan(P + "-scan1", 24, 262, 4.0, 1.5, Array.from(document.querySelectorAll(P + "-code .blind-trow span")).map((el, i) => [el, [54, 98, 142, 238][i]]));
+      // 5.5 ... and finds nothing
+      pop(P + "-ghost1", 5.5);
+      slam(P + "-nothere1", 6.0);
+      tl.fromTo(P + "-code", { y: 0 }, { y: 6, duration: 2 * F, ease: "power2.out", immediateRender: false }, 6.0);
+      tl.fromTo(P + "-code", { y: 6 }, { y: 0, duration: 10 * F, ease: "power2.out", immediateRender: false }, 6.0 + 2 * F);
+      aim(10, 8, 7.0, 30 * F);
+      glowPulse(P + "-nothere1", 7.0);
+      glowPulse(P + "-bookings", 8.0);
+      aim(0, 0, 8.0, 30 * F);
+      wordsOut(P + "-l1", 9.5);
 
-      // 3.0: "bookings" appears in the database, the note is drawn beside it
-      pop("#blind-bookings-t", 3.0);
-      recoil("#blind-site", 3.1, 0, 6);
-      tl.fromTo("#blind-note-line", { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.4, ease: "power3.out" }, 3.6);
-      tl.fromTo("#blind-note .blind-w", { yPercent: 110 }, { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, 3.75);
-      // 4.8 / 6.4: the code half has no such file: an empty slot, "not here" slams in
-      pop("#blind-ghost1", 4.8);
-      slam("#blind-nothere1-t", 6.4);
-      recoil("#blind-code", 6.45, 0, 6);
-      // 7.6: a scan line searches the tree and finds nothing
-      tl.fromTo("#blind-scan", { opacity: 0 }, { opacity: 0.7, duration: 4 * F, ease: "none" }, 7.6);
-      tl.fromTo("#blind-scan", { y: 0 }, { y: 236, duration: 0.9, ease: "power2.inOut" }, 7.6);
-      tl.fromTo("#blind-scan", { opacity: 0.7 }, { opacity: 0, duration: 6 * F, ease: "none", immediateRender: false }, 8.35);
+      // 9.5 a key deleted from the code still lives in git history: the site cannot see it
+      wordsIn(P + "-l2", 9.5);
+      tl.fromTo(P + "-bk-hot", { opacity: 1 }, { opacity: 0, duration: 12 * F, ease: "power2.inOut", immediateRender: false }, 9.5);
+      dim(P + "-nothere1", 9.5);
+      aim(20, -14, 9.5);
+      
+      tl.fromTo(P + "-hotrow", { opacity: 0, scaleX: 0.6, transformOrigin: "0% 50%" }, { opacity: 1, scaleX: 1, duration: 14 * F, ease: "expo.out" }, 9.5);
+      pop(P + "-hot-dot", 9.5);
+      wordsIn(P + "-hotlab", 10.0);
+      turn(P + "-code", 1, 7, 4, 9.5, 3);
+      turn(P + "-site", -1, 6, 3, 9.5, 3);
+      // 10.5 the site scan reads the shipped JS: no such key there
+      aim(-20, -14, 10.5, 30 * F);
+      focus(864, 10.5);
+      scan(P + "-scan2", 424, 640, 10.5, 1.5, Array.from(document.querySelectorAll(P + "-site .blind-cl")).map((el, i) => [el, 460 + i * 44]));
+      pop(P + "-ghost2", 11.5);
+      slam(P + "-nothere2", 12.0);
+      tl.fromTo(P + "-site", { y: 0 }, { y: 6, duration: 2 * F, ease: "power2.out", immediateRender: false }, 12.0);
+      tl.fromTo(P + "-site", { y: 6 }, { y: 0, duration: 10 * F, ease: "power2.out", immediateRender: false }, 12.0 + 2 * F);
+      glowPulse(P + "-hot-dot", 13.0);
+      aim(0, -8, 13.0, 30 * F);
+      glowPulse(P + "-nothere2", 14.0);
+      wordsOut(P + "-l2", 15.0);
 
-      // 9.5: focus moves on; the first tag drops to an outline
-      tl.fromTo("#blind-nothere1-t", { backgroundColor: "#ff4d4f", borderColor: "#ff4d4f", color: "#ffffff" }, { backgroundColor: "#17171a", borderColor: "#f2f2f2", color: "#f2f2f2", duration: 0.4, ease: "power2.inOut", immediateRender: false }, 9.5);
-      // 9.5: the commit dot turns FLAW red
-      tl.fromTo("#blind-hot-dot", { opacity: 0 }, { opacity: 1, duration: 3 * F, ease: "none" }, 9.5);
-      tl.fromTo("#blind-hot-dot", { scale: 0.5, transformOrigin: "50% 50%" }, { scale: 1, duration: 16 * F, ease: "back.out(1.7)" }, 9.5);
-      tl.fromTo("#blind-hotlab .blind-w", { yPercent: 110 }, { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, 9.7);
-      // 11.0: the site's JS has no such key
-      pop("#blind-ghost2", 11.0);
-      slam("#blind-nothere2-t", 11.2);
-      recoil("#blind-site", 11.25, 0, 6);
+      // 15.0 so Vibeproof scans both: both halves light up and are read at once
+      wordsIn(P + "-l3", 15.0);
+      dim(P + "-nothere2", 15.0);
+      tl.fromTo(P + "-hot-dot", { opacity: 1 }, { opacity: 0, duration: 12 * F, ease: "power2.inOut", immediateRender: false }, 15.0);
+      tl.fromTo(P + "-hotrow", { backgroundColor: "rgba(255,59,92,0.10)", borderLeftColor: "rgba(255,59,92,1)" }, { backgroundColor: "rgba(122,134,153,0.08)", borderLeftColor: "rgba(122,134,153,0.6)", duration: 12 * F, ease: "power2.inOut", immediateRender: false }, 15.0);
+      tl.fromTo(P + "-hotlab", { color: "#ff3b5c", textShadow: "0 0 18px rgba(255,59,92,0.6)" }, { color: "#7a8699", textShadow: "0 0 18px rgba(255,59,92,0)", duration: 12 * F, ease: "power2.inOut", immediateRender: false }, 15.0);
+      aim(0, 0, 15.0, 30 * F);
+      focus(410, 15.0);
+      tl.fromTo(P + "-focus", { scaleX: 1 }, { scaleX: 1.9, duration: 30 * F, ease: "sine.inOut" }, 15.0);
+      marker(P + "-mk-both", 15.5, "#3dffa2", "61,255,162");
+      tl.fromTo(P + "-code .blind-rim", { opacity: 0 }, { opacity: 1, duration: 10 * F, ease: "power2.out" }, 15.5);
+      tl.fromTo(P + "-site .blind-rim", { opacity: 0 }, { opacity: 1, duration: 10 * F, ease: "power2.out" }, 15.5);
+      turn(P + "-code", 1, 4, 0, 15.0, 2.5);
+      turn(P + "-site", -1, 3, 0, 15.0, 2.5);
+      scan(P + "-scanA", 0, 660, 15.5, 1.5);
+      scan(P + "-scanB", 0, 660, 15.5, 1.5);
+      sheen(P + "-code", 15.5, true);
+      sheen(P + "-site", 15.5, true);
+      aim(0, 8, 16.5, 30 * F);
 
-      tl.set({}, {}, D);
+      tl.set({}, {}, DUR);
       window.__timelines = window.__timelines || {};
       window.__timelines["blind"] = tl;
     })();

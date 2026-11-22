@@ -1,0 +1,67 @@
+{
+ "integrated_lufs": -16.0,
+ "true_peak_dbtp": -1.2,
+ "fx": [
+  {
+   "id": "low-hit",
+   "at": 5.5,
+   "music_ref_lufs_100ms": -14.1,
+   "offset_db": 1.0
+  },
+  {
+   "id": "clink",
+   "at": 16.5,
+   "music_ref_lufs_100ms": -11.3,
+   "offset_db": 2.0
+  },
+  {
+   "id": "glass-crack",
+   "at": 24.5,
+   "music_ref_lufs_100ms": -10.1,
+   "offset_db": 2.5
+  },
+  {
+   "id": "lock-on-43.0",
+   "at": 43.0,
+   "music_ref_lufs_100ms": -9.2,
+   "offset_db": 1.5
+  },
+  {
+   "id": "lock-on-50.0",
+   "at": 50.0,
+   "music_ref_lufs_100ms": -9.4,
+   "offset_db": 1.5
+  },
+  {
+   "id": "lock-on-67.5",
+   "at": 67.5,
+   "music_ref_lufs_100ms": -9.5,
+   "offset_db": 1.5
+  },
+  {
+   "id": "lock-on-75.0",
+   "at": 75.0,
+   "music_ref_lufs_100ms": -9.1,
+   "offset_db": 1.5
+  },
+  {
+   "id": "ui-click",
+   "at": 107.5,
+   "music_ref_lufs_100ms": -9.1,
+   "offset_db": 1.0
+  },
+  {
+   "id": "click-confirm",
+   "at": 128.0,
+   "music_ref_lufs_100ms": -8.8,
+   "offset_db": 1.5
+  },
+  {
+   "id": "chime",
+   "at": 215.0,
+   "music_ref_lufs_100ms": -13.6,
+   "offset_db": 5.0
+  }
+ ],
+ "runtime_s": 211.6
+}

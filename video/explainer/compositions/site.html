@@ -1,524 +1,530 @@
 <template>
   <style>
-    /* SITE world (v2 alive pass): the paper world, white ground, ink, flaw red */
+    /* v7 DARK TECH: scene 04, scan the live site (film 56-82 s) */
     #root {
       position: absolute;
       inset: 0;
       overflow: hidden;
-      background: #ffffff;
+      background: #05060a;
       font-family: "Inter", sans-serif;
-      color: #0a0a0a;
+      color: #eaf2f7;
     }
-    #site-grid {
-      position: absolute;
-      inset: 0;
+
+    /* ---- shared world (from _world.snippet.html) ---- */
+    #site-ground { position: absolute; inset: 0; background: #05060a; }
+    #site-glow { position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 55% at 50% 45%, rgba(61,255,162,0.07), transparent 70%); }
+    #site-floor-wrap { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;
+      perspective: 900px; perspective-origin: 50% 30%; overflow: hidden; }
+    #site-floor { position: absolute; left: -1200px; width: 4320px; top: 560px; height: 1400px;
+      transform-origin: 50% 0%; transform: rotateX(72deg);
       background-image:
-        linear-gradient(to right, rgba(10, 10, 10, 0.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(10, 10, 10, 0.05) 1px, transparent 1px);
-      background-size: 48px 48px;
-    }
-    /* camera: #site-cam carries the cuts, #site-dolly the push and the re-targets */
-    #site-cam {
-      position: absolute;
-      inset: 0;
-    }
-    #site-dolly {
-      position: absolute;
-      inset: 0;
-      transform-origin: 960px 540px;
-    }
-    /* on-screen lines: a mask box, words rise into it */
-    .site-line {
-      position: absolute;
-      left: 96px;
-      top: 108px;
-      width: 1536px;
-      height: 60px;
-      overflow: hidden;
-      font-family: "Inter", sans-serif;
-      font-weight: 700;
-      font-size: 44px;
-      line-height: 60px;
-      letter-spacing: -0.01em;
-      white-space: nowrap;
-      color: #0a0a0a;
-    }
-    .site-w {
-      display: inline-block;
-      position: relative;
-    }
-    .site-mk {
-      display: inline-block;
-      position: relative;
-    }
-    .site-mk-bar {
-      position: absolute;
-      left: -5px;
-      right: -5px;
-      top: 10px;
-      height: 40px;
-      background: #e5342f;
-      transform-origin: left center;
-    }
-    .site-mono {
-      font-family: "JetBrains Mono", monospace;
-      font-size: 28px;
-      line-height: 48px;
-      white-space: pre;
-    }
+        linear-gradient(to right, rgba(61,255,162,0.10) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(61,255,162,0.10) 1px, transparent 1px);
+      background-size: 80px 80px;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 100%);
+              mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 100%); }
+    #site-dust { position: absolute; inset: 0; }
+    #site-dust i { position: absolute; left: 0; top: 0; border-radius: 50%; background: #eaf2f7; }
+    #site-vignette { position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.6)); }
+
+    /* ---- camera: cam = transitions, dolly = push + re-targets, stage = 3D space ---- */
+    #site-cam, #site-txt { position: absolute; inset: 0; transform-origin: 960px 540px; }
+    #site-dolly { position: absolute; inset: 0; transform-origin: 960px 330px; }
+    #site-stage { position: absolute; inset: 0; perspective: 1600px; perspective-origin: 960px 520px; }
+    #site-focus { position: absolute; left: 0; top: 0; width: 1400px; height: 1000px; margin: -500px 0 0 -700px;
+      background: radial-gradient(ellipse at center, rgba(61,255,162,0.075), transparent 60%); }
+
+    /* ---- HUD chapter label ---- */
+    #site-hud { position: absolute; left: 96px; top: 66px; height: 30px; white-space: pre;
+      font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 22px; line-height: 30px;
+      letter-spacing: 0.22em; color: #3dffa2; font-variant-ligatures: none; }
+    #site-hud span { opacity: 0; }
+    #site-hud-cur { position: absolute; left: 0; top: 4px; width: 13px; height: 22px; background: #3dffa2;
+      box-shadow: 0 0 10px rgba(61,255,162,0.6); }
+
+    /* ---- on-screen lines: a mask box, words rise into it ---- */
+    .site-line { position: absolute; left: 96px; top: 108px; width: 1700px; height: 80px; overflow: hidden;
+      font-family: "Inter", sans-serif; font-weight: 800; font-size: 52px; line-height: 68px;
+      letter-spacing: -0.015em; white-space: nowrap; color: #eaf2f7; }
+    .site-w { display: inline-block; position: relative; }
+    .site-mk { display: inline-block; position: relative; }
+    .site-ul { opacity: 0; position: absolute; left: 0; right: 0; top: 68px; height: 6px; border-radius: 3px;
+      background: #ff3b5c; box-shadow: 0 0 14px rgba(255,59,92,0.7); transform-origin: left center; }
+
+    /* ---- panels ---- */
+    .site-pnl { position: absolute; background: #0b0f16; border: 1px solid rgba(61,255,162,0.16);
+      border-radius: 14px; overflow: hidden;
+      box-shadow: 0 40px 90px rgba(0,0,0,0.6), 0 0 60px rgba(61,255,162,0.05), inset 0 1px 0 rgba(255,255,255,0.05); }
+    .site-head { position: absolute; left: 0; top: 0; right: 0; height: 64px;
+      border-bottom: 1px solid rgba(61,255,162,0.12); background: rgba(255,255,255,0.015); }
+    .site-dotc { position: absolute; top: 26px; width: 12px; height: 12px; border-radius: 50%; background: #1f2835; }
+    .site-mono { font-family: "JetBrains Mono", monospace; font-size: 28px; line-height: 48px; white-space: pre;
+      font-variant-ligatures: none; }
+    .site-sheen { position: absolute; top: -10%; bottom: -10%; left: 0; width: 30%;
+      background: linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.10) 50%, transparent 100%); }
+    .site-body { position: absolute; left: 0; right: 0; top: 65px; bottom: 0; overflow: hidden; }
+    .site-tab { position: absolute; left: 24px; top: 8px; color: #7a8699; }
+    .site-row { position: absolute; color: #cfe3f0; }
+    .k { color: #7fd8ff; }
+    .s { color: #ffc46b; }
+    .fn { color: #eaf2f7; }
+    .ok { color: #3dffa2; }
+
+    /* the scan line: 2 px green beam with a fading trail above it */
+    .site-scan { position: absolute; left: 0; right: 0; top: -44px; height: 44px; opacity: 0; }
+    .site-scan b { position: absolute; left: 0; right: 0; top: 0; height: 42px;
+      background: linear-gradient(to bottom, rgba(61,255,162,0), rgba(61,255,162,0.16)); }
+    .site-scan i { position: absolute; left: 0; right: 0; top: 42px; height: 2px; background: #3dffa2;
+      box-shadow: 0 0 8px #3dffa2, 0 0 24px rgba(61,255,162,0.55); }
+
     /* THE APP: taskflow in a browser window */
-    #site-app {
-      position: absolute;
-      left: 120px;
-      top: 216px;
-      width: 820px;
-      height: 576px;
-      border: 2px solid #0a0a0a;
-      border-radius: 10px;
-      background: #ffffff;
-    }
-    .site-dotc {
-      position: absolute;
-      top: 28px;
-      width: 12px;
-      height: 12px;
-      border: 2px solid #0a0a0a;
-      border-radius: 50%;
-    }
-    #site-addr {
-      position: absolute;
-      left: 104px;
-      top: 12px;
-      width: 560px;
-      height: 44px;
-      border: 2px solid #0a0a0a;
-      border-radius: 22px;
-      padding-left: 22px;
-      font-family: "Inter", sans-serif;
-      font-weight: 400;
-      font-size: 28px;
-      line-height: 40px;
-      color: #0a0a0a;
-    }
-    #site-bar-rule {
-      position: absolute;
-      left: 0;
-      top: 66px;
-      width: 816px;
-      height: 2px;
-      background: #0a0a0a;
-    }
-    .site-todo {
-      position: absolute;
-      left: 56px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      font-family: "Inter", sans-serif;
-      font-weight: 400;
-      font-size: 30px;
-      color: #0a0a0a;
-    }
-    .site-todo i {
-      position: relative;
-      width: 28px;
-      height: 28px;
-      border: 2px solid #0a0a0a;
-      border-radius: 6px;
-      flex: none;
-    }
-    #site-tick {
-      position: absolute;
-      left: 2px;
-      top: 2px;
-      width: 20px;
-      height: 20px;
-      overflow: visible;
-    }
+    #site-app { left: 96px; top: 236px; width: 900px; height: 572px; transform-origin: 50% 50%; }
+    #site-addr { position: absolute; left: 96px; top: 10px; width: 560px; height: 44px; border-radius: 22px;
+      background: #070a10; border: 1px solid rgba(255,255,255,0.08); padding-left: 24px;
+      font-family: "Inter", sans-serif; font-weight: 500; font-size: 28px; line-height: 42px; color: #cfe3f0; }
+    .site-todo { position: absolute; left: 40px; width: 818px; height: 84px; border-radius: 12px;
+      background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; gap: 24px; padding-left: 28px;
+      font-family: "Inter", sans-serif; font-weight: 500; font-size: 30px; color: #eaf2f7; }
+    .site-todo i { position: relative; width: 30px; height: 30px; border: 2px solid #3c4656; border-radius: 8px; flex: none; }
+    #site-tick { position: absolute; left: 3px; top: 3px; width: 20px; height: 20px; overflow: visible; }
+    #site-todo1 { position: relative; }
+    #site-todo1 b { position: absolute; left: 0; right: 0; top: 52%; height: 2px; background: #7a8699; transform-origin: left center; transform: scaleX(0); }
+
     /* request log */
-    #site-loggrp {
-      position: absolute;
-      inset: 0;
-    }
-    #site-log {
-      position: absolute;
-      left: 980px;
-      top: 216px;
-      width: 764px;
-      height: 264px;
-      background: #f2f2f0;
-      border-radius: 10px;
-    }
-    .site-row {
-      position: absolute;
-      color: #0a0a0a;
-    }
-    .site-st {
-      transform-origin: left center;
-    }
-    #site-caret {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 3px;
-      height: 34px;
-      background: #0a0a0a;
-      opacity: 0;
-    }
-    .site-tag {
-      position: absolute;
-      height: 44px;
-      padding: 0 16px;
-      border-radius: 10px;
-      background: #0a0a0a;
-      color: #ffffff;
-      font-family: "Inter", sans-serif;
-      font-weight: 700;
-      font-size: 28px;
-      line-height: 44px;
-      transform-origin: 50% 50%;
-    }
-    .site-ul {
-      position: absolute;
-      height: 3px;
-      background: #e5342f;
-      transform-origin: left center;
-    }
-    .site-group {
-      position: absolute;
-      inset: 0;
-    }
+    #site-log { left: 1060px; top: 228px; width: 740px; height: 300px; transform-origin: 50% 50%; }
+    #site-live { position: absolute; right: 26px; top: 26px; width: 12px; height: 12px; border-radius: 50%; background: #3dffa2;
+      box-shadow: 0 0 10px rgba(61,255,162,0.8); }
+    .site-st { color: #3dffa2; transform-origin: left center; }
+    .site-band { position: absolute; left: 10px; right: 10px; height: 48px; border-radius: 8px; background: rgba(61,255,162,0.09); opacity: 0; }
+    #site-caret { position: absolute; left: 0; top: 0; width: 14px; height: 34px; background: #3dffa2;
+      box-shadow: 0 0 10px rgba(61,255,162,0.6); opacity: 0; }
+
     /* the shipped JavaScript */
-    #site-js {
-      position: absolute;
-      left: 980px;
-      top: 528px;
-      width: 764px;
-      height: 232px;
-      background: #f2f2f0;
-      border-radius: 10px;
-    }
-    #site-ring {
-      position: absolute;
-      left: 1046px;
-      top: 698px;
-      width: 236px;
-      height: 44px;
-      border: 2px solid #0a0a0a;
-      border-radius: 10px;
-    }
-    #site-arrow {
-      position: absolute;
-      left: 1156px;
-      top: 748px;
-      width: 16px;
-      height: 64px;
-      transform-origin: center top;
-    }
+    #site-js { left: 1060px; top: 556px; width: 740px; height: 356px; transform-origin: 50% 50%; }
+    #site-ring { position: absolute; left: 48px; top: 112px; width: 272px; height: 56px; border-radius: 10px;
+      border: 1px solid #ff3b5c; background: rgba(255,59,92,0.07);
+      box-shadow: 0 0 0 1px rgba(255,59,92,0.5), 0 0 28px rgba(255,59,92,0.45), 0 0 80px rgba(255,59,92,0.18); }
+    #site-arrow { position: absolute; left: 168px; top: 170px; width: 16px; height: 44px; transform-origin: center top; overflow: visible; }
+    .site-red { color: #ff3b5c; text-shadow: 0 0 18px rgba(255,59,92,0.6); }
+
     /* THE DATABASE */
-    #site-db {
-      position: absolute;
-      left: 996px;
-      top: 528px;
-      width: 308px;
-      height: 400px;
-      transform-origin: 50% 100%;
-    }
-    #site-db svg {
-      position: absolute;
-      left: 0;
-      top: 0;
-      overflow: visible;
-    }
-    .site-dblabel {
-      position: absolute;
-      left: 40px;
-      font-family: "Inter", sans-serif;
-      font-weight: 700;
-      font-size: 28px;
-      line-height: 36px;
-      color: #0a0a0a;
-    }
-    #site-rowwin {
-      position: absolute;
-      left: 1304px;
-      top: 668px;
-      width: 440px;
-      height: 104px;
-      overflow: hidden;
-    }
-    #site-trow {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 404px;
-      height: 104px;
-      border: 2px solid #0a0a0a;
-      border-radius: 10px;
-      background: #ffffff;
-      display: grid;
-      grid-template-columns: 68px 118px 214px;
-      grid-template-rows: 50px 50px;
-    }
-    #site-trow div {
-      font-family: "JetBrains Mono", monospace;
-      font-size: 28px;
-      line-height: 50px;
-      padding-left: 14px;
-      color: #0a0a0a;
-      border-left: 2px solid #0a0a0a;
-      position: relative;
-    }
-    #site-trow div.site-c0 {
-      border-left: none;
-    }
-    #site-trow div.site-v {
-      border-top: 2px solid #0a0a0a;
-    }
-    #site-trow div.site-v b {
-      position: absolute;
-      left: 14px;
-      top: 17px;
-      height: 14px;
-      border-radius: 4px;
-      background: #c4c4c0;
-    }
-    #site-nostore {
-      position: absolute;
-      left: 1344px;
-      top: 796px;
-      height: 40px;
-      overflow: hidden;
-      font-family: "Inter", sans-serif;
-      font-weight: 700;
-      font-size: 28px;
-      line-height: 40px;
-      color: #6b6b6b;
-      white-space: nowrap;
-    }
+    #site-db { position: absolute; left: 1060px; top: 556px; width: 300px; height: 340px; transform-origin: 50% 100%; }
+    #site-db svg { position: absolute; left: 0; top: 0; overflow: visible; filter: drop-shadow(0 0 14px rgba(61,255,162,0.25)); }
+    .site-dblabel { position: absolute; left: 0; width: 300px; text-align: center; font-family: "Inter", sans-serif;
+      font-weight: 800; font-size: 28px; line-height: 36px; color: #eaf2f7; }
+    #site-rowwin { position: absolute; left: 1364px; top: 652px; width: 450px; height: 116px; overflow: hidden; }
+    #site-trow { position: absolute; left: 6px; top: 6px; width: 404px; height: 104px; border-radius: 10px;
+      background: #0b0f16; border: 1px solid rgba(61,255,162,0.35); box-shadow: 0 0 24px rgba(61,255,162,0.12);
+      display: grid; grid-template-columns: 68px 118px 216px; grid-template-rows: 51px 51px; overflow: hidden; }
+    #site-trow div { font-family: "JetBrains Mono", monospace; font-size: 28px; line-height: 50px; padding-left: 14px;
+      color: #cfe3f0; border-left: 1px solid rgba(61,255,162,0.2); position: relative; font-variant-ligatures: none; }
+    #site-trow div.c0 { border-left: none; }
+    #site-trow div.v { border-top: 1px solid rgba(61,255,162,0.2); }
+    #site-trow div.v b { position: absolute; left: 14px; top: 18px; height: 14px; border-radius: 4px; background: #2a3442; }
+    #site-nostore { position: absolute; left: 1374px; top: 782px; height: 40px; overflow: hidden;
+      font-family: "Inter", sans-serif; font-weight: 700; font-size: 28px; line-height: 40px; color: #7a8699; white-space: nowrap; }
+
+    /* "found": green glowing tag with lock-on brackets */
+    .site-found { position: absolute; width: 116px; height: 46px; }
+    .site-tag { position: absolute; inset: 0; border-radius: 10px; background: #3dffa2; color: #03140b; text-align: center;
+      font-family: "Inter", sans-serif; font-weight: 800; font-size: 28px; line-height: 46px; letter-spacing: -0.01em;
+      box-shadow: 0 0 0 1px #3dffa2, 0 0 28px rgba(61,255,162,0.45), 0 0 80px rgba(61,255,162,0.18); opacity: 0; }
+    .site-halo { position: absolute; left: -60px; top: -60px; right: -60px; bottom: -60px; border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(61,255,162,0.55), transparent 65%); opacity: 0; }
+    .site-lock { position: absolute; inset: -10px; opacity: 0; }
+    .site-lock i { position: absolute; width: 14px; height: 14px; border-color: #3dffa2; border-style: solid; border-width: 0;
+      filter: drop-shadow(0 0 4px rgba(61,255,162,0.8)); }
+    .site-lock i:nth-child(1) { left: 0; top: 0; border-left-width: 2px; border-top-width: 2px; }
+    .site-lock i:nth-child(2) { right: 0; top: 0; border-right-width: 2px; border-top-width: 2px; }
+    .site-lock i:nth-child(3) { left: 0; bottom: 0; border-left-width: 2px; border-bottom-width: 2px; }
+    .site-lock i:nth-child(4) { right: 0; bottom: 0; border-right-width: 2px; border-bottom-width: 2px; }
+    .site-redul { position: absolute; height: 3px; background: #ff3b5c; transform-origin: left center; box-shadow: 0 0 10px rgba(255,59,92,0.7); }
+
+    /* scene-out sweep: full-width green scan line, not part of the fading content */
+    #site-sweep { position: absolute; left: 0; top: 0; width: 1920px; height: 120px; opacity: 0; }
+    #site-sweep b { position: absolute; left: 0; right: 0; top: 0; height: 118px;
+      background: linear-gradient(to bottom, rgba(61,255,162,0), rgba(61,255,162,0.22)); }
+    #site-sweep i { position: absolute; left: 0; right: 0; top: 118px; height: 2px; background: #3dffa2;
+      box-shadow: 0 0 10px #3dffa2, 0 0 34px rgba(61,255,162,0.7); }
   </style>
 
   <div id="root" data-composition-id="site" data-start="0" data-duration="26" data-width="1920" data-height="1080">
-    <div id="site-grid"></div>
+    <div id="site-ground"></div>
+    <div id="site-glow"></div>
+    <div id="site-floor-wrap"><div id="site-floor"></div></div>
+    <div id="site-dust"></div>
 
     <div id="site-cam">
       <div id="site-dolly">
-        <!-- THE APP -->
-        <div id="site-app">
-          <div class="site-dotc" style="left: 24px"></div>
-          <div class="site-dotc" style="left: 46px"></div>
-          <div class="site-dotc" style="left: 68px"></div>
-          <div id="site-addr">taskflow.app</div>
-          <div id="site-bar-rule"></div>
-          <div class="site-todo" style="top: 116px">
-            <i id="site-box1"><svg id="site-tick" viewBox="0 0 20 20"><path id="site-tick-p" d="M3 10.5l4.5 4.5L17 5" fill="none" stroke="#0a0a0a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="24" stroke-dashoffset="24" /></svg></i><span id="site-todo1">Ship landing page</span>
-          </div>
-          <div class="site-todo" style="top: 212px"><i></i><span>Fix login bug</span></div>
-          <div class="site-todo" style="top: 308px"><i></i><span>Write tests</span></div>
-          <div class="site-todo" style="top: 404px"><i></i><span>Launch</span></div>
-        </div>
-
-        <!-- request log (empty at 0.0); recoils when "found" slams onto it -->
-        <div id="site-loggrp">
-          <div id="site-log"></div>
-          <div id="site-r1" class="site-row site-mono" style="left: 1004px; top: 240px">GET /</div>
-          <div id="site-s1" class="site-row site-mono site-st" style="left: 1374px; top: 240px">200</div>
-          <div id="site-r2" class="site-row site-mono" style="left: 1004px; top: 288px">GET /assets/index.js</div>
-          <div id="site-s2" class="site-row site-mono site-st" style="left: 1374px; top: 288px">200</div>
-          <div id="site-r3" class="site-row site-mono" style="left: 1004px; top: 336px">GET /rest/v1/todos?select=*&amp;limit=1</div>
-          <div id="site-s3" class="site-row site-mono site-st" style="left: 1374px; top: 384px">200 · 1 row</div>
-          <div id="site-s3-ul" class="site-ul" style="left: 1374px; top: 424px; width: 185px"></div>
-          <div id="site-found2" class="site-tag" style="left: 1583px; top: 386px">found</div>
-        </div>
-
-        <!-- the JavaScript the page ships, and the key inside it -->
-        <div id="site-jsgroup" class="site-group clip" data-start="8.5" data-duration="5.3">
-          <div id="site-jsinner" class="site-group">
-            <div id="site-js"></div>
-            <div id="site-j0" class="site-row site-mono" style="left: 1004px; top: 548px; color: #6b6b6b">index.js</div>
-            <div id="site-j1" class="site-row site-mono" style="left: 1004px; top: 600px">const admin=createClient(</div>
-            <div id="site-j2" class="site-row site-mono" style="left: 1004px; top: 648px">  "https://taskflow.app",</div>
-            <div id="site-j3" class="site-row site-mono" style="left: 1004px; top: 696px">  "eyJhbGciOi...");</div>
-            <div id="site-ring"></div>
-            <svg id="site-arrow" viewBox="0 0 16 64"><path d="M8 0V60M1 52l7 9 7-9" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" /></svg>
-            <div id="site-json" class="site-row site-mono" style="left: 1004px; top: 820px">{ "role": "<span style="color: #e5342f">service_role</span>" }</div>
-            <div id="site-found1" class="site-tag" style="left: 1466px; top: 822px">found</div>
-          </div>
-        </div>
-
-        <!-- THE DATABASE and the one row it answered -->
-        <div id="site-dbgroup" class="clip" data-start="14.2" data-duration="11.8">
-          <div id="site-db">
-            <svg width="308" height="400" viewBox="0 0 308 400">
-              <path d="M4 34 A150 30 0 0 1 304 34 V366 A150 30 0 0 1 4 366 Z" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" />
-              <path d="M4 34 A150 30 0 0 0 304 34" fill="none" stroke="#0a0a0a" stroke-width="2" />
-              <g fill="none" stroke="#0a0a0a" stroke-width="2">
-                <rect x="40" y="200" width="228" height="132" rx="6" />
-                <line x1="40" y1="244" x2="268" y2="244" />
-                <line x1="40" y1="288" x2="268" y2="288" />
-                <line x1="108" y1="200" x2="108" y2="332" />
-                <line x1="186" y1="200" x2="186" y2="332" />
-              </g>
-            </svg>
-            <div class="site-dblabel" style="top: 82px">Supabase</div>
-            <div class="site-dblabel" style="top: 152px; font-family: 'JetBrains Mono', monospace; font-weight: 400">todos</div>
-          </div>
-          <div id="site-rowwin" data-layout-allow-overflow>
-            <div id="site-trow">
-              <div class="site-c0">id</div>
-              <div>owner</div>
-              <div>secret_note</div>
-              <div class="site-c0 site-v"><b style="width: 36px"></b></div>
-              <div class="site-v"><b style="width: 84px"></b></div>
-              <div class="site-v"><b style="width: 170px"></b></div>
+        <div id="site-focus"></div>
+        <div id="site-stage">
+          <!-- THE APP -->
+          <div id="site-app" class="site-pnl">
+            <div class="site-head">
+              <div class="site-dotc" style="left: 24px"></div>
+              <div class="site-dotc" style="left: 44px"></div>
+              <div class="site-dotc" style="left: 64px"></div>
+              <div id="site-addr">taskflow.app</div>
             </div>
+            <div class="site-todo" id="site-t1" style="top: 108px">
+              <i id="site-box1"><svg id="site-tick" viewBox="0 0 20 20"><path id="site-tick-p" d="M3 10.5l4.5 4.5L17 5" fill="none" stroke="#3dffa2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="24" stroke-dashoffset="24" /></svg></i><span id="site-todo1">Ship landing page<b id="site-todo1-x"></b></span>
+            </div>
+            <div class="site-todo" id="site-t2" style="top: 216px"><i></i><span>Fix login bug</span></div>
+            <div class="site-todo" id="site-t3" style="top: 324px"><i></i><span>Write tests</span></div>
+            <div class="site-todo" id="site-t4" style="top: 432px"><i></i><span>Launch</span></div>
+            <div id="site-ascan" class="site-scan"><b></b><i></i></div>
+            <i class="site-sheen" id="site-app-sheen"></i>
           </div>
-          <div id="site-nostore"><span class="site-w">values</span> <span class="site-w">not</span> <span class="site-w">stored</span></div>
+
+          <!-- request log (empty at 0.0); recoils when "found" slams onto it -->
+          <div id="site-log" class="site-pnl">
+            <div class="site-head"><div class="site-tab"><span id="site-log-t" class="site-mono">requests</span></div><div id="site-live"></div></div>
+            <div class="site-body">
+              <div id="site-band2" class="site-band" style="top: 68px"></div>
+              <div id="site-r1" class="site-row site-mono" style="left: 24px; top: 20px"><span class="k">GET</span> /</div>
+              <div id="site-s1" class="site-row site-mono site-st" style="left: 404px; top: 20px">200</div>
+              <div id="site-r2" class="site-row site-mono" style="left: 24px; top: 68px"><span class="k">GET</span> /assets/index.js</div>
+              <div id="site-s2" class="site-row site-mono site-st" style="left: 404px; top: 68px">200</div>
+              <div id="site-r3" class="site-row site-mono" style="left: 24px; top: 116px"><span class="k">GET</span> /rest/v1/todos?select=*&amp;limit=1</div>
+              <div id="site-s3" class="site-row site-mono site-st" style="left: 404px; top: 164px">200 · 1 row</div>
+              <div id="site-s3-ul" class="site-redul" style="left: 404px; top: 206px; width: 185px"></div>
+              <div id="site-found2" class="site-found" style="left: 608px; top: 165px">
+                <div class="site-halo"></div>
+                <div class="site-lock"><i></i><i></i><i></i><i></i></div>
+                <div class="site-tag">found</div>
+              </div>
+              <div id="site-caret"></div>
+            </div>
+            <i class="site-sheen" id="site-log-sheen"></i>
+          </div>
+
+          <!-- the JavaScript the page ships, and the key inside it -->
+          <div id="site-js" class="site-pnl clip" data-start="8.5" data-duration="5.5">
+            <div class="site-head"><div class="site-tab"><span id="site-js-t" class="site-mono" style="color: #cfe3f0">assets/index.js</span></div></div>
+            <div class="site-body">
+              <div id="site-j1" class="site-row site-mono" style="left: 24px; top: 20px"><span class="k">const</span> admin=<span class="fn">createClient</span>(</div>
+              <div id="site-j2" class="site-row site-mono" style="left: 24px; top: 68px">  <span class="s">"https://taskflow.app"</span>,</div>
+              <div id="site-j3" class="site-row site-mono" style="left: 24px; top: 116px">  <span class="s" id="site-token">"eyJhbGciOi..."</span>);</div>
+              <div id="site-ring"></div>
+              <svg id="site-arrow" viewBox="0 0 16 44"><path d="M8 0V40M1 32l7 9 7-9" fill="none" stroke="#ff3b5c" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" /></svg>
+              <div id="site-json" class="site-row site-mono" style="left: 24px; top: 216px">{ <span class="s">"role"</span>: <span class="site-red">"service_role"</span> }</div>
+              <div id="site-found1" class="site-found" style="left: 500px; top: 217px">
+                <div class="site-halo"></div>
+                <div class="site-lock"><i></i><i></i><i></i><i></i></div>
+                <div class="site-tag">found</div>
+              </div>
+              <div id="site-jscan" class="site-scan"><b></b><i></i></div>
+            </div>
+            <i class="site-sheen" id="site-js-sheen"></i>
+          </div>
+
+          <!-- THE DATABASE and the one row it answered -->
+          <div id="site-dbgroup" class="clip" data-start="14" data-duration="12">
+            <div id="site-db">
+              <svg width="300" height="340" viewBox="0 0 300 340">
+                <path d="M4 34 A146 30 0 0 1 296 34 V306 A146 30 0 0 1 4 306 Z" fill="#0b0f16" stroke="rgba(61,255,162,0.6)" stroke-width="2" />
+                <path d="M4 34 A146 30 0 0 0 296 34" fill="none" stroke="rgba(61,255,162,0.6)" stroke-width="2" />
+                <g fill="none" stroke="rgba(61,255,162,0.35)" stroke-width="1.5">
+                  <rect x="40" y="170" width="220" height="114" rx="6" />
+                  <line x1="40" y1="208" x2="260" y2="208" />
+                  <line x1="40" y1="246" x2="260" y2="246" />
+                  <line x1="106" y1="170" x2="106" y2="284" />
+                  <line x1="180" y1="170" x2="180" y2="284" />
+                </g>
+                <path id="site-dbrow" d="M41 209 H259 V245 H41 Z" fill="rgba(61,255,162,0.25)" opacity="0" />
+              </svg>
+              <div class="site-dblabel" style="top: 76px">Supabase</div>
+              <div class="site-dblabel" style="top: 118px; font-family: 'JetBrains Mono', monospace; font-weight: 400; color: #cfe3f0">todos</div>
+            </div>
+            <div id="site-rowwin">
+              <div id="site-trow">
+                <div class="c0">id</div>
+                <div>owner</div>
+                <div>secret_note</div>
+                <div class="c0 v"><b style="width: 36px"></b></div>
+                <div class="v"><b style="width: 84px"></b></div>
+                <div class="v"><b style="width: 170px"></b></div>
+              </div>
+            </div>
+            <div id="site-nostore"><span class="site-w">values</span> <span class="site-w">not</span> <span class="site-w">stored</span></div>
+          </div>
         </div>
-
-        <div id="site-caret"></div>
       </div>
+    </div>
 
-      <!-- on-screen lines: they ride the cuts, not the push -->
+    <div id="site-vignette"></div>
+
+    <!-- HUD + lines: flat, above the vignette; they ride the cuts but not the push -->
+    <div id="site-txt">
+      <div id="site-hud"><i id="site-hud-cur"></i></div>
       <div id="site-l1" class="site-line clip" data-start="0" data-duration="4"><span class="site-w">Without</span> <span class="site-w">the</span> <span class="site-w">code,</span> <span class="site-w">it</span> <span class="site-w">sees</span> <span class="site-w">what</span> <span class="site-w">every</span> <span class="site-w">visitor</span> <span class="site-w">sees</span></div>
       <div id="site-l2" class="site-line clip" data-start="4" data-duration="4.5"><span class="site-w">the</span> <span class="site-w">page</span> <span class="site-w">and</span> <span class="site-w">the</span> <span class="site-w">JavaScript</span> <span class="site-w">it</span> <span class="site-w">ships</span></div>
-      <div id="site-l3" class="site-line clip" data-start="8.5" data-duration="5.5"><span class="site-w">The</span> <span class="site-mk"><i id="site-mk1" class="site-mk-bar"></i><span class="site-w">admin</span> <span class="site-w">key</span></span> <span class="site-w">is</span> <span class="site-w">inside,</span> <span class="site-w">for</span> <span class="site-w">anyone</span> <span class="site-w">to</span> <span class="site-w">copy</span></div>
+      <div id="site-l3" class="site-line clip" data-start="8.5" data-duration="5.5"><span class="site-w">The</span> <span class="site-mk" id="site-mk1"><span class="site-w">admin</span> <span class="site-w">key</span><i class="site-ul"></i></span> <span class="site-w">is</span> <span class="site-w">inside,</span> <span class="site-w">for</span> <span class="site-w">anyone</span> <span class="site-w">to</span> <span class="site-w">copy</span></div>
       <div id="site-l4" class="site-line clip" data-start="14" data-duration="5"><span class="site-w">It</span> <span class="site-w">asks</span> <span class="site-w">the</span> <span class="site-w">database</span> <span class="site-w">for</span> <span class="site-w">one</span> <span class="site-w">row,</span> <span class="site-w">read-only</span></div>
-      <div id="site-l5" class="site-line clip" data-start="19" data-duration="4"><span class="site-w">It</span> <span class="site-w">answered.</span> <span class="site-mk"><i id="site-mk2" class="site-mk-bar"></i><span class="site-w">Anyone</span> <span class="site-w">can</span> <span class="site-w">read</span></span> <span class="site-w">this</span> <span class="site-w">table.</span></div>
+      <div id="site-l5" class="site-line clip" data-start="19" data-duration="4"><span class="site-w">It</span> <span class="site-w">answered.</span> <span class="site-mk" id="site-mk2"><span class="site-w">Anyone</span> <span class="site-w">can</span> <span class="site-w">read</span><i class="site-ul"></i></span> <span class="site-w">this</span> <span class="site-w">table.</span></div>
       <div id="site-l6" class="site-line clip" data-start="23" data-duration="3"><span class="site-w">Every</span> <span class="site-w">request</span> <span class="site-w">only</span> <span class="site-w">reads,</span> <span class="site-w">nothing</span> <span class="site-w">is</span> <span class="site-w">changed</span></div>
     </div>
+
+    <div id="site-sweep"><b></b><i></i></div>
   </div>
 
   <script>
     (function () {
       const tl = gsap.timeline({ paused: true });
-      const SCENE = 26;
+      const DUR = 26;
+      const FILM_START = 56;
       const F = 1 / 30;
       const CW = 16.8; // JetBrains Mono advance at 28 px (0.6 em)
       const SHUT = "inset(0% 100% 0% 0%)";
       const OPEN = "inset(0% 0% 0% 0%)";
-      const INK = "#0a0a0a";
+      const TEXT = "#eaf2f7";
+      const RED = "#ff3b5c";
 
-      // ---- kinetic type: words rise from the mask, leave upward through it
-      function wordsIn(line, t, h) {
-        tl.fromTo(line + " .site-w", { y: h || 66 }, { y: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, t);
+      // ---------------- shared world: ground, floor grid, dust (film-time driven) ----------------
+      (function world(tl, id, FILM_START, DUR) {
+        let s = 20261122;
+        const rnd = () => { s |= 0; s = (s + 0x6d2b79f5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+        const box = document.getElementById(id + "-dust");
+        const dots = [];
+        for (let k = 0; k < 54; k++) {
+          const d = { x: rnd() * 1920, y: rnd() * 1180, z: 0.3 + rnd() * 0.7, ph: rnd() * 6.283 };
+          const el = document.createElement("i");
+          const size = 1 + d.z * 2;
+          el.style.width = el.style.height = size + "px";
+          el.style.opacity = (0.12 + d.z * 0.23).toFixed(3);
+          box.appendChild(el); d.el = el; dots.push(d);
+        }
+        const floor = document.getElementById(id + "-floor");
+        const draw = (T) => {
+          if (floor) floor.style.backgroundPosition = "0px " + ((T * 40) % 80) + "px";
+          for (const d of dots) {
+            const y = ((d.y - T * 14 * d.z) % 1180 + 1180) % 1180 - 50;
+            const x = d.x + Math.sin(T * 0.35 + d.ph) * 18 * d.z;
+            d.el.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px)";
+          }
+        };
+        const p = { t: 0 };
+        tl.fromTo(p, { t: 0 }, { t: DUR, duration: DUR, ease: "none", onUpdate: () => draw(FILM_START + p.t) }, 0);
+        draw(FILM_START);
+      })(tl, "site", FILM_START, DUR);
+
+      // HUD label characters
+      const HUD = "04 / SCAN THE LIVE SITE";
+      const hud = document.getElementById("site-hud");
+      for (let i = 0; i < HUD.length; i++) {
+        const sp = document.createElement("span");
+        sp.textContent = HUD[i];
+        hud.insertBefore(sp, document.getElementById("site-hud-cur"));
+      }
+
+      // ---------------- helpers ----------------
+      function wordsIn(line, t) {
+        tl.fromTo(line + " .site-w", { y: 84 }, { y: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, t);
       }
       function wordsOut(line, t) {
-        tl.fromTo(line + " .site-w, " + line + " .site-mk-bar", { y: 0 }, { y: -66, duration: 8 * F, ease: "power2.in", stagger: F, immediateRender: false }, t);
+        tl.fromTo(line + " .site-w, " + line + " .site-ul", { y: 0 }, { y: -84, duration: 8 * F, ease: "power3.in", stagger: F, immediateRender: false }, t);
       }
-      function marker(bar, t) {
-        tl.fromTo(bar, { scaleX: 0 }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, t);
-        tl.fromTo(bar + " ~ .site-w", { color: INK }, { color: "#ffffff", duration: 6 * F, ease: "none" }, t);
+      function marker(mk, t) {
+        tl.fromTo(mk + " .site-ul", { scaleX: 0, opacity: 1 }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, t);
+        tl.fromTo(mk + " .site-w", { color: TEXT, textShadow: "0 0 18px rgba(255,59,92,0)" },
+          { color: RED, textShadow: "0 0 18px rgba(255,59,92,0.6)", duration: 8 * F, ease: "power2.out" }, t);
       }
-
-      // ---- typing: one character per step, the caret follows in the same steps
-      function type(sel, n, t, rowLeft, rowTop, cps) {
-        const d = Math.max(n / (cps || 50), F);
+      // typing into the request log: one character per step, the caret follows
+      function type(sel, n, t, top, cps) {
+        const d = n / cps;
         tl.fromTo(sel, { clipPath: SHUT }, { clipPath: OPEN, duration: d, ease: "steps(" + n + ")" }, t);
-        tl.set("#site-caret", { opacity: 1, y: rowTop + 7 }, t);
-        tl.fromTo("#site-caret", { x: rowLeft }, { x: rowLeft + n * CW, duration: d, ease: "steps(" + n + ")", immediateRender: false }, t);
-        tl.set("#site-caret", { opacity: 0 }, t + d + 0.15);
+        tl.set("#site-caret", { opacity: 1, y: top + 7 }, t);
+        tl.fromTo("#site-caret", { x: 24 }, { x: 24 + n * CW, duration: d, ease: "steps(" + n + ")", immediateRender: false }, t);
         return t + d;
       }
-      // code that is already there scrolls into view fast, no caret
       function reveal(sel, n, t, cps) {
         tl.fromTo(sel, { clipPath: SHUT }, { clipPath: OPEN, duration: n / (cps || 120), ease: "steps(" + n + ")" }, t);
       }
-      // a response lands whole, with overshoot
-      function status(sel, t) {
-        tl.fromTo(sel, { scale: 0.9, opacity: 0 }, { scale: 1, opacity: 1, duration: 16 * F, ease: "back.out(1.7)" }, t);
+      function status(sel, t) { // a response lands whole, with overshoot
+        tl.fromTo(sel, { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 14 * F, ease: "back.out(2)" }, t);
       }
-      function appear(sel, t) {
-        tl.fromTo(sel, { scale: 0.9, opacity: 0 }, { scale: 1, opacity: 1, duration: 16 * F, ease: "back.out(1.7)" }, t);
+      function sheen(sel, t) {
+        tl.fromTo(sel, { xPercent: -110 }, { xPercent: 360, duration: 18 * F, ease: "power2.inOut" }, t);
       }
-      // "found" slams in, its panel recoils 6 px and settles
+      function scan(sel, t0, t1, y0, y1) {
+        tl.fromTo(sel, { y: y0 }, { y: y1, duration: t1 - t0, ease: "none", immediateRender: false }, t0);
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 4 * F, ease: "none", immediateRender: false }, t0);
+        tl.fromTo(sel, { opacity: 1 }, { opacity: 0, duration: 5 * F, ease: "power2.in", immediateRender: false }, t1 - 5 * F);
+        return function (y) { return t0 + (y - y0) / (y1 - y0) * (t1 - t0); };
+      }
+      function flash(sel, t) {
+        tl.fromTo(sel, { textShadow: "0 0 14px rgba(61,255,162,0.95)" },
+          { textShadow: "0 0 14px rgba(61,255,162,0)", duration: 0.5, ease: "power2.out", immediateRender: false }, t);
+      }
       function slam(sel, panel, t) {
-        tl.fromTo(sel, { scale: 1.45, opacity: 0 }, { scale: 1, opacity: 1, duration: 9 * F, ease: "power4.out" }, t);
-        tl.fromTo(panel, { y: 0 }, { y: 6, duration: 2 * F, ease: "power2.out", immediateRender: false }, t + F);
-        tl.fromTo(panel, { y: 6 }, { y: 0, duration: 10 * F, ease: "power2.out", immediateRender: false }, t + 3 * F);
+        tl.fromTo(sel + " .site-tag", { scale: 1.45, opacity: 0 }, { scale: 1, opacity: 1, duration: 9 * F, ease: "power4.out" }, t);
+        tl.fromTo(sel + " .site-lock", { scale: 1.9, opacity: 0 }, { scale: 1, opacity: 1, duration: 9 * F, ease: "expo.out" }, t);
+        tl.fromTo(sel + " .site-lock", { opacity: 1 }, { opacity: 0.35, duration: 0.5, ease: "power2.out", immediateRender: false }, t + 0.5);
+        tl.fromTo(sel + " .site-halo", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 4 * F, ease: "power2.out" }, t);
+        tl.fromTo(sel + " .site-halo", { opacity: 1 }, { opacity: 0.25, duration: 0.8, ease: "power2.out", immediateRender: false }, t + 4 * F);
+        tl.fromTo(panel, { y: 0 }, { y: 7, duration: 2 * F, ease: "power2.out", immediateRender: false }, t + F);
+        tl.fromTo(panel, { y: 7 }, { y: 0, duration: 10 * F, ease: "power2.out", immediateRender: false }, t + 3 * F);
+      }
+      function pulse(sel, t) {
+        tl.fromTo(sel + " .site-halo", { opacity: 0.6 }, { opacity: 0.25, duration: 0.5, ease: "power2.out", immediateRender: false }, t);
       }
 
-      // ---- camera
-      // cuts: in from +420 px (12 f, power4.out), out to -420 px (last 10 f, power4.in)
-      tl.fromTo("#site-cam", { x: 420 }, { x: 0, duration: 18 * F, ease: "expo.out" }, 0);
-      tl.fromTo("#site-cam", { x: 0 }, { x: -420, duration: 10 * F, ease: "power3.in", immediateRender: false }, SCENE - 10 * F);
-      // slow push over the whole scene
-      tl.fromTo("#site-dolly", { scale: 1 }, { scale: 1.06, duration: SCENE, ease: "sine.inOut" }, 0);
-      // re-targets: attention leads the frame
-      let cx = 50, cy = 60;
+      // ---------------- camera ----------------
+      tl.fromTo("#site-cam, #site-txt", { scale: 0.94 }, { scale: 1, duration: 16 * F, ease: "expo.out" }, 0);
+      tl.fromTo("#site-cam, #site-txt", { opacity: 0 }, { opacity: 1, duration: 6 * F, ease: "none" }, 0);
+      tl.fromTo("#site-cam, #site-txt", { scale: 1 }, { scale: 1.15, duration: 12 * F, ease: "power2.in", immediateRender: false }, DUR - 12 * F);
+      tl.fromTo("#site-cam, #site-txt", { opacity: 1 }, { opacity: 0, duration: 6 * F, ease: "power2.in", immediateRender: false }, DUR - 6 * F);
+      tl.fromTo("#site-sweep", { y: -120, opacity: 0 }, { y: 1080, duration: 8 * F, ease: "power1.in", immediateRender: false }, DUR - 8 * F);
+      tl.fromTo("#site-sweep", { opacity: 0 }, { opacity: 1, duration: F, ease: "none" }, DUR - 8 * F);
+
+      tl.fromTo("#site-dolly", { scale: 1 }, { scale: 1.05, duration: DUR, ease: "sine.inOut" }, 0);
+      let cx = 0, cy = 30, fx = 540, fy = 540;
       tl.fromTo("#site-dolly", { x: cx, y: cy }, { x: cx, y: cy, duration: F, ease: "none" }, 0);
-      function aim(t, x, y, dur, ease) {
-        tl.fromTo("#site-dolly", { x: cx, y: cy }, { x: x, y: y, duration: dur || 20 * F, ease: ease || "power2.inOut", immediateRender: false }, t);
-        cx = x;
-        cy = y;
+      tl.fromTo("#site-focus", { x: fx, y: fy }, { x: fx, y: fy, duration: F, ease: "none" }, 0);
+      function aim(t, x, y, gx, gy, dur) {
+        tl.fromTo("#site-dolly", { x: cx, y: cy }, { x: x, y: y, duration: dur || 24 * F, ease: "power2.inOut", immediateRender: false }, t);
+        tl.fromTo("#site-focus", { x: fx, y: fy }, { x: gx, y: gy, duration: dur || 24 * F, ease: "power2.inOut", immediateRender: false }, t);
+        cx = x; cy = y; fx = gx; fy = gy;
       }
-      aim(2.4, -20, 90); // toward the empty log, before the first request
-      aim(5.0, -50, 60); // follow the second row down
-      aim(6.8, 0, 20); // pull back, the JavaScript is coming
-      aim(8.5, -40, 10); // the JavaScript
-      aim(10.2, -65, 5); // the decoded key
-      aim(13.6, -30, 70); // the database request
-      aim(15.4, -55, 20); // the row that comes back
-      aim(18.6, -40, 80); // the answer, before "found"
-      aim(20.6, 0, 40); // pull back
-      aim(23.0, -40, 70); // every request only reads
-      aim(24.6, -10, 40);
+      aim(2.0, 30, 10, 500, 420);         // the visitor ticks a task
+      aim(3.5, -10, 40, 1400, 380);       // toward the log, before the first request
+      aim(5.5, -30, 20, 1400, 420);       // follow the second row
+      aim(7.0, 0, 10, 1000, 520);         // pull back, the JavaScript is coming
+      aim(8.5, -30, 0, 1420, 700);      // the JavaScript
+      aim(10.0, -40, -10, 1420, 800);     // the decoded key
+      aim(13.5, -20, 20, 1400, 520);      // the database request
+      aim(15.5, -40, 0, 1500, 700);     // the row that comes back
+      aim(18.5, -30, 30, 1420, 420);      // the answer, before "found"
+      aim(21.0, 10, 20, 960, 520);        // pull back
+      aim(23.0, -20, 30, 1400, 420);      // every request only reads
+      aim(24.5, 0, 20, 1100, 500, 1.0);
 
-      // ---- lines
-      const lines = [
-        ["#site-l1", 0, 4, 9],
-        ["#site-l2", 4, 8.5, 7],
-        ["#site-l3", 8.5, 14, 9],
-        ["#site-l4", 14, 19, 8],
-        ["#site-l5", 19, 23, 8],
-        ["#site-l6", 23, null, 7],
-      ];
-      lines.forEach(function (l) {
-        wordsIn(l[0], l[1]);
-        if (l[2] !== null) wordsOut(l[0], l[2] - (8 + l[3]) * F);
+      // panels in 3D, slowly turning toward the camera over the beats
+      gsap.set("#site-app", { rotationY: -13, rotationX: 6 });
+      gsap.set("#site-log", { rotationY: -9, rotationX: 5 });
+      gsap.set("#site-js", { rotationY: -9, rotationX: 4 });
+      gsap.set("#site-db", { rotationY: -10, rotationX: 4 });
+      function turn(sel, t, ry, rx, dur) {
+        tl.to(sel, { rotationY: ry, rotationX: rx, duration: dur, ease: "sine.inOut" }, t);
+      }
+      turn("#site-app", 0, -8, 4, 4);
+      turn("#site-log", 0, -9, 4, 4);
+      turn("#site-app", 4, -11, 5, 4.5);
+      turn("#site-log", 4, -6, 3, 4.5);
+      turn("#site-js", 8.5, -5, 2, 5);
+      turn("#site-log", 8.5, -9, 4, 5.5);
+      turn("#site-log", 14, -5, 2, 6);
+      turn("#site-db", 14, -5, 2, 6);
+      turn("#site-app", 8.5, -13, 6, 12);
+      turn("#site-log", 21, -7, 3, 5);
+      turn("#site-app", 21, -9, 4, 5);
+
+      // ---------------- HUD ----------------
+      document.querySelectorAll("#site-hud span").forEach(function (sp, i) {
+        tl.fromTo(sp, { opacity: 0 }, { opacity: 1, duration: F * 0.5, ease: "none" }, (i + 1) * F);
       });
+      tl.fromTo("#site-hud-cur", { x: 0 }, { x: HUD.length * 18.04, duration: HUD.length * F, ease: "steps(" + HUD.length + ")" }, F);
+      tl.fromTo("#site-hud-cur", { opacity: 1 }, { opacity: 1, duration: F, ease: "none" }, 0);
+      tl.set("#site-hud-cur", { opacity: 0 }, 1.0);
+      tl.set("#site-hud-cur", { opacity: 1 }, 1.5);
+      tl.set("#site-hud-cur", { opacity: 0 }, 2.0);
 
-      // 1.8 a visitor uses the app: the first to-do gets ticked
-      tl.fromTo("#site-box1", { scale: 1 }, { scale: 1.25, duration: 4 * F, ease: "power2.out" }, 1.8);
-      tl.fromTo("#site-box1", { scale: 1.25 }, { scale: 1, duration: 12 * F, ease: "back.out(1.7)", immediateRender: false }, 1.8 + 4 * F);
-      tl.fromTo("#site-tick-p", { strokeDashoffset: 24 }, { strokeDashoffset: 0, duration: 8 * F, ease: "power3.out" }, 1.85);
-      tl.fromTo("#site-todo1", { color: INK }, { color: "#6b6b6b", duration: 8 * F, ease: "none" }, 2.0);
+      // ---------------- lines ----------------
+      [["#site-l1", 0, 4, 9], ["#site-l2", 4, 8.5, 7], ["#site-l3", 8.5, 14, 9], ["#site-l4", 14, 19, 8], ["#site-l5", 19, 23, 8], ["#site-l6", 23, null, 7]]
+        .forEach(function (l) {
+          wordsIn(l[0], l[1]);
+          if (l[2] !== null) wordsOut(l[0], l[2] - (8 + l[3]) * F);
+        });
 
-      // 4.0 / 5.0 request rows type in, one by one
-      type("#site-r1", 5, 4.0, 1004, 240);
-      status("#site-s1", 4.45);
-      type("#site-r2", 20, 5.0, 1004, 288);
-      status("#site-s2", 5.65);
+      // ---------------- 0.0 the app and an empty log ----------------
+      sheen("#site-app-sheen", 0.0);
+      sheen("#site-log-sheen", 0.5);
+      reveal("#site-log-t", 8, 0.5, 60);
+      // the live dot and the waiting caret blink on the beat
+      for (let b = 0; b < 7; b++) {
+        tl.set("#site-caret", { opacity: b % 2 ? 0 : 1, x: 24, y: 27 }, 0.5 + b * 0.5);
+      }
+      for (let b = 0; b < 26; b++) {
+        tl.fromTo("#site-live", { opacity: 1, scale: 1.3 }, { opacity: 0.45, scale: 1, duration: 0.45, ease: "power2.out", immediateRender: false }, b);
+      }
 
-      // 8.5 the JavaScript, a token inside it, decoded
-      appear("#site-js", 8.5);
-      reveal("#site-j0", 8, 8.6);
-      reveal("#site-j1", 25, 8.7);
-      reveal("#site-j2", 24, 8.95);
-      reveal("#site-j3", 19, 9.2);
-      appear("#site-ring", 9.5);
-      tl.fromTo("#site-arrow", { scaleY: 0 }, { scaleY: 1, duration: 0.4, ease: "power2.inOut" }, 9.85);
-      tl.fromTo("#site-json", { clipPath: SHUT }, { clipPath: OPEN, duration: 26 / 50, ease: "steps(26)" }, 10.2);
-      marker("#site-mk1", 10.7);
-      slam("#site-found1", "#site-jsinner", 11.5);
-      tl.fromTo("#site-jsinner", { opacity: 1, x: 0 }, { opacity: 0, x: -40, duration: 10 * F, ease: "power2.in", immediateRender: false }, 13.4);
+      // 2.0 a visitor uses the app: the first to-do gets ticked
+      tl.fromTo("#site-box1", { scale: 1, borderColor: "#3c4656" }, { scale: 1.25, borderColor: "#3dffa2", duration: 4 * F, ease: "power2.out" }, 2.0);
+      tl.fromTo("#site-box1", { scale: 1.25 }, { scale: 1, duration: 12 * F, ease: "back.out(1.7)", immediateRender: false }, 2.0 + 4 * F);
+      tl.fromTo("#site-tick-p", { strokeDashoffset: 24 }, { strokeDashoffset: 0, duration: 8 * F, ease: "power3.out" }, 2.0);
+      tl.fromTo("#site-todo1", { color: TEXT }, { color: "#7a8699", duration: 8 * F, ease: "none" }, 2.5);
+      tl.fromTo("#site-todo1-x", { scaleX: 0 }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, 2.5);
 
-      // 14.0 the database request, its answer, the row that came back
-      type("#site-r3", 35, 14.0, 1004, 336);
-      appear("#site-db", 14.2);
-      status("#site-s3", 15.2);
+      // ---------------- 4.0 the page: a scan reads it; request rows type in on the beat ----------------
+      const passA = scan("#site-ascan", 4.0, 5.0, 64, 560);
+      [1, 2, 3, 4].forEach(function (i) { flash("#site-t" + i + " span", passA(108 + (i - 1) * 108 + 42)); });
+      type("#site-r1", 5, 4.0, 20, 40);
+      tl.set("#site-caret", { opacity: 0 }, 4.25);
+      status("#site-s1", 4.5);
+      type("#site-r2", 20, 5.0, 68, 50);
+      tl.set("#site-caret", { opacity: 0 }, 5.45);
+      status("#site-s2", 5.5);
+      // 6.5 / 7.5 a glow pulse on the shipped JavaScript row, on the beat
+      tl.fromTo("#site-band2", { opacity: 0 }, { opacity: 1, duration: 6 * F, ease: "power2.out" }, 6.5);
+      flash("#site-r2", 6.5);
+      flash("#site-r2", 7.5);
+
+      // ---------------- 8.5 the JavaScript, a token inside it, decoded ----------------
+      tl.fromTo("#site-js", { opacity: 0, y: 40, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 18 * F, ease: "expo.out" }, 8.5);
+      sheen("#site-js-sheen", 8.5);
+      reveal("#site-js-t", 15, 8.5, 90);
+      reveal("#site-j1", 25, 8.5);
+      reveal("#site-j2", 24, 8.75);
+      reveal("#site-j3", 19, 9.0);
+      const passJ = scan("#site-jscan", 9.0, 9.5, 0, 190);
+      ["#site-j1", "#site-j2", "#site-j3"].forEach(function (s, i) { flash(s, passJ(44 + i * 48)); });
+      tl.fromTo("#site-ring", { opacity: 0, scale: 1.15 }, { opacity: 1, scale: 1, duration: 10 * F, ease: "expo.out" }, 9.5);
+      tl.fromTo("#site-token", { color: "#ffc46b" }, { color: "#ffe2b0", duration: 6 * F, ease: "none" }, 9.5);
+      tl.fromTo("#site-arrow", { scaleY: 0 }, { scaleY: 1, duration: 9 * F, ease: "power2.inOut" }, 10.0);
+      tl.fromTo("#site-json", { clipPath: SHUT }, { clipPath: OPEN, duration: 0.45, ease: "steps(26)" }, 10.0);
+      tl.fromTo("#site-ring", { opacity: 1 }, { opacity: 0.45, duration: 0.5, ease: "power2.out", immediateRender: false }, 10.5);
+      marker("#site-mk1", 10.5);
+      // 11.5 found (sound: lock-on blip at film 67.5)
+      slam("#site-found1", "#site-js", 11.5);
+      pulse("#site-found1", 12.5);
+      tl.fromTo("#site-js", { opacity: 1, x: 0 }, { opacity: 0, x: -60, duration: 10 * F, ease: "power3.in", immediateRender: false }, 13.5);
+      tl.fromTo("#site-band2", { opacity: 1 }, { opacity: 0, duration: 10 * F, ease: "power3.in", immediateRender: false }, 13.5);
+
+      // ---------------- 14.0 the database request, its answer, the row that came back ----------------
+      type("#site-r3", 35, 14.0, 116, 50);
+      tl.set("#site-caret", { opacity: 0 }, 14.75);
+      tl.fromTo("#site-db", { opacity: 0, scale: 0.9, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 16 * F, ease: "back.out(1.7)" }, 14.0);
+      tl.fromTo("#site-dbrow", { opacity: 0 }, { opacity: 1, duration: 6 * F, ease: "power2.out" }, 15.0);
+      status("#site-s3", 15.0);
       // the row travels out of the database and settles
-      tl.fromTo("#site-trow", { x: -420 }, { x: 24, duration: 0.7, ease: "power3.out" }, 15.6);
-      tl.fromTo("#site-trow", { x: 24 }, { x: 16, duration: 4 * F, ease: "power2.out", immediateRender: false }, 16.3);
-      tl.fromTo("#site-nostore .site-w", { y: 44 }, { y: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, 16.6);
+      tl.fromTo("#site-trow", { x: -440 }, { x: 14, duration: 0.6, ease: "power3.out" }, 15.5);
+      tl.fromTo("#site-trow", { x: 14 }, { x: 6, duration: 4 * F, ease: "power2.out", immediateRender: false }, 16.1);
+      tl.fromTo("#site-dbrow", { opacity: 1 }, { opacity: 0.3, duration: 0.5, ease: "power2.out", immediateRender: false }, 16.0);
+      tl.fromTo("#site-nostore .site-w", { y: 44 }, { y: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, 16.5);
+      flash("#site-s3", 17.5);
 
-      // 19.0 it answered: red underline on the answer, found
+      // ---------------- 19.0 it answered: red underline on the answer, found ----------------
+      tl.fromTo("#site-s3", { color: "#3dffa2", textShadow: "0 0 18px rgba(255,59,92,0)" }, { color: RED, textShadow: "0 0 18px rgba(255,59,92,0.6)", duration: 8 * F, ease: "power2.out", immediateRender: false }, 19.0);
       tl.fromTo("#site-s3-ul", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power3.out" }, 19.0);
-      slam("#site-found2", "#site-loggrp", 19.0);
-      marker("#site-mk2", 19.8);
+      // (sound: lock-on blip at film 75.0)
+      slam("#site-found2", "#site-log", 19.0);
+      marker("#site-mk2", 19.5);
+      pulse("#site-found2", 20.5);
+      pulse("#site-found2", 22.0);
 
-      tl.set({}, {}, SCENE);
+      // ---------------- 23.0 every request only reads: each GET lights up on the beat ----------------
+      ["#site-r1", "#site-r2", "#site-r3"].forEach(function (s, i) {
+        const t = 23.5 + i * 0.5;
+        tl.fromTo(s + " .k", { color: "#7fd8ff", textShadow: "0 0 14px rgba(61,255,162,0)" },
+          { color: "#3dffa2", textShadow: "0 0 14px rgba(61,255,162,0.8)", duration: 6 * F, ease: "power2.out" }, t);
+      });
+      pulse("#site-found2", 25.0);
+
+      tl.set({}, {}, DUR);
       window.__timelines = window.__timelines || {};
       window.__timelines["site"] = tl;
     })();

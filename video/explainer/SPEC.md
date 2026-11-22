@@ -179,3 +179,49 @@ Applies to every scene on top of v1. Same text, same timings, same facts. No sou
 6. NO DEAD AIR: never more than 2 s without a visible change of at least 20 px or a new element. Fill long holds with the camera re-target or a secondary reaction, never with breathing loops.
 
 BANNED additions: plain left-to-right wipe on text; a line that appears all at once; any hold longer than 2 s with nothing moving; sound effects.
+
+## v7 DARK TECH REMAKE (owner, 2026-11-22: "remake the whole video in a better style with better sound effects"; chose "Dark tech, glowing" and "Music-led, few effects")
+
+Same story, same ten scenes, same scene start times and lengths, same text and facts as above. Everything visual is restyled; this section overrides LOOK, MOTION, BANNED and the v2 pass where they conflict. No HyperFrames CLI (owner's rule): scenes are rendered by tools/render (our renderer), which mounts each `compositions/<id>.html` template, shows `.clip` elements over [data-start, data-start + data-duration), and seeks `window.__timelines["<id>"]`. Keep that contract: one paused GSAP timeline per scene, everything a function of time, no Math.random (use a seeded PRNG), no timers.
+
+### Look: a security product launch at night
+
+- GROUND: #05060A everywhere (also the product scenes). A soft radial glow behind the active area: radial-gradient(ellipse at <focus>, rgba(61,255,162,0.07), transparent 60%). A vignette: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.6)).
+- FLOOR GRID: a perspective grid plane (lines rgba(61,255,162,0.10), 1 px, every 80 px) laid flat with rotateX(72deg) in the lower 45% of the frame, scrolling slowly towards the viewer (background-position moves 80 px per 2 s, i.e. one cell per bar). Behind content, never over text. Not in product scenes (they use the glow only).
+- DUST: 40-60 tiny dots (1-3 px, rgba(234,242,247,0.15-0.35)), seeded positions, drifting slowly upward with parallax (depth = speed). Subtle; never brighter than muted text.
+- COLOURS: text #EAF2F7; muted #7A8699; signal green #3DFFA2 (Vibeproof, scanning, safe, "found" tags); alert red #FF3B5C (the flaw, at most one focus per frame); panel #0B0F16 with 1 px border rgba(61,255,162,0.16) and radius 14 px; code text #CFE3F0, line numbers #3C4656, SQL/TS keywords #7FD8FF, strings #FFC46B.
+- GLOW: allowed and wanted, but only on the thing that matters: green or red box-shadow 0 0 0 1px <c>, 0 0 28px <c at 45%>, 0 0 80px <c at 18%>; glowing words use text-shadow 0 0 18px <c at 60%>. Never glow on body text.
+- LIGHT SWEEP: when a panel appears, a diagonal sheen (linear-gradient 105deg, transparent, rgba(255,255,255,0.10), transparent; 30% wide) crosses it left to right in 18 frames, power2.inOut.
+- SCAN LINE: Vibeproof reading something is shown as a horizontal 2 px green line with a glow and a fading green trail above it (40 px gradient), sweeping down the panel; lines it passes brighten briefly.
+- HUD LABELS: each scene has a small chapter label top-left at x 96, y 72: JetBrains Mono 700 22 px, letter-spacing 0.22em, uppercase, green, e.g. "01 / THE QUESTION", "02 / HOW THESE APPS WORK", "03 / SCAN THE CODE", "04 / SCAN THE LIVE SITE", "05 / BLIND SPOTS", "06 / DEMO: A REPOSITORY", "07 / DEMO: A LIVE SITE", "08 / SAFE BY DESIGN", "09 / RESULTS"; none on the end card. It types in character by character (1 char per frame) with a blinking block cursor that blinks on the beat (every 15 frames) and disappears after 2 s.
+- TYPE: Inter 800/900 for display and lines (display 100 px, lines 52 px, labels 28 px min), JetBrains Mono for code, HUD, request logs, numbers next to bars. Text left aligned at x 96 unless the shot says otherwise.
+- KINETIC TYPE: keep v2's word-by-word rise through a mask (power4.out, 14 frames, 2-frame stagger) and the up-exit. The marker on the key word becomes a glow: the word turns red (or green for Vibeproof wins) with a text-shadow glow and an underline bar 6 px tall under it that grows scaleX 0 -> 1 in 10 frames.
+- 3D DEPTH: drawn objects (the app window, database, file tree, code panels) sit in a 3D space: perspective 1600 px on the scene, panels tilted (rotateY -8..-14deg, rotateX 4..8deg) and slowly turning toward camera over each beat. Text stays flat and readable.
+- PRODUCT SCENES (repodemo, webdemo): the real screens (assets/screens/*.png) on the dark ground as one big floating screen at least 85% of the frame width, rounded 18 px, green rim light (border 1 px rgba(61,255,162,0.35) + the glow above at low strength) and a soft reflection below (the same image flipped, 12% opacity, masked to fade out within 120 px). Between beats the screen is tilted (rotateY -10deg, rotateX 6deg); for every punch-in it turns flat and the camera pushes in so the text is sharp and readable. Highlights become green glowing rounded rectangles; the cursor stays white. Captions: no black band; a line of white Inter 800 48 px with the key word in green, bottom-left at x 96, y ~ 960, over a soft dark gradient at the bottom (transparent -> rgba(5,6,10,0.85)).
+- END CARD: same ground, the floor grid, the claim and the shield-check mark in green with glow; KEEP the owner's 3D tilt on #end (gsap.set("#end", { z: -66, transformPerspective: 1080, rotationX: 10, rotationY: -15 })).
+
+### Motion
+
+- Eases: arrivals expo.out or power3.out 16-20 frames; things leaving power3.in 10 frames; camera sine.inOut / power2.inOut. Never linear except scrolling grid and dust.
+- Camera: every scene's content sits in `#<id>-cam`; slow push 1.00 -> 1.05 over the scene plus a re-target at each beat (translate 30-100 px, power2.inOut, 20-30 frames). Smooth, never jerky; the renderer adds motion blur.
+- SCENE TRANSITIONS (replace the ±420 px slide): out = in the last 12 frames the camera scales 1 -> 1.15 and the content fades 1 -> 0 over the last 6 frames (power2.in) while a full-width green scan line sweeps the frame top -> bottom during the last 8 frames; in = the first 16 frames the camera goes scale 0.94 -> 1 with expo.out and the content fades 0 -> 1 over the first 6 frames. The ground, grid and dust do NOT fade (they are continuous between scenes). hook has no "in"; end has no "out".
+- BEAT GRID: the music is 120 BPM, 4/4, so one beat = 0.5 s = 15 frames and one bar = 2 s. Every scene starts on a bar. Put every appearance, word-line entry, slam, click, count landing and camera re-target on a beat (scene-local time a multiple of 0.5 s); put the big moments on a bar (a multiple of 2 s) where the shot list allows. The shot list times below are already on the beat; keep them exactly (the sound is built on them).
+- NO DEAD AIR: something visibly changes at least every 2 s (camera re-target, scan line, a glow pulse on the beat, a new element).
+
+### Sound moments (the few effects; keep these exact film times)
+
+| film time (s) | what is on screen | sound |
+|---|---|---|
+| 5.5 | hook: the app splits into code / live site | soft low synth hit |
+| 16.5 | stack: the anon key lands on the browser | small metallic clink in key |
+| 24.5 | stack: the shield breaks (red) | glass crack + low hit |
+| 43.0 | code: "found" tag (no access rules) | lock-on blip (two notes up) |
+| 50.0 | code: "found" tag (admin key) | lock-on blip |
+| 67.5 | site: "found" tag (admin key in the JS) | lock-on blip |
+| 75.0 | site: "found" tag (table readable) | lock-on blip |
+| 107.5 | repodemo: click on Scan | UI click |
+| 128.0 | repodemo: click "Copy fix prompt" | UI click + soft confirm tone |
+| 205.0 | results: the two halves join into one | the music's drop (big hit) |
+| 215.0 | end: the mark draws on | bell-like chime in key |
+
+The music carries everything else; there are no whooshes and no camera sounds.

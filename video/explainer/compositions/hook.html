@@ -4,273 +4,334 @@
       position: absolute;
       inset: 0;
       overflow: hidden;
-      background: #ffffff;
+      background: #05060a;
       font-family: "Inter", sans-serif;
-      color: #0a0a0a;
+      color: #eaf2f7;
     }
-    /* the camera carries everything, ground included (the seam and the words blend together) */
-    #hook-cam { position: absolute; inset: 0; transform-origin: 300px 540px; }
-    #hook-grid { position: absolute; left: -816px; top: -624px; }
-    /* CODE world: the left half turns dark at the split */
-    #hook-dark { position: absolute; left: -816px; top: -624px; width: 1776px; height: 2304px; background: #0b0b0c; }
-    #hook-dark svg { position: absolute; left: 0; top: 0; }
-    /* kinetic type: a line is a mask, its words rise through it; words blend
-       so they read ink on the light ground and light on the dark one */
-    .hook-display {
-      position: absolute;
-      left: 80px;
-      top: 100px;
-      padding: 4px 16px 18px 16px;
-      overflow: hidden;
-      font-weight: 900;
-      font-size: 100px;
-      line-height: 1.05;
-      letter-spacing: -0.02em;
-      white-space: nowrap;
-    }
-    .hook-w { display: inline-block; }
-    .hook-x { color: #f5f5f5; mix-blend-mode: difference; }
-    .hook-mk { position: relative; isolation: isolate; margin: 0 0.04em 0 0.08em; color: #0a0a0a; }
-    .hook-mbar {
-      position: absolute; left: -0.08em; right: -0.08em; top: calc(50% - 0.45em); height: 0.9em;
-      background: #e5342f; z-index: -1;
-    }
-    .hook-label {
-      position: absolute;
-      top: 900px;
-      padding: 0 6px 6px 6px;
-      margin-left: -6px;
-      overflow: hidden;
-      font-weight: 700;
-      font-size: 28px;
-      line-height: 36px;
-      white-space: nowrap;
-    }
-    /* the taskflow app window */
-    .hook-win {
-      position: absolute;
-      top: 236px;
-      height: 640px;
-      border: 2px solid #0a0a0a;
-      border-radius: 10px;
-      background: #ffffff;
-      overflow: hidden;
-    }
-    .hook-body { position: absolute; top: 0; width: 1096px; height: 636px; }
-    .hook-bar {
-      position: absolute; left: 0; top: 0; right: 0; height: 72px;
-      border-bottom: 2px solid #0a0a0a;
-    }
-    .hook-dots { position: absolute; left: 18px; top: 30px; }
-    .hook-addr {
-      position: absolute; top: 13px; height: 46px;
-      border: 2px solid #0a0a0a; border-radius: 23px;
-      padding-left: 22px;
-      font-weight: 400; font-size: 28px; line-height: 42px;
-      white-space: nowrap;
-    }
-    .hook-row {
-      position: absolute; left: 48px; height: 104px;
-      border-bottom: 2px solid rgba(10, 10, 10, 0.12);
-    }
-    .hook-box {
-      position: absolute; left: 0; top: 36px; width: 32px; height: 32px;
-      border: 2px solid #0a0a0a; border-radius: 6px;
-    }
-    .hook-box.hook-done { background: #0a0a0a; }
-    .hook-box svg { position: absolute; left: 4px; top: 5px; }
-    .hook-task {
-      position: absolute; left: 56px; top: 30px;
-      font-weight: 400; font-size: 30px; line-height: 44px; white-space: nowrap;
-    }
-    /* code tree */
-    .hook-tree { position: absolute; inset: 0; background: #ffffff; }
-    #hook-tree { background: #17171a; color: #f2f2f2; }
-    .hook-treehead {
-      position: absolute; left: 0; top: 0; right: 0; height: 72px;
-      border-bottom: 2px solid rgba(242, 242, 242, 0.16);
-      font-weight: 700; font-size: 28px; line-height: 70px; padding-left: 68px;
-    }
+
+    /* ---- v7 shared world (ground glow, floor grid, dust) ---- */
+    #hook-ground { position: absolute; inset: 0; background: #05060a; }
+    #hook-glow { position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 55% at 50% 45%, rgba(61,255,162,0.07), transparent 70%); }
+    #hook-floor-wrap { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;
+      perspective: 900px; perspective-origin: 50% 30%; overflow: hidden; }
+    #hook-floor { position: absolute; left: -1200px; width: 4320px; top: 560px; height: 1400px;
+      transform-origin: 50% 0%; transform: rotateX(72deg);
+      background-image:
+        linear-gradient(to right, rgba(61,255,162,0.10) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(61,255,162,0.10) 1px, transparent 1px);
+      background-size: 80px 80px;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 100%);
+              mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 100%); }
+    #hook-dust { position: absolute; inset: 0; }
+    #hook-dust i { position: absolute; left: 0; top: 0; border-radius: 50%; background: #eaf2f7; }
+    #hook-vignette { position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.6)); }
+
+    /* ---- camera: cam = scene transition, rig = slow push + beat re-targets ---- */
+    #hook-cam, #hook-rig { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+    #hook-cam { transform-origin: 960px 540px; }
+    #hook-rig { transform-origin: 960px 420px; }
+
+    /* ---- HUD chapter label ---- */
+    .hook-hud { position: absolute; left: 96px; top: 72px; height: 28px;
+      font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 22px; line-height: 28px;
+      letter-spacing: 0.22em; text-transform: uppercase; color: #3dffa2; white-space: pre;
+      text-shadow: 0 0 14px rgba(61,255,162,0.35); }
+    .hook-hudc { display: inline-block; width: 13px; height: 22px; margin-left: 2px; vertical-align: -3px;
+      background: #3dffa2; box-shadow: 0 0 10px rgba(61,255,162,0.6); }
+
+    /* ---- kinetic type: a line is a mask, its words rise through it ---- */
+    .hook-display { position: absolute; left: 80px; top: 112px; padding: 2px 16px 26px 16px; overflow: hidden;
+      font-weight: 900; font-size: 100px; line-height: 1.05; letter-spacing: -0.025em; white-space: nowrap; color: #eaf2f7; }
+    .hook-w { display: inline-block; position: relative; }
+    .hook-ul { position: absolute; left: 0.02em; right: 0.02em; top: 1.02em; height: 6px; border-radius: 3px;
+      transform: scaleX(0); transform-origin: 0% 50%; }
+    #hook-mk-safe .hook-ul { background: #3dffa2; box-shadow: 0 0 14px rgba(61,255,162,0.7); }
+    #hook-mk-leak .hook-ul { background: #ff3b5c; box-shadow: 0 0 14px rgba(255,59,92,0.7); }
+    .hook-label { position: absolute; top: 916px; padding: 0 8px 8px 8px; margin-left: -8px; overflow: hidden;
+      font-weight: 800; font-size: 34px; line-height: 44px; letter-spacing: -0.01em; white-space: nowrap; color: #eaf2f7; }
+    .hook-tick { display: inline-block; width: 10px; height: 10px; margin-right: 14px; vertical-align: 5px;
+      border-radius: 2px; background: #3dffa2; box-shadow: 0 0 12px rgba(61,255,162,0.8); }
+
+    /* ---- the taskflow app: two halves of one 3D panel ---- */
+    .hook-half { position: absolute; top: 244px; width: 550px; height: 640px; overflow: hidden;
+      background: linear-gradient(180deg, #0e131d 0%, #0a0e15 100%);
+      border: 1px solid rgba(61,255,162,0.16);
+      box-shadow: 0 40px 90px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05); }
+    #hook-L { left: 410px; border-radius: 14px 0 0 14px; border-right-color: rgba(61,255,162,0); }
+    #hook-R { left: 960px; border-radius: 0 14px 14px 0; border-left-color: rgba(61,255,162,0); }
+    .hook-body { position: absolute; top: 0; width: 1100px; height: 640px; }
+    .hook-bar { position: absolute; left: 0; top: 0; right: 0; height: 72px; border-bottom: 1px solid rgba(207,227,240,0.08);
+      background: rgba(255,255,255,0.015); }
+    .hook-dots { position: absolute; left: 22px; top: 29px; }
+    .hook-addr { position: absolute; top: 15px; height: 42px; border-radius: 21px; padding-left: 22px;
+      background: rgba(207,227,240,0.05); border: 1px solid rgba(207,227,240,0.09);
+      font-family: "JetBrains Mono", monospace; font-weight: 400; font-size: 24px; line-height: 40px; color: #9fb2c3; white-space: nowrap; }
+    .hook-apptitle { position: absolute; left: 48px; top: 104px; font-weight: 800; font-size: 34px; line-height: 44px; color: #eaf2f7; }
+    .hook-appsub { position: absolute; left: 48px; top: 150px; font-weight: 400; font-size: 24px; line-height: 32px; color: #7a8699; }
+    .hook-row { position: absolute; left: 48px; height: 88px; border-bottom: 1px solid rgba(207,227,240,0.07); }
+    .hook-box { position: absolute; left: 0; top: 28px; width: 32px; height: 32px; border: 2px solid #3c4656; border-radius: 9px; }
+    .hook-fill { position: absolute; inset: -2px; border-radius: 9px; background: #7fd8ff; box-shadow: 0 0 16px rgba(127,216,255,0.35); }
+    .hook-fill svg { position: absolute; left: 6px; top: 7px; }
+    .hook-task { position: absolute; left: 58px; top: 22px; font-weight: 400; font-size: 30px; line-height: 44px; white-space: nowrap; color: #cfe3f0; }
+
+    /* ---- left half becomes THE CODE ---- */
+    .hook-newlayer { position: absolute; inset: 0; background: linear-gradient(180deg, #0c111a 0%, #090c13 100%); }
+    .hook-treehead { position: absolute; left: 0; top: 0; right: 0; height: 72px; border-bottom: 1px solid rgba(207,227,240,0.08);
+      font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 26px; line-height: 72px; padding-left: 68px; color: #eaf2f7; }
     .hook-treehead svg { position: absolute; left: 24px; top: 23px; }
-    .hook-trow {
-      position: absolute; height: 44px;
-      font-family: "JetBrains Mono", monospace; font-size: 28px; line-height: 44px;
-      white-space: nowrap;
-    }
+    .hook-trow { position: absolute; height: 44px; font-family: "JetBrains Mono", monospace; font-size: 27px; line-height: 44px; white-space: nowrap; color: #cfe3f0; }
+    .hook-trow.hook-dir { color: #7a8699; }
     .hook-trow svg { position: absolute; left: 0; top: 9px; }
-    .hook-trow span { position: absolute; left: 42px; top: 0; }
+    .hook-trow span { position: absolute; left: 40px; top: 0; }
+    .hook-dir svg { color: #7fd8ff; }
+    .hook-file svg { color: #3c4656; }
+
+    /* seam, scan line, light sweep */
+    .hook-seam { position: absolute; top: 0; width: 2px; height: 100%; background: #3dffa2;
+      box-shadow: 0 0 10px rgba(61,255,162,0.9), 0 0 28px rgba(61,255,162,0.45); transform-origin: 50% 0%; }
+    .hook-scan { position: absolute; left: 0; right: 0; top: 0; height: 42px; }
+    .hook-scan::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 40px;
+      background: linear-gradient(to bottom, rgba(61,255,162,0), rgba(61,255,162,0.16)); }
+    .hook-scan::after { content: ""; position: absolute; left: 0; right: 0; top: 40px; height: 2px; background: #3dffa2;
+      box-shadow: 0 0 10px rgba(61,255,162,0.9), 0 0 26px rgba(61,255,162,0.45); }
+    .hook-sheen { position: absolute; top: -10%; height: 120%; left: 0; width: 30%; pointer-events: none;
+      background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0) 100%); }
+
+    /* transition scan line (full frame) */
+    #hook-xscan { position: absolute; left: 0; top: 0; width: 1920px; height: 42px; }
+    #hook-xscan::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 40px;
+      background: linear-gradient(to bottom, rgba(61,255,162,0), rgba(61,255,162,0.22)); }
+    #hook-xscan::after { content: ""; position: absolute; left: 0; right: 0; top: 40px; height: 2px; background: #3dffa2;
+      box-shadow: 0 0 12px rgba(61,255,162,0.95), 0 0 36px rgba(61,255,162,0.5); }
   </style>
 
   <div id="root" data-composition-id="hook" data-width="1920" data-height="1080">
-    <div id="hook-cam" data-layout-allow-overflow>
-      <svg id="hook-grid" width="3552" height="2304" data-layout-ignore>
-        <defs>
-          <pattern id="hook-gridpat" width="48" height="48" patternUnits="userSpaceOnUse">
-            <path d="M48 0 V48 M0 48 H48" fill="none" stroke="#0a0a0a" stroke-opacity="0.05" stroke-width="1" />
-          </pattern>
-        </defs>
-        <rect width="3552" height="2304" fill="#ffffff" />
-        <rect width="3552" height="2304" fill="url(#hook-gridpat)" />
-      </svg>
-      <div id="hook-dark" data-layout-ignore>
-        <svg width="1776" height="2304">
-          <defs>
-            <pattern id="hook-gridpat-d" width="48" height="48" patternUnits="userSpaceOnUse">
-              <path d="M48 0 V48 M0 48 H48" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1" />
-            </pattern>
-          </defs>
-          <rect width="1776" height="2304" fill="url(#hook-gridpat-d)" />
-        </svg>
-      </div>
+    <div id="hook-ground"></div>
+    <div id="hook-glow"></div>
+    <div id="hook-floor-wrap"><div id="hook-floor"></div></div>
+    <div id="hook-dust"></div>
+    <div id="hook-vignette"></div>
 
-    <!-- THE APP, whole (0 to 5.4 s) -->
-    <div id="hook-app" class="hook-win" style="left: 410px; width: 1100px">
-      <div class="hook-body" style="left: 0">
-        <div class="hook-bar">
-          <svg class="hook-dots" width="70" height="14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/><circle cx="29" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/><circle cx="51" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg>
-          <div class="hook-addr" style="left: 104px; width: 968px">taskflow.app</div>
+    <div id="hook-cam">
+      <div id="hook-hud" class="hook-hud"><span id="hook-hudt"></span><span id="hook-hudc" class="hook-hudc"></span></div>
+      <div id="hook-rig">
+
+        <!-- left half of the app; becomes THE CODE -->
+        <div id="hook-L" class="hook-half">
+          <div class="hook-body" style="left: 0">
+            <div class="hook-bar">
+              <svg class="hook-dots" width="64" height="14"><circle cx="7" cy="7" r="6" fill="#2a3342"/><circle cx="29" cy="7" r="6" fill="#2a3342"/><circle cx="51" cy="7" r="6" fill="#2a3342"/></svg>
+              <div class="hook-addr" style="left: 100px; width: 976px">taskflow.app</div>
+            </div>
+            <div class="hook-apptitle">Today</div>
+            <div class="hook-appsub">4 tasks</div>
+            <div class="hook-row" style="top: 196px; width: 1004px"><div class="hook-box"><div class="hook-fill"><svg width="20" height="16"><path d="M2 8 L7.5 13 L18 2" fill="none" stroke="#05060a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div><div class="hook-task">Ship landing page</div></div>
+            <div class="hook-row" style="top: 284px; width: 1004px"><div class="hook-box"><div class="hook-fill hook-t2"><svg width="20" height="16"><path d="M2 8 L7.5 13 L18 2" fill="none" stroke="#05060a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div><div class="hook-task">Fix login bug</div></div>
+            <div class="hook-row" style="top: 372px; width: 1004px"><div class="hook-box"><div class="hook-fill hook-t3"><svg width="20" height="16"><path d="M2 8 L7.5 13 L18 2" fill="none" stroke="#05060a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div><div class="hook-task">Write tests</div></div>
+            <div class="hook-row" style="top: 460px; width: 1004px; border-bottom: 0"><div class="hook-box"></div><div class="hook-task">Launch</div></div>
+          </div>
+          <div id="hook-tree" class="hook-newlayer">
+            <div class="hook-treehead"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h13 a2 2 0 0 1 2 2 v14 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="#3dffa2" stroke-width="2"/></svg>taskflow</div>
+            <div class="hook-trow hook-dir" style="left: 24px; top: 86px"><svg width="28" height="24"><path d="M2 5 a2 2 0 0 1 2-2 h6 l3 3 h11 a2 2 0 0 1 2 2 v12 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>supabase/</span></div>
+            <div class="hook-trow hook-dir" style="left: 58px; top: 130px"><svg width="28" height="24"><path d="M2 5 a2 2 0 0 1 2-2 h6 l3 3 h11 a2 2 0 0 1 2 2 v12 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>migrations/</span></div>
+            <div class="hook-trow hook-file" style="left: 92px; top: 174px"><svg width="22" height="26"><path d="M3 1 h10 l6 6 v18 H3 Z M13 1 v6 h6" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>20260101_init.sql</span></div>
+            <div class="hook-trow hook-dir" style="left: 24px; top: 218px"><svg width="28" height="24"><path d="M2 5 a2 2 0 0 1 2-2 h6 l3 3 h11 a2 2 0 0 1 2 2 v12 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>src/</span></div>
+            <div class="hook-trow hook-dir" style="left: 58px; top: 262px"><svg width="28" height="24"><path d="M2 5 a2 2 0 0 1 2-2 h6 l3 3 h11 a2 2 0 0 1 2 2 v12 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>lib/</span></div>
+            <div class="hook-trow hook-file" style="left: 92px; top: 306px"><svg width="22" height="26"><path d="M3 1 h10 l6 6 v18 H3 Z M13 1 v6 h6" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>supabase.ts</span></div>
+            <div class="hook-trow hook-file" style="left: 58px; top: 350px"><svg width="22" height="26"><path d="M3 1 h10 l6 6 v18 H3 Z M13 1 v6 h6" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>App.tsx</span></div>
+            <div class="hook-trow hook-file" style="left: 58px; top: 394px"><svg width="22" height="26"><path d="M3 1 h10 l6 6 v18 H3 Z M13 1 v6 h6" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>main.tsx</span></div>
+            <div class="hook-trow hook-file" style="left: 24px; top: 438px"><svg width="22" height="26"><path d="M3 1 h10 l6 6 v18 H3 Z M13 1 v6 h6" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>.env.example</span></div>
+            <div class="hook-trow hook-file" style="left: 24px; top: 482px"><svg width="22" height="26"><path d="M3 1 h10 l6 6 v18 H3 Z M13 1 v6 h6" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>package.json</span></div>
+            <div class="hook-trow hook-file" style="left: 24px; top: 526px"><svg width="22" height="26"><path d="M3 1 h10 l6 6 v18 H3 Z M13 1 v6 h6" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>package-lock.json</span></div>
+            <div class="hook-trow hook-file" style="left: 24px; top: 570px"><svg width="22" height="26"><path d="M3 1 h10 l6 6 v18 H3 Z M13 1 v6 h6" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>README.md</span></div>
+          </div>
+          <div id="hook-scanL" class="hook-scan" style="opacity: 0"></div>
+          <div id="hook-seamL" class="hook-seam" style="right: 0"></div>
+          <div id="hook-sheenL" class="hook-sheen"></div>
         </div>
-        <div class="hook-row" style="top: 96px; width: 1000px"><div class="hook-box hook-done"><svg width="20" height="18"><path d="M2 9 L8 15 L18 3" fill="none" stroke="#fff" stroke-width="3"/></svg></div><div class="hook-task">Ship landing page</div></div>
-        <div class="hook-row" style="top: 200px; width: 1000px"><div class="hook-box"></div><div class="hook-task">Fix login bug</div></div>
-        <div class="hook-row" style="top: 304px; width: 1000px"><div class="hook-box"></div><div class="hook-task">Write tests</div></div>
-        <div class="hook-row" style="top: 408px; width: 1000px"><div class="hook-box"></div><div class="hook-task">Launch</div></div>
+
+        <!-- right half of the app; keeps the browser -->
+        <div id="hook-R" class="hook-half">
+          <div class="hook-body" style="left: -550px">
+            <div class="hook-bar">
+              <svg class="hook-dots" width="64" height="14"><circle cx="7" cy="7" r="6" fill="#2a3342"/><circle cx="29" cy="7" r="6" fill="#2a3342"/><circle cx="51" cy="7" r="6" fill="#2a3342"/></svg>
+              <div class="hook-addr" style="left: 100px; width: 976px">taskflow.app</div>
+            </div>
+            <div class="hook-row" style="top: 196px; width: 1004px"></div>
+            <div class="hook-row" style="top: 284px; width: 1004px"></div>
+            <div class="hook-row" style="top: 372px; width: 1004px"></div>
+            <div class="hook-row" style="top: 460px; width: 1004px; border-bottom: 0"></div>
+          </div>
+          <div id="hook-mini" class="hook-newlayer">
+            <div class="hook-bar">
+              <svg class="hook-dots" width="64" height="14"><circle cx="7" cy="7" r="6" fill="#2a3342"/><circle cx="29" cy="7" r="6" fill="#2a3342"/><circle cx="51" cy="7" r="6" fill="#2a3342"/></svg>
+              <div class="hook-addr" style="left: 96px; width: 430px">taskflow.app</div>
+            </div>
+            <div class="hook-apptitle">Today</div>
+            <div class="hook-appsub">4 tasks</div>
+            <div class="hook-row" style="top: 196px; width: 454px"><div class="hook-box"><div class="hook-fill"><svg width="20" height="16"><path d="M2 8 L7.5 13 L18 2" fill="none" stroke="#05060a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div><div class="hook-task">Ship landing page</div></div>
+            <div class="hook-row" style="top: 284px; width: 454px"><div class="hook-box"><div class="hook-fill"><svg width="20" height="16"><path d="M2 8 L7.5 13 L18 2" fill="none" stroke="#05060a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div><div class="hook-task">Fix login bug</div></div>
+            <div class="hook-row" style="top: 372px; width: 454px"><div class="hook-box"><div class="hook-fill"><svg width="20" height="16"><path d="M2 8 L7.5 13 L18 2" fill="none" stroke="#05060a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div><div class="hook-task">Write tests</div></div>
+            <div class="hook-row" style="top: 460px; width: 454px; border-bottom: 0"><div class="hook-box"></div><div class="hook-task">Launch</div></div>
+          </div>
+          <div id="hook-scanR" class="hook-scan" style="opacity: 0"></div>
+          <div id="hook-seamR" class="hook-seam" style="left: 0"></div>
+          <div id="hook-sheenR" class="hook-sheen"></div>
+        </div>
+
+        <div id="hook-lab-code" class="clip hook-label" data-start="6.5" data-duration="5.5" style="left: 270px"><span class="hook-w"><i class="hook-tick"></i>Its</span> <span class="hook-w">code</span></div>
+        <div id="hook-lab-site" class="clip hook-label" data-start="7" data-duration="5" style="left: 1100px"><span class="hook-w"><i class="hook-tick"></i>Its</span> <span class="hook-w">live</span> <span class="hook-w">site</span></div>
+
+        <div id="hook-l1" class="clip hook-display" data-start="0.5" data-duration="2.5"><span class="hook-w">This</span> <span class="hook-w">app</span> <span class="hook-w">was</span> <span class="hook-w">built</span> <span class="hook-w">by</span> <span class="hook-w">an</span> <span class="hook-w">AI.</span></div>
+        <div id="hook-l2" class="clip hook-display" data-start="3" data-duration="5"><span class="hook-w">It</span> <span class="hook-w">works.</span> <span class="hook-w">But</span> <span class="hook-w">is</span> <span class="hook-w">it</span> <span id="hook-mk-safe" class="hook-w">safe<i class="hook-ul"></i></span><span class="hook-w">?</span></div>
+        <div id="hook-l3" class="clip hook-display" data-start="8" data-duration="4"><span class="hook-w">Where</span> <span class="hook-w">do</span> <span class="hook-w">you</span> <span class="hook-w">look</span> <span class="hook-w">for</span> <span class="hook-w">the</span> <span id="hook-mk-leak" class="hook-w">leak<i class="hook-ul"></i></span><span class="hook-w">?</span></div>
       </div>
     </div>
 
-    <!-- left half: becomes THE CODE -->
-    <div id="hook-left" class="hook-win" style="left: 410px; width: 550px; opacity: 0">
-      <div id="hook-left-old" class="hook-body" style="left: 0">
-        <div class="hook-bar">
-          <svg class="hook-dots" width="70" height="14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/><circle cx="29" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/><circle cx="51" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg>
-          <div class="hook-addr" data-layout-allow-overlap style="left: 104px; width: 968px">taskflow.app</div>
-        </div>
-        <div class="hook-row" style="top: 96px; width: 1000px"><div class="hook-box hook-done"><svg width="20" height="18"><path d="M2 9 L8 15 L18 3" fill="none" stroke="#fff" stroke-width="3"/></svg></div><div class="hook-task" data-layout-allow-overlap>Ship landing page</div></div>
-        <div class="hook-row" style="top: 200px; width: 1000px"><div class="hook-box"></div><div class="hook-task" data-layout-allow-overlap>Fix login bug</div></div>
-        <div class="hook-row" style="top: 304px; width: 1000px"><div class="hook-box"></div><div class="hook-task" data-layout-allow-overlap>Write tests</div></div>
-        <div class="hook-row" style="top: 408px; width: 1000px"><div class="hook-box"></div><div class="hook-task" data-layout-allow-overlap>Launch</div></div>
-      </div>
-      <div id="hook-tree" class="hook-tree">
-        <div class="hook-treehead"><svg width="32" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h8 l3 3 h13 a2 2 0 0 1 2 2 v14 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>taskflow</div>
-        <div class="hook-trow" style="left: 24px; top: 84px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>supabase/</span></div>
-        <div class="hook-trow" style="left: 60px; top: 128px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>migrations/</span></div>
-        <div class="hook-trow" style="left: 96px; top: 172px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>20260101_init.sql</span></div>
-        <div class="hook-trow" style="left: 24px; top: 216px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>src/</span></div>
-        <div class="hook-trow" style="left: 60px; top: 260px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>lib/</span></div>
-        <div class="hook-trow" style="left: 96px; top: 304px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>supabase.ts</span></div>
-        <div class="hook-trow" style="left: 60px; top: 348px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>App.tsx</span></div>
-        <div class="hook-trow" style="left: 60px; top: 392px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>main.tsx</span></div>
-        <div class="hook-trow" style="left: 24px; top: 436px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>.env.example</span></div>
-        <div class="hook-trow" style="left: 24px; top: 480px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>package.json</span></div>
-        <div class="hook-trow" style="left: 24px; top: 524px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>package-lock.json</span></div>
-        <div class="hook-trow" style="left: 24px; top: 568px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>README.md</span></div>
-      </div>
-    </div>
-
-    <!-- right half: keeps the browser -->
-    <div id="hook-right" class="hook-win" style="left: 960px; width: 550px; opacity: 0">
-      <div id="hook-right-old" class="hook-body" style="left: -550px">
-        <div class="hook-bar">
-          <svg class="hook-dots" width="70" height="14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/><circle cx="29" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/><circle cx="51" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg>
-          <div class="hook-addr" data-layout-allow-overlap style="left: 104px; width: 968px">taskflow.app</div>
-        </div>
-        <div class="hook-row" style="top: 96px; width: 1000px"></div>
-        <div class="hook-row" style="top: 200px; width: 1000px"></div>
-        <div class="hook-row" style="top: 304px; width: 1000px"></div>
-        <div class="hook-row" style="top: 408px; width: 1000px"></div>
-      </div>
-      <div id="hook-mini" class="hook-tree">
-        <div class="hook-bar">
-          <svg class="hook-dots" width="70" height="14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/><circle cx="29" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/><circle cx="51" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg>
-          <div class="hook-addr" style="left: 96px; width: 426px">taskflow.app</div>
-        </div>
-        <div class="hook-row" style="top: 96px; width: 450px"><div class="hook-box hook-done"><svg width="20" height="18"><path d="M2 9 L8 15 L18 3" fill="none" stroke="#fff" stroke-width="3"/></svg></div><div class="hook-task">Ship landing page</div></div>
-        <div class="hook-row" style="top: 200px; width: 450px"><div class="hook-box"></div><div class="hook-task">Fix login bug</div></div>
-        <div class="hook-row" style="top: 304px; width: 450px"><div class="hook-box"></div><div class="hook-task">Write tests</div></div>
-        <div class="hook-row" style="top: 408px; width: 450px"><div class="hook-box"></div><div class="hook-task">Launch</div></div>
-      </div>
-    </div>
-
-    <div id="hook-lab-code" class="clip hook-label" data-start="5.8" data-duration="6.2" style="left: 270px"><span class="hook-w hook-x">Its</span> <span class="hook-w hook-x">code</span></div>
-    <div id="hook-lab-site" class="clip hook-label" data-start="6" data-duration="6" style="left: 1100px"><span class="hook-w hook-x">Its</span> <span class="hook-w hook-x">live</span> <span class="hook-w hook-x">site</span></div>
-
-    <div id="hook-l1" class="clip hook-display" data-start="0.4" data-duration="2.6"><span class="hook-w hook-x">This</span> <span class="hook-w hook-x">app</span> <span class="hook-w hook-x">was</span> <span class="hook-w hook-x">built</span> <span class="hook-w hook-x">by</span> <span class="hook-w hook-x">an</span> <span class="hook-w hook-x">AI.</span></div>
-    <div id="hook-l2" class="clip hook-display" data-start="3" data-duration="5"><span class="hook-w hook-x">It</span> <span class="hook-w hook-x">works.</span> <span class="hook-w hook-x">But</span> <span class="hook-w hook-x">is</span> <span class="hook-w hook-x">it</span> <span id="hook-mk-safe" class="hook-w hook-mk">safe<i class="hook-mbar"></i></span><span class="hook-w hook-x">?</span></div>
-    <div id="hook-l3" class="clip hook-display" data-hold data-start="8" data-duration="4"><span class="hook-w hook-x">Where</span> <span class="hook-w hook-x">do</span> <span class="hook-w hook-x">you</span> <span class="hook-w hook-x">look</span> <span class="hook-w hook-x">for</span> <span class="hook-w hook-x">the</span> <span id="hook-mk-leak" class="hook-w hook-mk">leak<i class="hook-mbar"></i></span><span class="hook-w hook-x">?</span></div>
-    </div>
+    <div id="hook-xscan" class="clip" data-start="11.7333" data-duration="0.2667"></div>
   </div>
 
   <script>
     (function () {
       const tl = gsap.timeline({ paused: true });
       const F = 1 / 30;
-      const D = 12;
-      const CAM = "#hook-cam";
-      const SHUT = "inset(0% 100% 0% 0%)";
-      const OPEN = "inset(0% 0% 0% 0%)";
-      function wipeIn(sel, t) {
-        tl.fromTo(sel, { clipPath: SHUT }, { clipPath: OPEN, duration: 0.6, ease: "power3.out" }, t);
-      }
-      // kinetic type: words rise through the line's mask, leave upward
+      const DUR = 12;
+      const FILM_START = 0;
+
+      // ---- shared world: floor grid and dust from FILM time (continuous across cuts)
+      (function world(tl, id, FILM_START, DUR) {
+        let s = 20261122;
+        const rnd = () => { s |= 0; s = (s + 0x6d2b79f5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+        const box = document.getElementById(id + "-dust");
+        const dots = [];
+        for (let k = 0; k < 54; k++) {
+          const d = { x: rnd() * 1920, y: rnd() * 1180, z: 0.3 + rnd() * 0.7, ph: rnd() * 6.283 };
+          const el = document.createElement("i");
+          const size = 1 + d.z * 2;
+          el.style.width = el.style.height = size + "px";
+          el.style.opacity = (0.12 + d.z * 0.23).toFixed(3);
+          box.appendChild(el); d.el = el; dots.push(d);
+        }
+        const floor = document.getElementById(id + "-floor");
+        const draw = (T) => {
+          if (floor) floor.style.backgroundPosition = "0px " + ((T * 40) % 80) + "px";
+          for (const d of dots) {
+            const y = ((d.y - T * 14 * d.z) % 1180 + 1180) % 1180 - 50;
+            const x = d.x + Math.sin(T * 0.35 + d.ph) * 18 * d.z;
+            d.el.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px)";
+          }
+        };
+        const p = { t: 0 };
+        tl.fromTo(p, { t: 0 }, { t: DUR, duration: DUR, ease: "none", onUpdate: () => draw(FILM_START + p.t) }, 0);
+        draw(FILM_START);
+      })(tl, "hook", FILM_START, DUR);
+
+      // ---- HUD label: types 1 char per frame, block cursor blinks on the beat, gone after 2 s
+      (function hud(text, t0) {
+        const te = document.getElementById("hook-hudt");
+        const ce = document.getElementById("hook-hudc");
+        const draw = (t) => {
+          const f = Math.floor((t - t0) / F + 1e-4);
+          te.textContent = text.slice(0, Math.max(0, Math.min(text.length, f + 1)));
+          const on = t >= t0 && t < t0 + 2 && Math.floor((t - t0) / (15 * F) + 1e-4) % 2 === 0;
+          ce.style.opacity = on ? "1" : "0";
+        };
+        const p = { t: 0 };
+        tl.fromTo(p, { t: 0 }, { t: DUR, duration: DUR, ease: "none", onUpdate: () => draw(p.t) }, 0);
+        draw(0);
+      })("01 / THE QUESTION", 0);
+
+      // ---- kinetic type
       function lineIn(sel, t) {
-        tl.fromTo(sel + " .hook-w", { yPercent: 110 }, { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, t);
+        tl.fromTo(sel + " > .hook-w", { yPercent: 120 }, { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, t);
       }
       function lineOut(sel, end) {
-        const n = document.querySelectorAll(sel + " .hook-w").length;
-        tl.fromTo(sel + " .hook-w", { yPercent: 0 }, { yPercent: -110, duration: 8 * F, ease: "power2.in", stagger: F, immediateRender: false }, end - (8 + n) * F);
+        const n = document.querySelectorAll(sel + " > .hook-w").length;
+        tl.fromTo(sel + " > .hook-w", { yPercent: 0 }, { yPercent: -120, duration: 8 * F, ease: "power2.in", stagger: F, immediateRender: false }, end - (8 + n) * F);
       }
-      function marker(sel, t) {
-        tl.fromTo(sel + " .hook-mbar", { scaleX: 0, transformOrigin: "0% 50%" }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, t);
-        tl.fromTo(sel, { color: "#0a0a0a" }, { color: "#ffffff", duration: 6 * F, ease: "power2.out" }, t + 2 * F);
+      function mark(sel, t, hex, rgb) {
+        tl.fromTo(sel, { color: "#eaf2f7", textShadow: "0 0 18px rgba(" + rgb + ",0)" },
+          { color: hex, textShadow: "0 0 18px rgba(" + rgb + ",0.6)", duration: 8 * F, ease: "power2.out" }, t);
+        tl.fromTo(sel + " .hook-ul", { scaleX: 0 }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, t);
+      }
+      function sheen(sel, t) {
+        tl.fromTo(sel, { xPercent: -120 }, { xPercent: 380, duration: 18 * F, ease: "power2.inOut" }, t);
       }
 
-      // camera: slow push and a re-target at each beat; no incoming move (frame 0 is the app)
-      tl.fromTo(CAM, { scale: 1 }, { scale: 1.06, duration: D, ease: "sine.inOut" }, 0);
+      // ---- camera: slow push + re-targets (no "in": frame 0 is the app)
+      tl.fromTo("#hook-rig", { scale: 1 }, { scale: 1.05, duration: DUR, ease: "sine.inOut" }, 0);
       let cx = 0, cy = 0;
-      function cam(t, x, y) {
-        tl.fromTo(CAM, { x: cx, y: cy }, { x: x, y: y, duration: 20 * F, ease: "power2.inOut", immediateRender: false }, t);
+      function cam(t, x, y, d) {
+        tl.fromTo("#hook-rig", { x: cx, y: cy }, { x: x, y: y, duration: (d || 24) * F, ease: "power2.inOut", immediateRender: false }, t);
         cx = x; cy = y;
       }
-      cam(0.4, 30, 40);   // the first line
-      cam(3.0, 70, 10);   // "safe?"
-      cam(5.4, 0, -30);   // the split, both halves and their labels
-      cam(8.0, 50, 40);   // the question
-      cam(10.0, 0, 0);    // settle on both halves
-      tl.fromTo(CAM, { x: cx }, { x: -420, duration: 10 * F, ease: "power3.in", immediateRender: false }, D - 10 * F);
+      cam(0.5, 30, 24);    // the first line
+      cam(3.0, 60, 8);     // "safe?"
+      cam(5.5, 0, 14, 30); // the split: both halves and their labels
+      cam(8.0, 44, 28);    // the question
+      cam(10.0, 10, 12, 30); // settle on both halves
 
-      // 0.4 / 3.0 / 8.0: display lines
-      lineIn("#hook-l1", 0.4);
+      // ---- scene out (v7): camera scale up, content fades, green scan line sweeps the frame
+      tl.fromTo("#hook-cam", { scale: 1 }, { scale: 1.15, duration: 12 * F, ease: "power2.in", immediateRender: false }, DUR - 12 * F);
+      tl.fromTo("#hook-cam", { opacity: 1 }, { opacity: 0, duration: 6 * F, ease: "power2.in", immediateRender: false }, DUR - 6 * F);
+      tl.fromTo("#hook-xscan", { y: -60 }, { y: 1090, duration: 8 * F, ease: "power2.in" }, DUR - 8 * F);
+
+      // ---- the app in 3D: one plane (both halves share the app's centre as origin), turning toward camera
+      const P = 1600;
+      gsap.set("#hook-L", { transformPerspective: P, transformOrigin: "100% 50%" });
+      gsap.set("#hook-R", { transformPerspective: P, transformOrigin: "0% 50%" });
+      tl.fromTo(["#hook-L", "#hook-R"], { rotationY: -13, rotationX: 7 }, { rotationY: -4, rotationX: 3, duration: 5.0, ease: "sine.inOut" }, 0);
+      sheen("#hook-sheenL", 0);
+      sheen("#hook-sheenR", 9 * F);
+
+      // the app works: two tasks tick on the beat
+      tl.fromTo(".hook-t2", { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 12 * F, ease: "back.out(2.2)" }, 1.5);
+      tl.fromTo(".hook-t3", { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 12 * F, ease: "back.out(2.2)" }, 2.5);
+
+      // ---- lines
+      lineIn("#hook-l1", 0.5);
       lineOut("#hook-l1", 3.0);
       lineIn("#hook-l2", 3.0);
-      marker("#hook-mk-safe", 3.62);
+      mark("#hook-mk-safe", 4.0, "#3dffa2", "61,255,162");
       lineOut("#hook-l2", 8.0);
       lineIn("#hook-l3", 8.0);
-      marker("#hook-mk-leak", 8.66);
+      mark("#hook-mk-leak", 9.0, "#ff3b5c", "255,59,92");
 
-      // 5.4: the app splits down the middle (hero move, power2.inOut, 24 f)
-      tl.fromTo("#hook-app", { opacity: 1 }, { opacity: 0, duration: 0.01 }, 5.4);
-      tl.fromTo(["#hook-left", "#hook-right"], { opacity: 0 }, { opacity: 1, duration: 0.01 }, 5.4);
-      tl.fromTo("#hook-left", { x: 0, borderRadius: "10px 0px 0px 10px" }, { x: -140, borderRadius: "10px 10px 10px 10px", duration: 0.8, ease: "power2.inOut" }, 5.4);
-      tl.fromTo("#hook-right", { x: 0, borderRadius: "0px 10px 10px 0px" }, { x: 140, borderRadius: "10px 10px 10px 10px", duration: 0.8, ease: "power2.inOut" }, 5.4);
-      // the left half's ground floods to CODE dark from the seam outwards; the right stays white
-      tl.fromTo("#hook-dark", { scaleX: 0, transformOrigin: "100% 50%" }, { scaleX: 1, duration: 0.8, ease: "power2.inOut" }, 5.4);
-      tl.fromTo("#hook-left", { borderColor: "#0a0a0a" }, { borderColor: "#2c2c30", duration: 0.6, ease: "power2.inOut" }, 5.7);
+      // ---- 5.0 a green seam draws down the middle; 5.5 (sound hit) the app splits
+      tl.fromTo(["#hook-seamL", "#hook-seamR"], { scaleY: 0, opacity: 1 }, { scaleY: 1, duration: 15 * F, ease: "power3.inOut" }, 5.0);
+      tl.fromTo(["#hook-seamL", "#hook-seamR"], { opacity: 1 }, { opacity: 0, duration: 18 * F, ease: "power2.out", immediateRender: false }, 5.6);
+      tl.fromTo("#hook-L", { x: 0, rotationY: -4, rotationX: 3 }, { x: -140, rotationY: 9, rotationX: 4, duration: 24 * F, ease: "power2.inOut", immediateRender: false }, 5.5);
+      tl.fromTo("#hook-R", { x: 0, rotationY: -4, rotationX: 3 }, { x: 140, rotationY: -9, rotationX: 4, duration: 24 * F, ease: "power2.inOut", immediateRender: false }, 5.5);
+      tl.fromTo("#hook-L", { borderTopRightRadius: 0, borderBottomRightRadius: 0, borderRightColor: "rgba(61,255,162,0)" },
+        { borderTopRightRadius: 14, borderBottomRightRadius: 14, borderRightColor: "rgba(61,255,162,0.16)", duration: 12 * F, ease: "power2.out" }, 5.5);
+      tl.fromTo("#hook-R", { borderTopLeftRadius: 0, borderBottomLeftRadius: 0, borderLeftColor: "rgba(61,255,162,0)" },
+        { borderTopLeftRadius: 14, borderBottomLeftRadius: 14, borderLeftColor: "rgba(61,255,162,0.16)", duration: 12 * F, ease: "power2.out" }, 5.5);
+      // then the halves keep turning slowly toward camera
+      tl.fromTo("#hook-L", { rotationY: 9 }, { rotationY: 5, duration: DUR - 6.3, ease: "sine.inOut", immediateRender: false }, 6.3);
+      tl.fromTo("#hook-R", { rotationY: -9 }, { rotationY: -5, duration: DUR - 6.3, ease: "sine.inOut", immediateRender: false }, 6.3);
 
-      // left half turns into THE CODE (dark panel), right half re-lays as a browser
-      wipeIn("#hook-tree", 5.9);
-      wipeIn("#hook-mini", 6.1);
-      tl.fromTo("#hook-left-old", { opacity: 1 }, { opacity: 0, duration: 0.01 }, 6.55);
-      tl.fromTo("#hook-right-old", { opacity: 1 }, { opacity: 0, duration: 0.01 }, 6.75);
-      // each half lands with a small overshoot settle
-      tl.fromTo("#hook-left", { y: 0 }, { y: -8, duration: 6 * F, ease: "power2.out", immediateRender: false }, 6.2);
-      tl.fromTo("#hook-left", { y: -8 }, { y: 0, duration: 10 * F, ease: "power2.inOut", immediateRender: false }, 6.4);
-      tl.fromTo("#hook-right", { y: 0 }, { y: -8, duration: 6 * F, ease: "power2.out", immediateRender: false }, 6.3);
-      tl.fromTo("#hook-right", { y: -8 }, { y: 0, duration: 10 * F, ease: "power2.inOut", immediateRender: false }, 6.5);
+      // ---- 6.0 a scan line runs down each half: the left becomes THE CODE, the right re-lays as a browser
+      function rebuild(layer, scan, t) {
+        tl.fromTo(layer, { clipPath: "inset(0% 0% 100% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 24 * F, ease: "power2.inOut" }, t);
+        tl.fromTo(scan, { y: -42, opacity: 1 }, { y: 640, duration: 24 * F, ease: "power2.inOut" }, t);
+        tl.fromTo(scan, { opacity: 1 }, { opacity: 0, duration: 4 * F, ease: "power2.in", immediateRender: false }, t + 22 * F);
+      }
+      rebuild("#hook-tree", "#hook-scanL", 6.0);
+      rebuild("#hook-mini", "#hook-scanR", 6.0);
+      tl.fromTo("#hook-tree .hook-trow", { opacity: 0.25 }, { opacity: 1, duration: 8 * F, ease: "power2.out", stagger: 2 * F }, 6.1);
+      sheen("#hook-sheenL", 7.0);
+      sheen("#hook-sheenR", 7.0 + 6 * F);
 
       // labels under each half
-      lineIn("#hook-lab-code", 5.8);
-      lineIn("#hook-lab-site", 6.0);
+      lineIn("#hook-lab-code", 6.5);
+      lineIn("#hook-lab-site", 7.0);
+      // 10.0: a quiet pulse on the beat along both rims
+      tl.fromTo(["#hook-L", "#hook-R"], { borderColor: "rgba(61,255,162,0.16)" }, { borderColor: "rgba(61,255,162,0.45)", duration: 6 * F, ease: "power2.out", yoyo: true, repeat: 1, immediateRender: false }, 10.0);
 
-      tl.set({}, {}, D);
+      tl.set({}, {}, DUR);
       window.__timelines = window.__timelines || {};
       window.__timelines["hook"] = tl;
     })();

@@ -3,410 +3,190 @@
     #root {
       position: absolute;
       inset: 0;
-      background: #ffffff;
+      overflow: hidden;
+      background: #05060a;
       font-family: "Inter", sans-serif;
-      color: #0a0a0a;
-      overflow: hidden;
+      color: #eaf2f7;
     }
-    #results-grid {
-      position: absolute;
-      inset: 0;
-      background-color: #ffffff;
+    /* ---- v7 shared world (ground, glow, floor grid, dust, vignette) ---- */
+    #results-ground { position: absolute; inset: 0; background: #05060a; }
+    #results-glow { position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 55% at 50% 45%, rgba(61,255,162,0.07), transparent 70%); }
+    #results-floor-wrap { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;
+      perspective: 900px; perspective-origin: 50% 30%; overflow: hidden; }
+    #results-floor { position: absolute; left: -1200px; width: 4320px; top: 560px; height: 1400px;
+      transform-origin: 50% 0%; transform: rotateX(72deg);
       background-image:
-        linear-gradient(to right, rgba(10, 10, 10, 0.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(10, 10, 10, 0.05) 1px, transparent 1px);
-      background-size: 48px 48px;
-    }
-    /* camera: cam carries the cuts and the slow push, rig the beat re-targets */
-    #results-cam,
-    #results-rig {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 1920px;
-      height: 1080px;
-      transform-origin: 920px 540px;
-    }
-    .results-full {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 1920px;
-      height: 1080px;
-    }
-    /* kinetic type: a line is a mask, each word rises through it */
-    .results-ln {
-      position: absolute;
-      overflow: hidden;
-      white-space: nowrap;
-      width: max-content;
-      padding: 0 14px;
-      margin-left: -14px;
-    }
-    .results-w {
-      display: inline-block;
-      position: relative;
-    }
-    .results-mk {
-      position: absolute;
-      left: -0.12em;
-      right: -0.12em;
-      top: 0.16em;
-      height: 0.9em;
-      background: #e5342f;
-      border-radius: 4px;
-      transform-origin: 0% 50%;
-    }
-    .results-mt {
-      position: relative;
-    }
-    .results-line {
-      left: 96px;
-      top: 108px;
-      font-weight: 700;
-      font-size: 44px;
-      letter-spacing: -0.01em;
-      line-height: 1.25;
-    }
-    .results-label {
-      font-weight: 700;
-      font-size: 28px;
-      line-height: 1.3;
-    }
-    .results-setname {
-      left: 96px;
-      color: #6b6b6b;
-    }
-    .results-row {
-      position: absolute;
-      left: 96px;
-      width: 1700px;
-    }
-    .results-lab {
-      position: absolute;
-      left: 0;
-      top: 0;
-      height: 100%;
-      display: flex;
-      align-items: center;
-    }
-    .results-lab .results-ln {
-      position: relative;
-    }
-    .results-track {
-      position: absolute;
-      left: 200px;
-      top: 0;
-      height: 100%;
-      border: 2px solid rgba(10, 10, 10, 0.18);
-      border-radius: 10px;
-    }
-    .results-fill {
-      position: absolute;
-      left: 200px;
-      top: 0;
-      height: 100%;
-      border-radius: 10px;
-      background: #6b6b6b;
-    }
-    .results-fill.results-both {
-      background: #0a0a0a;
-    }
-    .results-num {
-      position: absolute;
-      top: 0;
-      height: 100%;
-      display: flex;
-      align-items: center;
-    }
-    .results-nd {
-      display: flex;
-      align-items: baseline;
-      white-space: nowrap;
-      transform-origin: 0% 50%;
-    }
-    .results-n {
-      display: inline-block;
-      font-weight: 900;
-      font-variant-numeric: tabular-nums;
-      line-height: 1;
-      width: 2ch;
-      text-align: right;
-      letter-spacing: -0.02em;
-      transform-origin: 70% 60%;
-    }
-    .results-d {
-      font-weight: 700;
-      color: #6b6b6b;
-      font-variant-numeric: tabular-nums;
-      margin-left: 6px;
-    }
-    /* development set: big */
-    #results-set1 .results-row,
-    #results-set1 .results-track,
-    #results-set1 .results-fill {
-      height: 56px;
-    }
-    #results-set1 .results-track {
-      width: 1200px;
-    }
-    #results-set1 .results-num {
-      left: 1432px;
-    }
-    #results-set1 .results-n {
-      font-size: 84px;
-    }
-    #results-set1 .results-d {
-      font-size: 44px;
-    }
-    /* held-out set: smaller */
-    #results-set2 .results-row,
-    #results-set2 .results-track,
-    #results-set2 .results-fill {
-      height: 32px;
-    }
-    #results-set2 .results-track {
-      width: 600px;
-      border-radius: 8px;
-    }
-    #results-set2 .results-fill {
-      border-radius: 8px;
-    }
-    #results-set2 .results-num {
-      left: 828px;
-    }
-    #results-set2 .results-n {
-      font-size: 56px;
-    }
-    #results-set2 .results-d {
-      font-size: 28px;
-    }
-    /* the two halves: code (dark) and live site (light) */
-    .results-half {
-      position: absolute;
-      top: 250px;
-      width: 550px;
-      height: 600px;
-    }
-    #results-halfL {
-      left: 410px;
-      transform-origin: 100% 50%;
-    }
-    #results-halfR {
-      left: 960px;
-      transform-origin: 0% 50%;
-    }
-    .results-half svg {
-      position: absolute;
-      left: 0;
-      top: 0;
-      overflow: visible;
-    }
-    .results-ink {
-      fill: none;
-      stroke: #0a0a0a;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-    #results-halfL .results-ink {
-      stroke: #f2f2f2;
-    }
-    #results-halfL .results-dark {
-      fill: #0b0b0c;
-      stroke: #0a0a0a;
-      stroke-width: 2;
-    }
-    .results-under {
-      position: absolute;
-      left: 0;
-      top: 624px;
-      font-weight: 700;
-      font-size: 28px;
-      line-height: 1.3;
-      white-space: nowrap;
-    }
-    .results-tree {
-      position: absolute;
-      left: 40px;
-      top: 104px;
-      font-family: "JetBrains Mono", monospace;
-      font-size: 28px;
-      line-height: 72px;
-      white-space: nowrap;
-      color: #f2f2f2;
-    }
-    .results-tree div {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      height: 72px;
-    }
-    .results-todo {
-      position: absolute;
-      left: 40px;
-      top: 104px;
-      font-size: 30px;
-      font-weight: 400;
-      white-space: nowrap;
-    }
-    .results-todo div {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      height: 72px;
-    }
-    .results-box {
-      width: 28px;
-      height: 28px;
-      border: 2px solid #0a0a0a;
-      border-radius: 6px;
-      flex: none;
-    }
-    .results-addr {
-      position: absolute;
-      left: 30px;
-      top: 9px;
-      height: 46px;
-      padding: 0 18px;
-      border: 2px solid #0a0a0a;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      font-family: "JetBrains Mono", monospace;
-      font-size: 28px;
-      color: #6b6b6b;
-      white-space: nowrap;
-    }
+        linear-gradient(to right, rgba(61,255,162,0.10) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(61,255,162,0.10) 1px, transparent 1px);
+      background-size: 80px 80px;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 100%);
+              mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 100%); }
+    #results-dust { position: absolute; inset: 0; }
+    #results-dust i { position: absolute; left: 0; top: 0; border-radius: 50%; background: #eaf2f7; }
+    #results-vignette { position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.6)); }
+
+    /* ---- transition wrapper, camera (push), rig (beat re-targets, 3D space) ---- */
+    #results-fx, #results-cam, #results-rig { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+    #results-fx { transform-origin: 960px 540px; }
+    #results-cam { transform-origin: 760px 360px; }
+    #results-rig { perspective: 1600px; perspective-origin: 960px 560px; }
+    .results-full { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+    #results-join { perspective: 1600px; perspective-origin: 960px 550px; }
+
+    /* ---- HUD chapter label ---- */
+    #results-hud { position: absolute; left: 96px; top: 60px; height: 30px; white-space: nowrap;
+      font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 22px; line-height: 30px;
+      letter-spacing: 0.22em; text-transform: uppercase; color: #3dffa2;
+      text-shadow: 0 0 14px rgba(61,255,162,0.45); }
+    #results-hud-c { display: inline-block; width: 13px; height: 24px; margin-left: 2px; vertical-align: -4px;
+      background: #3dffa2; box-shadow: 0 0 12px rgba(61,255,162,0.6); }
+
+    /* ---- kinetic type ---- */
+    .results-ln { position: absolute; overflow: hidden; white-space: nowrap; width: max-content;
+      padding: 6px 18px 16px 18px; margin-left: -18px; }
+    .results-w { display: inline-block; position: relative; }
+    .results-line { left: 96px; top: 138px; font-weight: 800; font-size: 52px; line-height: 64px; letter-spacing: -0.015em; }
+    .results-ul { position: absolute; left: 0; right: 0; bottom: -2px; height: 6px; border-radius: 3px;
+      background: #3dffa2; box-shadow: 0 0 14px rgba(61,255,162,0.7); transform: scaleX(0); transform-origin: 0% 50%; }
+
+    /* ---- bars ---- */
+    .results-setname { position: absolute; left: 96px; white-space: nowrap; font-family: "JetBrains Mono", monospace;
+      font-weight: 700; font-size: 24px; line-height: 30px; letter-spacing: 0.16em; text-transform: uppercase; color: #7a8699; }
+    .results-row { position: absolute; left: 96px; width: 1720px; }
+    .results-lab { position: absolute; left: 0; top: 0; height: 100%; display: flex; align-items: center;
+      font-weight: 800; font-size: 32px; letter-spacing: -0.01em; white-space: nowrap; }
+    .results-lab .results-ln { position: relative; padding: 4px 8px 8px 8px; margin: 0 0 0 -8px; }
+    .results-track { position: absolute; left: 240px; top: 0; height: 100%; border-radius: 10px;
+      background: rgba(234,242,247,0.03); border: 1px solid rgba(122,134,153,0.22); }
+    .results-fill { position: absolute; left: 240px; top: 0; height: 100%; width: 0; border-radius: 10px; overflow: hidden;
+      background: linear-gradient(180deg, #4a5568, #353e4d); }
+    .results-fill.results-both { background: linear-gradient(90deg, #15a872, #3dffa2);
+      box-shadow: 0 0 0 1px #3dffa2, 0 0 28px rgba(61,255,162,0.45), 0 0 80px rgba(61,255,162,0.18); }
+    .results-only { position: absolute; top: 0; height: 100%; opacity: 0;
+      background: repeating-linear-gradient(135deg, rgba(234,242,247,0.30) 0 8px, rgba(234,242,247,0.06) 8px 16px); }
+    .results-num { position: absolute; top: 0; height: 100%; display: flex; align-items: center; }
+    .results-nd { display: flex; align-items: baseline; white-space: nowrap; transform-origin: 0% 60%; }
+    .results-n { display: inline-block; font-family: "JetBrains Mono", monospace; font-weight: 800; letter-spacing: -0.02em;
+      line-height: 1; width: 2ch; text-align: right; color: #eaf2f7; }
+    .results-d { font-family: "JetBrains Mono", monospace; font-weight: 600; color: #7a8699; margin-left: 4px; }
+    .results-bothnum .results-n { color: #3dffa2; text-shadow: 0 0 18px rgba(61,255,162,0.6); }
+    #results-set1 .results-row { height: 60px; }
+    #results-set1 .results-track { width: 1200px; }
+    #results-set1 .results-num { left: 1470px; }
+    #results-set1 .results-n { font-size: 84px; }
+    #results-set1 .results-d { font-size: 40px; }
+    #results-set2 .results-row { height: 36px; }
+    #results-set2 .results-track, #results-set2 .results-fill { border-radius: 8px; }
+    #results-set2 .results-track { width: 600px; }
+    #results-set2 .results-num { left: 870px; }
+    #results-set2 .results-n { font-size: 56px; }
+    #results-set2 .results-d { font-size: 28px; }
+    #results-set2 .results-lab { font-size: 28px; }
+
+    /* ---- the two halves ---- */
+    #results-bloom { position: absolute; left: 260px; top: 50px; width: 1400px; height: 1000px; opacity: 0;
+      background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(61,255,162,0.30), rgba(61,255,162,0.08) 40%, transparent 70%); }
+    .results-half { position: absolute; top: 280px; width: 520px; height: 500px; background: #0b0f16; overflow: hidden;
+      border: 1px solid rgba(61,255,162,0.22); }
+    #results-halfL { left: 440px; border-radius: 14px 0 0 14px; transform-origin: 100% 50%; }
+    #results-halfR { left: 959px; border-radius: 0 14px 14px 0; transform-origin: 0% 50%; }
+    #results-halfL { border-right-color: rgba(61,255,162,0.55); }
+    #results-halfR { border-left-color: rgba(61,255,162,0.55); }
+    .results-bar { position: absolute; left: 0; top: 0; right: 0; height: 64px; border-bottom: 1px solid rgba(122,134,153,0.22);
+      background: rgba(234,242,247,0.03); }
+    .results-dots { position: absolute; left: 26px; top: 26px; display: flex; gap: 12px; }
+    .results-dots i { width: 13px; height: 13px; border-radius: 50%; border: 1.5px solid #7a8699; }
+    .results-tree { position: absolute; left: 40px; top: 104px; font-family: "JetBrains Mono", monospace; font-size: 28px;
+      white-space: nowrap; color: #cfe3f0; }
+    .results-tree div { display: flex; align-items: center; gap: 18px; height: 72px; }
+    .results-addr { position: absolute; left: 26px; top: 10px; height: 44px; padding: 0 18px; border-radius: 22px;
+      background: rgba(234,242,247,0.05); border: 1px solid rgba(122,134,153,0.28); display: flex; align-items: center;
+      font-family: "JetBrains Mono", monospace; font-size: 26px; color: #7a8699; white-space: nowrap; }
+    .results-todo { position: absolute; left: 40px; top: 104px; font-size: 30px; font-weight: 400; white-space: nowrap; color: #cfe3f0; }
+    .results-todo div { display: flex; align-items: center; gap: 20px; height: 72px; }
+    .results-box { width: 28px; height: 28px; border: 2px solid #7a8699; border-radius: 7px; flex: none; }
+    .results-under { position: absolute; top: 806px; height: 40px; display: flex; align-items: center; gap: 14px;
+      font-weight: 800; font-size: 30px; white-space: nowrap; }
+    .results-under b { width: 10px; height: 10px; border-radius: 50%; background: #3dffa2; box-shadow: 0 0 10px rgba(61,255,162,0.7); }
+    #results-rim { position: absolute; left: 439px; top: 279px; width: 1041px; height: 502px; border-radius: 15px; opacity: 0;
+      box-shadow: 0 0 0 1.5px #3dffa2, 0 0 28px rgba(61,255,162,0.45), 0 0 80px rgba(61,255,162,0.18); }
+    #results-sheen { position: absolute; left: 440px; top: 280px; width: 1039px; height: 500px; border-radius: 14px; overflow: hidden; }
+    #results-sheen i { position: absolute; top: -10%; left: 0; width: 30%; height: 120%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent); }
+    #results-jscan { position: absolute; left: 440px; top: 280px; width: 1039px; height: 42px; opacity: 0; }
+    #results-jscan::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 40px;
+      background: linear-gradient(to bottom, rgba(61,255,162,0), rgba(61,255,162,0.22)); }
+    #results-jscan::after { content: ""; position: absolute; left: 0; right: 0; top: 40px; height: 2px; background: #3dffa2;
+      box-shadow: 0 0 10px rgba(61,255,162,0.9), 0 0 28px rgba(61,255,162,0.45); }
+
+    /* ---- out: full-width green scan line ---- */
+    #results-wipe { position: absolute; left: 0; top: 0; width: 1920px; height: 122px; pointer-events: none; }
+    #results-wipe::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 120px;
+      background: linear-gradient(to bottom, rgba(61,255,162,0), rgba(61,255,162,0.20)); }
+    #results-wipe::after { content: ""; position: absolute; left: 0; right: 0; top: 120px; height: 2px; background: #3dffa2;
+      box-shadow: 0 0 12px rgba(61,255,162,0.95), 0 0 40px rgba(61,255,162,0.5); }
   </style>
 
   <div id="root" data-composition-id="results" data-width="1920" data-height="1080">
-    <div id="results-grid"></div>
+    <div id="results-ground"></div>
+    <div id="results-glow"></div>
+    <div id="results-floor-wrap"><div id="results-floor"></div></div>
+    <div id="results-dust"></div>
+    <div id="results-vignette"></div>
 
-    <div id="results-cam">
-      <div id="results-rig">
-        <!-- lines at the top, one at a time -->
-        <div id="results-l1" class="clip results-full" data-start="0" data-duration="14">
-          <div id="results-l1t" class="results-ln results-line"><span class="results-w">We</span> <span class="results-w">tested</span> <span class="results-w">it</span> <span class="results-w">on</span> <span class="results-w">12</span> <span class="results-w">lab</span> <span class="results-w">apps</span> <span class="results-w">with</span> <span class="results-w">33</span> <span class="results-w">planted</span> <span class="results-w">flaws</span></div>
-        </div>
-        <div id="results-l2" class="clip results-full" data-start="14" data-duration="4">
-          <div id="results-l2t" class="results-ln results-line"><span class="results-w">Each</span> <span class="results-w">side</span> <span class="results-w">found</span> <span class="results-w">flaws</span> <span class="results-w">the</span> <span class="results-w"><span class="results-mk"></span><span class="results-mt">other</span></span> <span class="results-w">could</span> <span class="results-w">not</span></div>
-        </div>
-        <div id="results-l3" class="clip results-full" data-start="18" data-duration="12">
-          <div id="results-l3t" class="results-ln results-line"><span class="results-w">On</span> <span class="results-w">6</span> <span class="results-w">new</span> <span class="results-w">apps,</span> <span class="results-w"><span class="results-mk"></span><span class="results-mt">both</span></span> <span class="results-w">together</span> <span class="results-w">found</span> <span class="results-w">all</span> <span class="results-w">12</span></div>
-        </div>
-
-        <!-- development set: 12 lab apps, 33 flaws -->
-        <div id="results-set1" class="clip results-full" data-start="4" data-duration="19.7">
-          <div id="results-s1name" class="results-ln results-label results-setname" style="top: 186px"><span class="results-w">12</span> <span class="results-w">lab</span> <span class="results-w">apps,</span> <span class="results-w">33</span> <span class="results-w">flaws</span></div>
-
-          <div id="results-r1" class="results-row" style="top: 258px">
-            <div class="results-lab"><div id="results-r1-lab" class="results-ln results-label"><span class="results-w">Code</span> <span class="results-w">only</span></div></div>
-            <div id="results-r1-trk" class="results-track"></div>
-            <div id="results-r1-fill" class="results-fill" style="width: 873px"></div>
-            <div class="results-num"><div id="results-r1-num" class="results-nd"><span id="results-r1-n" class="results-n">0</span><span class="results-d">/33</span></div></div>
+    <div id="results-fx">
+      <div id="results-cam">
+        <div id="results-rig">
+          <!-- development set: 12 lab apps, 33 flaws (rows built by the script) -->
+          <div id="results-set1" class="clip results-full" data-start="4" data-duration="19.5">
+            <div id="results-s1name" class="results-setname" style="top: 236px">12 lab apps · 33 flaws</div>
+          </div>
+          <!-- held-out set: 6 new apps, 12 flaws -->
+          <div id="results-set2" class="clip results-full" data-start="18" data-duration="5.5">
+            <div id="results-s2name" class="results-setname" style="top: 610px">6 new apps · 12 flaws</div>
           </div>
 
-          <div id="results-r2" class="results-row" style="top: 382px">
-            <div class="results-lab"><div id="results-r2-lab" class="results-ln results-label"><span class="results-w">Site</span> <span class="results-w">only</span></div></div>
-            <div id="results-r2-trk" class="results-track"></div>
-            <div id="results-r2-fill" class="results-fill" style="width: 691px"></div>
-            <div class="results-num"><div id="results-r2-num" class="results-nd"><span id="results-r2-n" class="results-n">0</span><span class="results-d">/33</span></div></div>
-          </div>
-
-          <div id="results-r3" class="results-row" style="top: 506px">
-            <div class="results-lab"><div id="results-r3-lab" class="results-ln results-label"><span class="results-w">Both</span></div></div>
-            <div id="results-r3-trk" class="results-track"></div>
-            <div id="results-r3-fill" class="results-fill results-both" style="width: 1200px"></div>
-            <div class="results-num"><div id="results-r3-num" class="results-nd"><span id="results-r3-n" class="results-n">0</span><span class="results-d">/33</span></div></div>
-          </div>
-        </div>
-
-        <!-- held-out set: 6 new apps, 12 flaws -->
-        <div id="results-set2" class="clip results-full" data-start="18" data-duration="5.7">
-          <div id="results-s2name" class="results-ln results-label results-setname" style="top: 646px"><span class="results-w">6</span> <span class="results-w">new</span> <span class="results-w">apps,</span> <span class="results-w">12</span> <span class="results-w">flaws</span></div>
-
-          <div id="results-q1" class="results-row" style="top: 714px">
-            <div class="results-lab"><div id="results-q1-lab" class="results-ln results-label"><span class="results-w">Code</span> <span class="results-w">only</span></div></div>
-            <div id="results-q1-trk" class="results-track"></div>
-            <div id="results-q1-fill" class="results-fill" style="width: 550px"></div>
-            <div class="results-num"><div id="results-q1-num" class="results-nd"><span id="results-q1-n" class="results-n">0</span><span class="results-d">/12</span></div></div>
-          </div>
-
-          <div id="results-q2" class="results-row" style="top: 790px">
-            <div class="results-lab"><div id="results-q2-lab" class="results-ln results-label"><span class="results-w">Site</span> <span class="results-w">only</span></div></div>
-            <div id="results-q2-trk" class="results-track"></div>
-            <div id="results-q2-fill" class="results-fill" style="width: 300px"></div>
-            <div class="results-num"><div id="results-q2-num" class="results-nd"><span id="results-q2-n" class="results-n">0</span><span class="results-d">/12</span></div></div>
-          </div>
-
-          <div id="results-q3" class="results-row" style="top: 866px">
-            <div class="results-lab"><div id="results-q3-lab" class="results-ln results-label"><span class="results-w">Both</span></div></div>
-            <div id="results-q3-trk" class="results-track"></div>
-            <div id="results-q3-fill" class="results-fill results-both" style="width: 600px"></div>
-            <div class="results-num"><div id="results-q3-num" class="results-nd"><span id="results-q3-n" class="results-n">0</span><span class="results-d">/12</span></div></div>
-          </div>
-        </div>
-
-        <!-- 25.0: the two halves close into one shape -->
-        <div id="results-join" class="clip results-full" data-start="23.7" data-duration="6.3">
-          <div id="results-joined" class="results-full">
+          <!-- 25.0: the two halves close into one shape -->
+          <div id="results-join" class="clip results-full" data-start="23.5" data-duration="6.5">
+            <div id="results-bloom"></div>
             <div id="results-halfL" class="results-half">
-              <svg width="550" height="600" viewBox="0 0 550 600">
-                <path class="results-dark" d="M551 1 H11 A10 10 0 0 0 1 11 V589 A10 10 0 0 0 11 599 H551 Z" />
-                <path class="results-ink" d="M550 64 H2" />
-                <circle class="results-ink" cx="34" cy="32" r="6" />
-                <circle class="results-ink" cx="58" cy="32" r="6" />
-                <circle class="results-ink" cx="82" cy="32" r="6" />
-              </svg>
+              <div class="results-bar"><div class="results-dots"><i></i><i></i><i></i></div></div>
               <div class="results-tree">
-                <div>
-                  <svg width="34" height="26" viewBox="0 0 34 26" style="position: static">
-                    <path class="results-ink" d="M2 4 A2 2 0 0 1 4 2 H12 L15 6 H30 A2 2 0 0 1 32 8 V22 A2 2 0 0 1 30 24 H4 A2 2 0 0 1 2 22 Z" />
-                  </svg>
-                  <span>supabase/</span>
-                </div>
-                <div>
-                  <svg width="34" height="26" viewBox="0 0 34 26" style="position: static">
-                    <path class="results-ink" d="M2 4 A2 2 0 0 1 4 2 H12 L15 6 H30 A2 2 0 0 1 32 8 V22 A2 2 0 0 1 30 24 H4 A2 2 0 0 1 2 22 Z" />
-                  </svg>
-                  <span>src/</span>
-                </div>
-                <div>
-                  <svg width="34" height="26" viewBox="0 0 34 26" style="position: static">
-                    <path class="results-ink" d="M9 1 H21 L27 7 V25 H9 Z" />
-                  </svg>
-                  <span>.env.example</span>
-                </div>
-                <div>
-                  <svg width="34" height="26" viewBox="0 0 34 26" style="position: static">
-                    <path class="results-ink" d="M9 1 H21 L27 7 V25 H9 Z" />
-                  </svg>
-                  <span>package.json</span>
-                </div>
+                <div><svg width="34" height="26" viewBox="0 0 34 26"><path d="M2 4 A2 2 0 0 1 4 2 H12 L15 6 H30 A2 2 0 0 1 32 8 V22 A2 2 0 0 1 30 24 H4 A2 2 0 0 1 2 22 Z" fill="none" stroke="#7a8699" stroke-width="2" /></svg><span>supabase/</span></div>
+                <div><svg width="34" height="26" viewBox="0 0 34 26"><path d="M2 4 A2 2 0 0 1 4 2 H12 L15 6 H30 A2 2 0 0 1 32 8 V22 A2 2 0 0 1 30 24 H4 A2 2 0 0 1 2 22 Z" fill="none" stroke="#7a8699" stroke-width="2" /></svg><span>src/</span></div>
+                <div><svg width="34" height="26" viewBox="0 0 34 26"><path d="M9 1 H21 L27 7 V25 H9 Z" fill="none" stroke="#7a8699" stroke-width="2" /></svg><span>.env.example</span></div>
+                <div><svg width="34" height="26" viewBox="0 0 34 26"><path d="M9 1 H21 L27 7 V25 H9 Z" fill="none" stroke="#7a8699" stroke-width="2" /></svg><span>package.json</span></div>
+                <div><svg width="34" height="26" viewBox="0 0 34 26"><path d="M9 1 H21 L27 7 V25 H9 Z" fill="none" stroke="#7a8699" stroke-width="2" /></svg><span>README.md</span></div>
               </div>
-              <div class="results-under">Its code</div>
             </div>
-
             <div id="results-halfR" class="results-half">
-              <svg width="550" height="600" viewBox="0 0 550 600">
-                <path class="results-ink" d="M0 1 H539 A10 10 0 0 1 549 11 V589 A10 10 0 0 1 539 599 H0" />
-                <path class="results-ink" d="M0 64 H549" />
-                <path id="results-seamR" class="results-ink" d="M1 1 V599" />
-              </svg>
-              <div class="results-addr">taskflow.app</div>
+              <div class="results-bar"><div class="results-addr">taskflow.app</div></div>
               <div class="results-todo">
                 <div><span class="results-box"></span><span>Ship landing page</span></div>
                 <div><span class="results-box"></span><span>Fix login bug</span></div>
                 <div><span class="results-box"></span><span>Write tests</span></div>
                 <div><span class="results-box"></span><span>Launch</span></div>
               </div>
-              <div class="results-under">Its live site</div>
             </div>
+            <div id="results-sheen"><i></i></div>
+            <div id="results-jscan"></div>
+            <div id="results-rim"></div>
+            <div id="results-underL" class="results-under" style="left: 446px"><b></b><div class="results-ln" style="position: relative; padding: 2px 8px 6px 8px; margin: 0"><span class="results-w">Its</span> <span class="results-w">code</span></div></div>
+            <div id="results-underR" class="results-under" style="left: 986px"><b></b><div class="results-ln" style="position: relative; padding: 2px 8px 6px 8px; margin: 0"><span class="results-w">Its</span> <span class="results-w">live</span> <span class="results-w">site</span></div></div>
           </div>
+
+          <!-- lines, one at a time -->
+          <div id="results-l1" class="clip results-ln results-line" data-start="0" data-duration="14"><span class="results-w">We</span> <span class="results-w">tested</span> <span class="results-w">it</span> <span class="results-w">on</span> <span class="results-w">12</span> <span class="results-w">lab</span> <span class="results-w">apps</span> <span class="results-w">with</span> <span class="results-w">33</span> <span class="results-w">planted</span> <span class="results-w">flaws</span></div>
+          <div id="results-l2" class="clip results-ln results-line" data-start="14" data-duration="4"><span class="results-w">Each</span> <span class="results-w">side</span> <span class="results-w">found</span> <span class="results-w">flaws</span> <span class="results-w">the</span> <span id="results-mk-other" class="results-w">other<i class="results-ul"></i></span> <span class="results-w">could</span> <span class="results-w">not</span></div>
+          <div id="results-l3" class="clip results-ln results-line" data-start="18" data-duration="12"><span class="results-w">On</span> <span class="results-w">6</span> <span class="results-w">new</span> <span class="results-w">apps,</span> <span id="results-mk-both" class="results-w">both<i class="results-ul"></i></span> <span class="results-w">together</span> <span class="results-w">found</span> <span class="results-w">all</span> <span class="results-w">12</span></div>
         </div>
       </div>
+      <div id="results-hud"><span id="results-hud-t"></span><span id="results-hud-c"></span></div>
     </div>
+
+    <div id="results-wipe" class="clip" data-start="29.7333" data-duration="0.2667"></div>
   </div>
 
   <script>
@@ -414,184 +194,217 @@
       const tl = gsap.timeline({ paused: true });
       const F = 1 / 30;
       const DUR = 30;
-      const OPEN = "inset(-25% -2% -25% -2%)";
-      const SHUT = "inset(-25% 100% -25% -2%)";
+      const FILM_START = 180;
+      const P = "#results";
+      const GLOW = "0 0 0 1px rgba(61,255,162,1), 0 0 28px rgba(61,255,162,0.45), 0 0 80px rgba(61,255,162,0.18)";
+      const GLOW_HI = "0 0 0 2px rgba(61,255,162,1), 0 0 44px rgba(61,255,162,0.85), 0 0 130px rgba(61,255,162,0.40)";
 
-      // ---- camera: velocity-matched cut in, slow push, beat re-targets, cut out
-      tl.fromTo("#results-cam", { x: 420 }, { x: 0, duration: 18 * F, ease: "expo.out" }, 0);
-      tl.fromTo("#results-cam", { scale: 1 }, { scale: 1.06, duration: DUR, ease: "sine.inOut" }, 0);
-      tl.fromTo(
-        "#results-cam",
-        { x: 0 },
-        { x: -420, duration: 10 * F, ease: "power3.in", immediateRender: false },
-        DUR - 10 * F,
-      );
-      let rx = 0;
-      let ry = 0;
-      let rs = 1;
+      // ---- shared world: ground grid scroll + dust from FILM time (continuous across cuts)
+      (function world(tl, id, FILM_START, DUR) {
+        let s = 20261122;
+        const rnd = () => { s |= 0; s = (s + 0x6d2b79f5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+        const box = document.getElementById(id + "-dust");
+        const dots = [];
+        for (let k = 0; k < 54; k++) {
+          const d = { x: rnd() * 1920, y: rnd() * 1180, z: 0.3 + rnd() * 0.7, ph: rnd() * 6.283 };
+          const el = document.createElement("i");
+          const size = 1 + d.z * 2;
+          el.style.width = el.style.height = size + "px";
+          el.style.opacity = (0.12 + d.z * 0.23).toFixed(3);
+          box.appendChild(el); d.el = el; dots.push(d);
+        }
+        const floor = document.getElementById(id + "-floor");
+        const draw = (T) => {
+          if (floor) floor.style.backgroundPosition = "0px " + ((T * 40) % 80) + "px";
+          for (const d of dots) {
+            const y = ((d.y - T * 14 * d.z) % 1180 + 1180) % 1180 - 50;
+            const x = d.x + Math.sin(T * 0.35 + d.ph) * 18 * d.z;
+            d.el.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px)";
+          }
+        };
+        const p = { t: 0 };
+        tl.fromTo(p, { t: 0 }, { t: DUR, duration: DUR, ease: "none", onUpdate: () => draw(FILM_START + p.t) }, 0);
+        draw(FILM_START);
+      })(tl, "results", FILM_START, DUR);
+
+      // ---- the bar rows (real numbers: evaluation/results.json, dev 24/19/33 of 33, holdout 11/6/12 of 12)
+      const ROWS = [
+        { set: 1, id: "r1", label: "Code only", value: 24, total: 33, top: 290, track: 1200 },
+        { set: 1, id: "r2", label: "Site only", value: 19, total: 33, top: 396, track: 1200 },
+        { set: 1, id: "r3", label: "Both", value: 33, total: 33, top: 502, track: 1200, both: true },
+        { set: 2, id: "q1", label: "Code only", value: 11, total: 12, top: 656, track: 600 },
+        { set: 2, id: "q2", label: "Site only", value: 6, total: 12, top: 716, track: 600 },
+        { set: 2, id: "q3", label: "Both", value: 12, total: 12, top: 776, track: 600, both: true },
+      ];
+      for (const r of ROWS) {
+        const row = document.createElement("div");
+        row.className = "results-row";
+        row.id = "results-" + r.id;
+        row.style.top = r.top + "px";
+        const words = r.label.split(" ").map((w) => '<span class="results-w">' + w + "</span>").join(" ");
+        row.innerHTML =
+          '<div class="results-lab"><div id="results-' + r.id + '-lab" class="results-ln">' + words + "</div></div>" +
+          '<div id="results-' + r.id + '-trk" class="results-track"></div>' +
+          '<div id="results-' + r.id + '-fill" class="results-fill' + (r.both ? " results-both" : "") + '"></div>' +
+          '<div class="results-num"><div id="results-' + r.id + '-num" class="results-nd' + (r.both ? " results-bothnum" : "") + '">' +
+          '<span id="results-' + r.id + '-n" class="results-n">0</span><span class="results-d">/' + r.total + "</span></div></div>";
+        document.getElementById("results-set" + r.set).appendChild(row);
+        r.w = (r.track * r.value) / r.total;
+      }
+      const ROW = Object.fromEntries(ROWS.map((r) => [r.id, r]));
+      // "found what the other could not": hatched overlays on the parts only one side found
+      // (code covers flaws 1..24, site covers 15..33 after it slides; 24 + 19 - 33 = 10 overlap)
+      const only1 = document.createElement("div");
+      only1.className = "results-only"; only1.id = "results-only1";
+      only1.style.left = "0px"; only1.style.width = (1200 * 14) / 33 + "px";
+      document.getElementById("results-r1-fill").appendChild(only1);
+      const only2 = document.createElement("div");
+      only2.className = "results-only"; only2.id = "results-only2";
+      only2.style.left = (1200 * 10) / 33 + "px"; only2.style.width = (1200 * 9) / 33 + "px";
+      document.getElementById("results-r2-fill").appendChild(only2);
+
+      // ---- transitions: in (scale 0.94 -> 1, fade 6 f), out (scale -> 1.15, fade, green scan line)
+      tl.fromTo(P + "-fx", { scale: 0.94 }, { scale: 1, duration: 16 * F, ease: "expo.out" }, 0);
+      tl.fromTo(P + "-fx", { opacity: 0 }, { opacity: 1, duration: 6 * F, ease: "power2.out" }, 0);
+      tl.fromTo(P + "-fx", { scale: 1 }, { scale: 1.15, duration: 12 * F, ease: "power2.in", immediateRender: false }, DUR - 12 * F);
+      tl.fromTo(P + "-fx", { opacity: 1 }, { opacity: 0, duration: 6 * F, ease: "power2.in", immediateRender: false }, DUR - 6 * F);
+      tl.fromTo(P + "-wipe", { y: -122 }, { y: 1080, duration: 8 * F, ease: "power1.in" }, DUR - 8 * F);
+
+      // ---- HUD: types 1 char per frame, block cursor blinks on the beat, gone after 2 s
+      (function hud(text) {
+        const t = document.querySelector(P + "-hud-t");
+        const c = document.querySelector(P + "-hud-c");
+        const p = { t: 0 };
+        const draw = () => {
+          const f = Math.floor(p.t * 30 + 1e-4);
+          t.textContent = text.slice(0, Math.min(text.length, f));
+          c.style.opacity = p.t < 2 && f % 15 < 8 ? 1 : 0;
+        };
+        tl.fromTo(p, { t: 0 }, { t: 3, duration: 3, ease: "none", onUpdate: draw }, 0);
+        draw();
+      })("09 / Results");
+
+      // ---- camera: slow push + beat re-targets (with a little zoom)
+      tl.fromTo(P + "-cam", { scale: 1 }, { scale: 1.05, duration: DUR, ease: "sine.inOut" }, 0);
+      let rx = 0, ry = 150, rs = 1;
+      gsap.set(P + "-rig", { y: 150 });
       const aim = (x, y, s, at, dur, ease) => {
-        tl.fromTo(
-          "#results-rig",
-          { x: rx, y: ry, scale: rs },
-          { x: x, y: y, scale: s, duration: dur || 20 * F, ease: ease || "power2.inOut", immediateRender: false },
-          at,
-        );
-        rx = x;
-        ry = y;
-        rs = s;
+        tl.fromTo(P + "-rig", { x: rx, y: ry, scale: rs }, { x: x, y: y, scale: s, duration: dur || 24 * F, ease: ease || "power2.inOut", immediateRender: false }, at);
+        rx = x; ry = y; rs = s;
       };
 
       // ---- kinetic type
-      const wordsIn = (line, at) =>
-        tl.fromTo(
-          line + " > .results-w",
-          { yPercent: 110 },
-          { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F },
-          at,
-        );
-      const wordsOut = (line, at) =>
-        tl.fromTo(
-          line + " > .results-w",
-          { yPercent: 0 },
-          { yPercent: -110, duration: 8 * F, ease: "power2.in", stagger: 1 * F, immediateRender: false },
-          at,
-        );
-      const marker = (line, at) => {
-        tl.fromTo(line + " .results-mk", { scaleX: 0 }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, at);
-        tl.fromTo(
-          line + " .results-mt",
-          { color: "#0a0a0a" },
-          { color: "#ffffff", duration: 4 * F, ease: "none" },
-          at + 2 * F,
-        );
+      const wordsIn = (sel, t) =>
+        tl.fromTo(sel + " .results-w", { yPercent: 115 }, { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, t);
+      const wordsOut = (sel, end) => {
+        const n = document.querySelectorAll(sel + " .results-w").length;
+        tl.fromTo(sel + " .results-w", { yPercent: 0 }, { yPercent: -115, duration: 8 * F, ease: "power2.in", stagger: F, immediateRender: false }, end - (8 + n - 1) * F);
       };
-
-      // ---- one bar: label rises, track draws, number pops; the fill grows (power3.out)
-      // while the number counts with it (integers only), and the number punches on landing
-      const bar = (id, value, at) => {
-        const n = document.getElementById(id + "-n");
-        const GROW = 30 * F;
-        wordsIn("#" + id + "-lab", at);
-        tl.fromTo(
-          "#" + id + "-trk",
-          { clipPath: SHUT },
-          { clipPath: OPEN, duration: 18 * F, ease: "power3.out" },
-          at,
-        );
-        tl.fromTo("#" + id + "-num", { opacity: 0 }, { opacity: 1, duration: 4 * F, ease: "none" }, at + 4 * F);
-        tl.fromTo(
-          "#" + id + "-num",
-          { scale: 0.9 },
-          { scale: 1, duration: 16 * F, ease: "back.out(1.7)" },
-          at + 4 * F,
-        );
-        tl.fromTo(
-          "#" + id + "-fill",
-          { clipPath: "inset(0% 100% 0% 0%)" },
-          {
-            clipPath: "inset(0% 0% 0% 0%)",
-            duration: GROW,
-            ease: "power3.out",
-            onUpdate: function () {
-              n.textContent = String(Math.round(this.ratio * value));
-            },
-          },
-          at + 0.3,
-        );
-        tl.fromTo(
-          "#" + id + "-n",
-          { scale: 1.18 },
-          { scale: 1, duration: 8 * F, ease: "power2.out", immediateRender: false },
-          at + 0.3 + GROW,
-        );
+      const marker = (sel, t) => {
+        tl.fromTo(sel, { color: "#eaf2f7", textShadow: "0 0 18px rgba(61,255,162,0)" },
+          { color: "#3dffa2", textShadow: "0 0 18px rgba(61,255,162,0.6)", duration: 6 * F, ease: "power2.out" }, t);
+        tl.fromTo(sel + " .results-ul", { scaleX: 0 }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, t);
       };
+      const rise = (sel, t) => tl.fromTo(sel, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 16 * F, ease: "expo.out" }, t);
 
-      // rows leave upward through their own mask
-      const rowsOut = (sels, at) =>
-        sels.forEach((s, i) => {
-          tl.fromTo(
-            s,
-            { clipPath: "inset(-40% -4% -40% -4%)", y: 0 },
-            {
-              clipPath: "inset(-40% -4% 140% -4%)",
-              y: -28,
-              duration: 10 * F,
-              ease: "power2.in",
-              immediateRender: false,
-            },
-            at + i * 2 * F,
-          );
-        });
+      // ---- one bar: label + track on the beat, the fill grows from the next beat and lands on a beat,
+      // the number counts with it (integers only) and punches on landing
+      const bar = (id, at, grow) => {
+        const r = ROW[id];
+        const n = document.getElementById("results-" + id + "-n");
+        const B = P + "-" + id;
+        wordsIn(B + "-lab", at);
+        tl.fromTo(B + "-trk", { clipPath: "inset(0% 100% 0% 0% round 10px)" }, { clipPath: "inset(0% 0% 0% 0% round 10px)", duration: 16 * F, ease: "expo.out" }, at);
+        tl.fromTo(B + "-num", { opacity: 0 }, { opacity: 1, duration: 6 * F, ease: "power2.out" }, at);
+        const land = at + 0.5 + grow;
+        tl.fromTo(B + "-fill", { opacity: 0 }, { opacity: 1, duration: 2 * F, ease: "none" }, at + 0.5);
+        tl.fromTo(B + "-fill", { width: 0 }, {
+          width: r.w, duration: grow, ease: "power3.out",
+          onUpdate: function () { n.textContent = String(Math.round(this.ratio * r.value)); },
+        }, at + 0.5);
+        tl.fromTo(B + "-num", { scale: 1.18 }, { scale: 1, duration: 8 * F, ease: "power2.out", immediateRender: false }, land);
+        if (r.both) {
+          tl.fromTo(B + "-fill", { boxShadow: GLOW_HI }, { boxShadow: GLOW, duration: 24 * F, ease: "power2.out", immediateRender: false }, land);
+        }
+        return land;
+      };
 
       // 0.0 the question line
-      wordsIn("#results-l1t", 0);
-      aim(30, 30, 1, 1.6, 30 * F);
+      wordsIn(P + "-l1", 0);
+      aim(-10, 140, 1, 1.0, 40 * F);
+      aim(4, 132, 1, 2.5, 30 * F);
 
-      // 4.0 development set, one bar at a time (numbers land at 5.3, 7.8, 10.3)
-      aim(0, 0, 1, 4.0);
-      wordsIn("#results-s1name", 4.0);
-      bar("results-r1", 24, 4.0);
-      aim(0, -30, 1, 6.5);
-      bar("results-r2", 19, 6.5);
-      bar("results-r3", 33, 9.0);
-      // the camera pushes in on the Both row as it lands
-      aim(0, -10, 1.04, 9.3, 30 * F, "power3.out");
-      aim(20, 20, 1.01, 11.8, 30 * F);
-      wordsOut("#results-l1t", 13.55);
+      // 4.0 development set, one bar at a time: lands 5.5 (24), 7.5 (19), 10.0 (33, on the bar)
+      rise(P + "-s1name", 4.0);
+      aim(0, 96, 1, 4.0, 30 * F);
+      bar("r1", 4.0, 1.0);
+      aim(10, 90, 1, 6.0);
+      bar("r2", 6.0, 1.0);
+      aim(0, 84, 1, 8.0);
+      bar("r3", 8.0, 1.5);
+      // the Both row lands: the camera leans in
+      aim(-10, 72, 1.03, 10.0, 30 * F, "power3.out");
+      aim(10, 84, 1.01, 11.5, 30 * F);
+      tl.fromTo(P + "-r3-fill", { boxShadow: GLOW_HI }, { boxShadow: GLOW, duration: 24 * F, ease: "power2.out", immediateRender: false }, 12.0);
+      aim(0, 92, 1, 13.0, 30 * F);
+      wordsOut(P + "-l1", 14.0);
 
-      // 14.0 each side found what the other could not
-      wordsIn("#results-l2t", 14.0);
-      aim(20, 0, 1, 14.0);
-      marker("#results-l2t", 14.7);
-      aim(40, 20, 1, 16.0, 30 * F);
-      wordsOut("#results-l2t", 17.55);
+      // 14.0 each side found what the other could not: the site bar slides to its own flaws
+      wordsIn(P + "-l2", 14.0);
+      marker(P + "-mk-other", 14.5);
+      tl.fromTo(P + "-r2-fill", { x: 0 }, { x: (1200 * 14) / 33, duration: 1.0, ease: "power3.inOut" }, 14.5);
+      tl.fromTo([P + "-only1", P + "-only2"], { opacity: 0 }, { opacity: 1, duration: 12 * F, ease: "power2.out" }, 16.0);
+      aim(-16, 84, 1.015, 14.5, 30 * F);
+      aim(0, 78, 1.01, 16.5, 30 * F);
+      wordsOut(P + "-l2", 18.0);
 
-      // 18.0 held-out set (numbers land at 19.6, 20.8, 22.0)
-      wordsIn("#results-l3t", 18.0);
-      aim(0, -20, 1, 18.0, 24 * F);
-      wordsIn("#results-s2name", 18.0);
-      bar("results-q1", 11, 18.3);
-      marker("#results-l3t", 18.8);
-      bar("results-q2", 6, 19.5);
-      bar("results-q3", 12, 20.7);
-      aim(10, -24, 1.02, 21.0, 30 * F, "power3.out");
+      // 18.0 held-out set: lands 19.5 (11), 20.5 (6), 22.0 (12, on the bar)
+      wordsIn(P + "-l3", 18.0);
+      marker(P + "-mk-both", 18.5);
+      tl.fromTo([P + "-only1", P + "-only2"], { opacity: 1 }, { opacity: 0, duration: 10 * F, ease: "power2.inOut", immediateRender: false }, 18.0);
+      rise(P + "-s2name", 18.0);
+      aim(0, 4, 1, 18.0, 30 * F);
+      bar("q1", 18.5, 0.5);
+      bar("q2", 19.5, 0.5);
+      bar("q3", 20.5, 1.0);
+      aim(-10, -4, 1.02, 22.0, 30 * F, "power3.out");
 
-      // 23.2 clear the bars
-      rowsOut(
-        [
-          "#results-s1name",
-          "#results-r1",
-          "#results-r2",
-          "#results-r3",
-          "#results-s2name",
-          "#results-q1",
-          "#results-q2",
-          "#results-q3",
-        ],
-        23.2,
-      );
-      aim(0, 10, 1, 23.3, 24 * F);
-
-      // 23.7 the two halves pop in apart, slide together and join at 25.0
-      ["#results-halfL", "#results-halfR"].forEach((h) => {
-        tl.fromTo(h, { opacity: 0 }, { opacity: 1, duration: 5 * F, ease: "none" }, 23.7);
-        tl.fromTo(h, { scale: 0.9 }, { scale: 1, duration: 16 * F, ease: "back.out(1.7)" }, 23.7);
+      // 23.0 the bars leave upward, row by row
+      ["-s1name", "-r1", "-r2", "-r3", "-s2name", "-q1", "-q2", "-q3"].forEach((s, i) => {
+        tl.fromTo(P + s, { opacity: 1, y: 0 }, { opacity: 0, y: -30, duration: 10 * F, ease: "power3.in", immediateRender: false }, 23.0 + i * F);
       });
-      tl.fromTo("#results-halfL", { x: -140 }, { x: 0, duration: 24 * F, ease: "power2.inOut" }, 25.0 - 24 * F);
-      tl.fromTo("#results-halfR", { x: 140 }, { x: 0, duration: 24 * F, ease: "power2.inOut" }, 25.0 - 24 * F);
-      tl.fromTo("#results-seamR", { opacity: 1 }, { opacity: 0, duration: 4 * F, ease: "power2.out" }, 25.0);
-      // the join lands: one shape, it settles
-      tl.fromTo(
-        "#results-joined",
-        { scale: 1.04 },
-        { scale: 1, duration: 10 * F, ease: "power4.out", immediateRender: false },
-        25.0,
-      );
-      aim(30, 24, 1.02, 25.0, 30 * F);
-      aim(50, 36, 1.03, 26.6, 40 * F);
-      aim(70, 20, 1.03, 28.3, 40 * F);
+      aim(0, 0, 1, 23.0, 30 * F);
+
+      // 23.5 the two halves arrive apart and tilted ...
+      tl.fromTo([P + "-halfL", P + "-halfR"], { opacity: 0 }, { opacity: 1, duration: 8 * F, ease: "power2.out" }, 23.5);
+      tl.fromTo(P + "-halfL", { x: -260, rotationY: 30 }, { x: -200, rotationY: 22, duration: 15 * F, ease: "expo.out" }, 23.5);
+      tl.fromTo(P + "-halfR", { x: 260, rotationY: -30 }, { x: 200, rotationY: -22, duration: 15 * F, ease: "expo.out" }, 23.5);
+      wordsIn(P + "-underL", 23.5);
+      wordsIn(P + "-underR", 23.5);
+      tl.fromTo(P + "-underL", { x: -200 }, { x: 0, duration: 1.0, ease: "power3.in" }, 24.0);
+      tl.fromTo(P + "-underR", { x: 200 }, { x: 0, duration: 1.0, ease: "power3.in" }, 24.0);
+      // ... and close into one shape exactly on 25.0 (the drop)
+      tl.fromTo(P + "-halfL", { x: -200, rotationY: 22 }, { x: 0, rotationY: 0, duration: 1.0, ease: "power3.in", immediateRender: false }, 24.0);
+      tl.fromTo(P + "-halfR", { x: 200, rotationY: -22 }, { x: 0, rotationY: 0, duration: 1.0, ease: "power3.in", immediateRender: false }, 24.0);
+      tl.fromTo(P + "-halfL", { borderRightColor: "rgba(61,255,162,1)" }, { borderRightColor: "rgba(61,255,162,0)", duration: 14 * F, ease: "power2.out" }, 25.0);
+      tl.fromTo(P + "-halfR", { borderLeftColor: "rgba(61,255,162,1)" }, { borderLeftColor: "rgba(61,255,162,0)", duration: 14 * F, ease: "power2.out" }, 25.0);
+      tl.fromTo(P + "-rim", { opacity: 0 }, { opacity: 1, duration: 2 * F, ease: "none" }, 25.0);
+      tl.fromTo(P + "-bloom", { opacity: 0 }, { opacity: 1, duration: 3 * F, ease: "power2.out" }, 25.0);
+      tl.fromTo(P + "-bloom", { opacity: 1 }, { opacity: 0.35, duration: 1.5, ease: "power2.out", immediateRender: false }, 25.0 + 3 * F);
+      tl.fromTo(P + "-join", { scale: 1.045, transformOrigin: "960px 550px" }, { scale: 1, duration: 14 * F, ease: "power4.out", immediateRender: false }, 25.0);
+      tl.fromTo(P + "-sheen i", { xPercent: -130, skewX: -15 }, { xPercent: 360, skewX: -15, duration: 18 * F, ease: "power2.inOut" }, 25.0);
+      aim(0, 0, 1.02, 25.0, 30 * F, "power3.out");
+      // 26.0 the one shape is read top to bottom; glow breathes on the bars
+      tl.fromTo(P + "-jscan", { y: -40 }, { y: 460, duration: 1.5, ease: "sine.inOut" }, 26.0);
+      tl.fromTo(P + "-jscan", { opacity: 0 }, { opacity: 1, duration: 4 * F, ease: "none" }, 26.0);
+      tl.fromTo(P + "-jscan", { opacity: 1 }, { opacity: 0, duration: 6 * F, ease: "power2.in", immediateRender: false }, 27.3);
+      aim(12, -4, 1.03, 27.0, 40 * F);
+      tl.fromTo(P + "-bloom", { opacity: 0.6 }, { opacity: 0.35, duration: 24 * F, ease: "power2.out", immediateRender: false }, 28.0);
+      aim(-4, -8, 1.035, 28.5, 36 * F);
 
       tl.set({}, {}, DUR);
+      window.__timelines = window.__timelines || {};
       window.__timelines["results"] = tl;
     })();
   </script>

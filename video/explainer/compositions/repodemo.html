@@ -1,413 +1,440 @@
 <template>
   <style>
-    #root {
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
+    /* ---------------------------------------------------------------- v7 shared world (no floor grid in product scenes) */
+    #repodemo-ground { position: absolute; inset: 0; background: #05060a; }
+    #repodemo-glow { position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 55% at 50% 45%, rgba(61,255,162,0.07), transparent 70%); }
+    #repodemo-dust { position: absolute; inset: 0; }
+    #repodemo-dust i { position: absolute; left: 0; top: 0; border-radius: 50%; background: #eaf2f7; }
+    #repodemo-vignette { position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.6)); }
+
+    #root { position: absolute; inset: 0; overflow: hidden; background: #05060a; font-family: "Inter", sans-serif; }
+
+    /* scene camera: carries the in/out transitions (scale + fade); the world stays outside it */
+    #repodemo-cam, #repodemo-top { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 960px 540px; }
+    #repodemo-3d { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; perspective: 2400px; perspective-origin: 960px 540px; }
+
+    /* the floating screen: a 1920x1080 layout of the real app (images are 3840x2160, so 2x punch-ins stay sharp) */
+    #repodemo-screen { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+    #repodemo-face { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; border-radius: 20px; overflow: hidden;
       background: #000;
-      font-family: "Inter", sans-serif;
-    }
-    /* scene camera: carries the velocity-matched cuts (x only) */
-    #root .repodemo-scene {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 1920px;
-      height: 1080px;
-      z-index: 1;
-    }
-    /* per-shot camera (punch-ins, re-targets) and its slow drift */
-    #root .repodemo-cam,
-    #root .repodemo-drift {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 1920px;
-      height: 1080px;
-      transform-origin: 0 0;
-    }
-    #root .repodemo-shot {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 1920px;
-      height: 1080px;
-      display: block;
-    }
-    #root .repodemo-hl {
-      position: absolute;
-      z-index: 5;
-    }
-    #root .repodemo-hl-box {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      transform-origin: 50% 50%;
-    }
-    #root .repodemo-hl svg {
-      position: absolute;
-      left: 0;
-      top: 0;
-      overflow: visible;
-    }
-    #root .repodemo-hl rect {
-      fill: none;
-      stroke: #ffffff;
-    }
-    #root .repodemo-cursor {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 1920px;
-      height: 1080px;
-      z-index: 8;
-      pointer-events: none;
-    }
-    #root .repodemo-arrow {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 30px;
-      height: 40px;
-      transform-origin: 0 0;
-    }
-    #root .repodemo-arrow svg {
-      position: absolute;
-      left: -3px;
-      top: -3px;
-    }
-    #root .repodemo-toast-clip {
-      position: absolute;
-      right: 96px;
-      bottom: 144px;
-      z-index: 9;
-    }
-    #root .repodemo-toast {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      background: #ffffff;
-      color: #0a0a0a;
-      border-radius: 10px;
-      padding: 18px 28px 18px 24px;
-      font-size: 28px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      white-space: nowrap;
-      transform-origin: 50% 50%;
-    }
-    #root .repodemo-band {
-      position: absolute;
-      left: 0;
-      top: 960px;
-      width: 1920px;
-      height: 120px;
-      background: #000;
-      z-index: 10;
-    }
-    #root .repodemo-cap {
-      position: absolute;
-      left: 86px;
-      top: 960px;
-      width: 1748px;
-      height: 120px;
-      display: flex;
-      align-items: center;
-      z-index: 11;
-    }
-    /* the mask: words rise into it and leave upward through it */
-    #root .repodemo-line {
-      display: block;
-      overflow: hidden;
-      padding: 4px 10px;
-      color: #ffffff;
-      font-size: 44px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      line-height: 1.2;
-      white-space: nowrap;
-    }
-    #root .repodemo-w {
-      display: inline-block;
-      position: relative;
-    }
-    #root .repodemo-bar {
-      position: absolute;
-      left: -6px;
-      right: -6px;
-      top: 0.15em;
-      height: 0.9em;
-      background: #ffffff;
-      border-radius: 3px;
-      transform-origin: 0 50%;
-      z-index: 0;
-    }
-    #root .repodemo-mt {
-      position: relative;
-      z-index: 1;
-      margin: 0 4px;
-      color: #ffffff;
-    }
+      box-shadow: 0 0 0 1px rgba(61,255,162,0.35), 0 0 40px rgba(61,255,162,0.13), 0 0 120px rgba(61,255,162,0.06), 0 40px 90px rgba(0,0,0,0.7); }
+    #repodemo-face::after { content: ""; position: absolute; inset: 0; border-radius: 20px; pointer-events: none; z-index: 20;
+      box-shadow: inset 0 0 0 1px rgba(61,255,162,0.28), inset 0 1px 0 rgba(255,255,255,0.08); }
+    .repodemo-shot { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; display: block; }
+    /* reflection: the same screen flipped, 12% opacity, fading out within ~120 px */
+    #repodemo-refl { position: absolute; left: 0; top: 1092px; width: 1920px; height: 150px; overflow: hidden; opacity: 0.12;
+      border-radius: 20px 20px 0 0;
+      -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 100%); mask-image: linear-gradient(to bottom, #000 0%, transparent 100%); }
+    #repodemo-refl-in { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform: scaleY(-1); transform-origin: 50% 50%; }
+
+    /* light sweep across the screen when it appears */
+    #repodemo-sweep { position: absolute; top: -10%; height: 120%; width: 30%; left: 0; z-index: 15; pointer-events: none;
+      background: linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.10) 50%, transparent 100%); }
+
+    /* highlights: green glowing rounded rectangles, in screen coordinates */
+    .repodemo-hl { position: absolute; z-index: 10; border-radius: 9px; pointer-events: none;
+      border: 1.5px solid #3dffa2; background: rgba(61,255,162,0.035);
+      box-shadow: 0 0 14px rgba(61,255,162,0.45), 0 0 40px rgba(61,255,162,0.18), inset 0 0 12px rgba(61,255,162,0.10); }
+    .repodemo-ripple { position: absolute; z-index: 11; width: 80px; height: 80px; margin: -40px 0 0 -40px; border-radius: 50%;
+      border: 2px solid #3dffa2; box-shadow: 0 0 16px rgba(61,255,162,0.6); }
+
+    /* scan line (Vibeproof reading): a 2 px green line with a glow and a fading trail above it */
+    .repodemo-scan { position: absolute; z-index: 12; height: 42px; pointer-events: none; }
+    .repodemo-scan::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 40px;
+      background: linear-gradient(to bottom, transparent, rgba(61,255,162,0.16)); }
+    .repodemo-scan::after { content: ""; position: absolute; left: 0; right: 0; top: 40px; height: 2px; background: #3dffa2;
+      box-shadow: 0 0 10px rgba(61,255,162,0.9), 0 0 28px rgba(61,255,162,0.45); }
+
+    /* typing on the typed screen: an input-coloured cover that uncovers one character per step */
+    #repodemo-typecover { position: absolute; z-index: 5; left: 53px; top: 103px; width: 182px; height: 22px; background: #0d0d0d; }
+    #repodemo-caret { position: absolute; left: 0; top: 2px; width: 1.5px; height: 18px; background: #eaf2f7; }
+    #repodemo-labelcover { position: absolute; z-index: 5; left: 16px; top: 155px; width: 166px; height: 19px; background: #070707; }
+
+    /* cursor: drawn white arrow, tip at the element's origin; counter-scaled so it reads ~34 px at any zoom */
+    #repodemo-cursor { position: absolute; left: 0; top: 0; width: 30px; height: 40px; z-index: 18; transform-origin: 0 0; }
+    #repodemo-cursor svg { position: absolute; left: -3px; top: -3px; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6)); }
+
+    /* bottom shade under the captions (no band) */
+    #repodemo-shade { position: absolute; left: 0; top: 640px; width: 1920px; height: 440px; pointer-events: none;
+      background: linear-gradient(to bottom, rgba(5,6,10,0) 0%, rgba(5,6,10,0.6) 36%, rgba(5,6,10,0.92) 58%, rgba(5,6,10,0.95) 100%); }
+
+    /* captions: one line, white Inter 800 48 px, key word green; words rise through a mask */
+    .repodemo-cap { position: absolute; left: 86px; top: 918px; width: 1780px; height: 96px; }
+    .repodemo-line { display: inline-block; overflow: hidden; padding: 6px 10px 20px; white-space: nowrap;
+      color: #ffffff; font-size: 48px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.2;
+      text-shadow: 0 2px 14px rgba(0,0,0,0.75); }
+    .repodemo-w { display: inline-block; position: relative; }
+    .repodemo-key { color: #ffffff; }
+    .repodemo-bar { position: absolute; left: 1px; right: 1px; bottom: -9px; height: 6px; border-radius: 3px; background: #3dffa2;
+      transform-origin: 0 50%; transform: scaleX(0); box-shadow: 0 0 12px rgba(61,255,162,0.7), 0 0 30px rgba(61,255,162,0.3); }
+
+    /* HUD chapter label */
+    #repodemo-hud { position: absolute; left: 96px; top: 60px; height: 30px; white-space: pre;
+      font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 22px; letter-spacing: 0.22em; color: #3dffa2;
+      text-shadow: 0 0 14px rgba(61,255,162,0.45); }
+    #repodemo-hud b { display: inline-block; width: 13px; height: 24px; margin-left: 4px; vertical-align: -4px; background: #3dffa2; }
+
+    /* toast after "Copy fix prompt" */
+    #repodemo-toast { position: absolute; right: 96px; top: 900px; z-index: 30; }
+    #repodemo-toast-box { display: flex; align-items: center; gap: 16px; padding: 18px 30px 18px 22px; border-radius: 14px;
+      background: #0b0f16; border: 1px solid rgba(61,255,162,0.55); color: #eaf2f7; font-size: 30px; font-weight: 700; letter-spacing: -0.01em;
+      box-shadow: 0 0 0 1px rgba(61,255,162,0.25), 0 0 28px rgba(61,255,162,0.30), 0 0 80px rgba(61,255,162,0.12), 0 18px 40px rgba(0,0,0,0.5); }
+    #repodemo-toast-box i { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%;
+      background: #3dffa2; box-shadow: 0 0 16px rgba(61,255,162,0.6); }
+
+    /* out transition: a full-width green scan line, top to bottom, over the last 8 frames */
+    #repodemo-wipe { position: absolute; left: 0; top: 0; width: 1920px; height: 82px; pointer-events: none; z-index: 50; }
+    #repodemo-wipe::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 80px;
+      background: linear-gradient(to bottom, transparent, rgba(61,255,162,0.22)); }
+    #repodemo-wipe::after { content: ""; position: absolute; left: 0; right: 0; top: 80px; height: 2px; background: #3dffa2;
+      box-shadow: 0 0 12px rgba(61,255,162,0.95), 0 0 36px rgba(61,255,162,0.5); }
   </style>
 
   <div id="root" data-composition-id="repodemo" data-width="1920" data-height="1080">
-    <div id="repodemo-scene" class="repodemo-scene" data-layout-allow-overflow>
-      <!-- SHOT A: welcome + typed share one camera (same layout, only the input changes) -->
-      <div id="repodemo-cam-a" class="repodemo-cam" data-layout-allow-overflow>
-        <div id="repodemo-drift-a" class="repodemo-drift" data-layout-allow-overflow>
-          <img id="repodemo-shot-welcome" class="clip repodemo-shot" src="assets/screens/welcome.png" alt="" data-start="0" data-duration="3.5" data-track-index="1" />
-          <img id="repodemo-shot-typed" class="clip repodemo-shot" src="assets/screens/typed.png" alt="" data-start="3.5" data-duration="4" data-track-index="1" />
-        </div>
-      </div>
-      <!-- SHOT B: scanning -->
-      <div id="repodemo-cam-b" class="repodemo-cam" data-layout-allow-overflow>
-        <div id="repodemo-drift-b" class="repodemo-drift" data-layout-allow-overflow>
-          <img id="repodemo-shot-scanning" class="clip repodemo-shot" src="assets/screens/scanning.png" alt="" data-start="7.5" data-duration="5" data-track-index="1" />
-        </div>
-      </div>
-      <!-- SHOT C: report, with the highlight on the 4-finding list (screen coords) -->
-      <div id="repodemo-cam-c" class="repodemo-cam" data-layout-allow-overflow>
-        <div id="repodemo-drift-c" class="repodemo-drift" data-layout-allow-overflow>
-          <img id="repodemo-shot-report" class="clip repodemo-shot" src="assets/screens/report-repo.png" alt="" data-start="12.5" data-duration="5.5" data-track-index="1" />
-          <div id="repodemo-hl-list" class="clip repodemo-hl" style="left: 624px; top: 405px; width: 992px; height: 233px" data-start="13.1" data-duration="4.9" data-track-index="2">
-            <div id="repodemo-hl-list-box" class="repodemo-hl-box">
-              <svg width="992" height="233" viewBox="0 0 992 233"><rect x="1.25" y="1.25" width="989.5" height="230.5" rx="8" ry="8" stroke-width="2.5" /></svg>
+    <div id="repodemo-ground"></div>
+    <div id="repodemo-glow"></div>
+    <div id="repodemo-dust"></div>
+
+    <div id="repodemo-cam">
+      <div id="repodemo-3d">
+        <div id="repodemo-screen">
+          <div id="repodemo-face">
+            <img class="clip repodemo-shot" src="assets/screens/welcome.png" alt="" data-start="0" data-duration="3.5" />
+            <img class="clip repodemo-shot" src="assets/screens/typed.png" alt="" data-start="3.5" data-duration="4" />
+            <img class="clip repodemo-shot" src="assets/screens/scanning.png" alt="" data-start="7.5" data-duration="5" />
+            <img class="clip repodemo-shot" src="assets/screens/report-repo.png" alt="" data-start="12.5" data-duration="5.5" />
+            <img class="clip repodemo-shot" src="assets/screens/finding-repo.png" alt="" data-start="18" data-duration="6" />
+            <img class="clip repodemo-shot" src="assets/screens/prompt.png" alt="" data-start="24" data-duration="8" />
+
+            <!-- typing the folder path into the input (typed.png, 3.5-7.5) -->
+            <div id="repodemo-typecover" class="clip" data-start="3.5" data-duration="4"><div id="repodemo-caret"></div></div>
+            <div id="repodemo-labelcover" class="clip" data-start="3.5" data-duration="4"></div>
+
+            <!-- highlights (screen coordinates) -->
+            <div id="repodemo-hl-scan" class="clip repodemo-hl" data-start="6.5" data-duration="1.5" style="left: 211px; top: 140px; width: 96px; height: 50px"></div>
+            <div id="repodemo-hl-stages" class="clip repodemo-hl" data-start="10.5" data-duration="2" style="left: 856px; top: 246px; width: 528px; height: 128px"></div>
+            <div id="repodemo-hl-list" class="clip repodemo-hl" data-start="15" data-duration="3" style="left: 622px; top: 378px; width: 996px; height: 262px"></div>
+            <div id="repodemo-hl-open" class="clip repodemo-hl" data-start="19.5" data-duration="4.5" style="left: 656px; top: 420px; width: 870px; height: 78px"></div>
+            <div id="repodemo-hl-prompt" class="clip repodemo-hl" data-start="25.5" data-duration="6.5" style="left: 674px; top: 352px; width: 836px; height: 356px"></div>
+
+            <div id="repodemo-ripple-1" class="clip repodemo-ripple" data-start="7.5" data-duration="0.7" style="left: 259px; top: 165px"></div>
+            <div id="repodemo-ripple-2" class="clip repodemo-ripple" data-start="28" data-duration="0.7" style="left: 746px; top: 333px"></div>
+
+            <div id="repodemo-scan-card" class="clip repodemo-scan" data-start="9.5" data-duration="1.5" style="left: 841px; width: 558px; top: 80px"></div>
+
+            <div id="repodemo-cursor" class="clip" data-start="3.5" data-duration="27">
+              <svg width="30" height="40" viewBox="-3 -3 30 40"><path d="M0 0 L0 30 L7.5 23 L12 34 L17.2 31.8 L12.6 21.2 L22.4 21.2 Z" fill="#ffffff" stroke="#000000" stroke-width="3" stroke-linejoin="round" paint-order="stroke" /></svg>
+            </div>
+
+            <div id="repodemo-sweep" class="clip" data-start="0" data-duration="1.2"></div>
+          </div>
+          <div id="repodemo-refl">
+            <div id="repodemo-refl-in">
+              <img class="clip repodemo-shot" src="assets/screens/welcome.png" alt="" data-start="0" data-duration="3.5" />
+              <img class="clip repodemo-shot" src="assets/screens/typed.png" alt="" data-start="3.5" data-duration="4" />
+              <img class="clip repodemo-shot" src="assets/screens/scanning.png" alt="" data-start="7.5" data-duration="5" />
+              <img class="clip repodemo-shot" src="assets/screens/report-repo.png" alt="" data-start="12.5" data-duration="5.5" />
+              <img class="clip repodemo-shot" src="assets/screens/finding-repo.png" alt="" data-start="18" data-duration="6" />
+              <img class="clip repodemo-shot" src="assets/screens/prompt.png" alt="" data-start="24" data-duration="8" />
             </div>
           </div>
         </div>
       </div>
-      <!-- SHOT D: the open finding -->
-      <div id="repodemo-cam-d" class="repodemo-cam" data-layout-allow-overflow>
-        <div id="repodemo-drift-d" class="repodemo-drift" data-layout-allow-overflow>
-          <img id="repodemo-shot-finding" class="clip repodemo-shot" src="assets/screens/finding-repo.png" alt="" data-start="18" data-duration="6" data-track-index="1" />
-        </div>
-      </div>
-      <!-- SHOT E: the prompt preview -->
-      <div id="repodemo-cam-e" class="repodemo-cam" data-layout-allow-overflow>
-        <div id="repodemo-drift-e" class="repodemo-drift" data-layout-allow-overflow>
-          <img id="repodemo-shot-prompt" class="clip repodemo-shot" src="assets/screens/prompt.png" alt="" data-start="24" data-duration="8" data-track-index="1" />
-        </div>
-      </div>
+    </div>
 
-      <!-- CURSORS (frame coords, computed from the camera): tip of the arrow is the wrapper's origin -->
-      <div id="repodemo-cursor-1" class="clip repodemo-cursor" data-start="3.8" data-duration="3.7" data-track-index="3">
-        <div id="repodemo-arrow-1" class="repodemo-arrow">
-          <svg width="30" height="40" viewBox="-3 -3 30 40"><path d="M0 0 L0 30 L7.5 23 L12 34 L17.2 31.8 L12.6 21.2 L22.4 21.2 Z" fill="#ffffff" stroke="#000000" stroke-width="4" stroke-linejoin="round" paint-order="stroke" /></svg>
-        </div>
-      </div>
-      <div id="repodemo-cursor-2" class="clip repodemo-cursor" data-start="16.8" data-duration="1.2" data-track-index="3">
-        <div id="repodemo-arrow-2" class="repodemo-arrow">
-          <svg width="30" height="40" viewBox="-3 -3 30 40"><path d="M0 0 L0 30 L7.5 23 L12 34 L17.2 31.8 L12.6 21.2 L22.4 21.2 Z" fill="#ffffff" stroke="#000000" stroke-width="4" stroke-linejoin="round" paint-order="stroke" /></svg>
-        </div>
-      </div>
-      <div id="repodemo-cursor-3" class="clip repodemo-cursor" data-start="22.3" data-duration="1.7" data-track-index="3">
-        <div id="repodemo-arrow-3" class="repodemo-arrow">
-          <svg width="30" height="40" viewBox="-3 -3 30 40"><path d="M0 0 L0 30 L7.5 23 L12 34 L17.2 31.8 L12.6 21.2 L22.4 21.2 Z" fill="#ffffff" stroke="#000000" stroke-width="4" stroke-linejoin="round" paint-order="stroke" /></svg>
-        </div>
-      </div>
-      <div id="repodemo-cursor-4" class="clip repodemo-cursor" data-start="26.6" data-duration="5.4" data-track-index="3">
-        <div id="repodemo-arrow-4" class="repodemo-arrow">
-          <svg width="30" height="40" viewBox="-3 -3 30 40"><path d="M0 0 L0 30 L7.5 23 L12 34 L17.2 31.8 L12.6 21.2 L22.4 21.2 Z" fill="#ffffff" stroke="#000000" stroke-width="4" stroke-linejoin="round" paint-order="stroke" /></svg>
-        </div>
-      </div>
+    <div id="repodemo-vignette"></div>
 
-      <!-- TOAST: mimics the app's own "Prompt copied" toast -->
-      <div id="repodemo-toast" class="clip repodemo-toast-clip" data-start="28.1" data-duration="3.9" data-track-index="4" data-hold>
-        <div id="repodemo-toast-box" class="repodemo-toast">
-          <svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 12.5 L9.5 18 L20 6.5" fill="none" stroke="#0a0a0a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+    <div id="repodemo-top">
+      <div id="repodemo-shade"></div>
+      <div id="repodemo-caps"></div>
+
+      <div id="repodemo-toast" class="clip" data-start="28" data-duration="4">
+        <div id="repodemo-toast-box">
+          <i><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4.5 12.5 L9.8 17.5 L19.5 6.8" fill="none" stroke="#05060a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" /></svg></i>
           <span>Prompt copied</span>
         </div>
       </div>
-    </div>
 
-    <!-- CAPTION BAND (static: the scene camera moves behind it) -->
-    <div id="repodemo-band" class="repodemo-band"></div>
-    <div id="repodemo-cap-1" class="clip repodemo-cap" data-start="0" data-duration="3.5" data-track-index="5" data-layout-allow-caption-zone>
-      <span id="repodemo-cap-1-t" class="repodemo-line"><span class="repodemo-w">Vibeproof</span> <span class="repodemo-w">runs</span> <span class="repodemo-w">on</span> <span class="repodemo-w">your</span> <span class="repodemo-w"><span id="repodemo-mk-1-bar" class="repodemo-bar"></span><span id="repodemo-mk-1-t" class="repodemo-mt">computer</span></span><span class="repodemo-w">,</span> <span class="repodemo-w">in</span> <span class="repodemo-w">the</span> <span class="repodemo-w">browser</span></span>
+      <div id="repodemo-hud" class="clip" data-start="0" data-duration="3.5"></div>
     </div>
-    <div id="repodemo-cap-2" class="clip repodemo-cap" data-start="3.5" data-duration="4" data-track-index="5" data-layout-allow-caption-zone>
-      <span id="repodemo-cap-2-t" class="repodemo-line"><span class="repodemo-w">Paste</span> <span class="repodemo-w">a</span> <span class="repodemo-w"><span id="repodemo-mk-2-bar" class="repodemo-bar"></span><span id="repodemo-mk-2-t" class="repodemo-mt">repo</span></span> <span class="repodemo-w">link,</span> <span class="repodemo-w">a</span> <span class="repodemo-w">folder</span> <span class="repodemo-w">or</span> <span class="repodemo-w">a</span> <span class="repodemo-w">website</span></span>
-    </div>
-    <div id="repodemo-cap-3" class="clip repodemo-cap" data-start="7.5" data-duration="5" data-track-index="5" data-layout-allow-caption-zone>
-      <span id="repodemo-cap-3-t" class="repodemo-line"><span class="repodemo-w">It</span> <span class="repodemo-w">shows</span> <span class="repodemo-w">each</span> <span class="repodemo-w"><span id="repodemo-mk-3-bar" class="repodemo-bar"></span><span id="repodemo-mk-3-t" class="repodemo-mt">stage</span></span> <span class="repodemo-w">as</span> <span class="repodemo-w">it</span> <span class="repodemo-w">runs</span></span>
-    </div>
-    <div id="repodemo-cap-4" class="clip repodemo-cap" data-start="12.5" data-duration="5.5" data-track-index="5" data-layout-allow-caption-zone>
-      <span id="repodemo-cap-4-t" class="repodemo-line"><span class="repodemo-w">Every</span> <span class="repodemo-w">finding,</span> <span class="repodemo-w">grouped</span> <span class="repodemo-w">by</span> <span class="repodemo-w"><span id="repodemo-mk-4-bar" class="repodemo-bar"></span><span id="repodemo-mk-4-t" class="repodemo-mt">severity</span></span></span>
-    </div>
-    <div id="repodemo-cap-5" class="clip repodemo-cap" data-start="18" data-duration="6" data-track-index="5" data-layout-allow-caption-zone>
-      <span id="repodemo-cap-5-t" class="repodemo-line"><span class="repodemo-w">Why</span> <span class="repodemo-w">it</span> <span class="repodemo-w">matters,</span> <span class="repodemo-w">the</span> <span class="repodemo-w">evidence,</span> <span class="repodemo-w">how</span> <span class="repodemo-w">to</span> <span class="repodemo-w"><span id="repodemo-mk-5-bar" class="repodemo-bar"></span><span id="repodemo-mk-5-t" class="repodemo-mt">fix</span></span> <span class="repodemo-w">it</span></span>
-    </div>
-    <div id="repodemo-cap-6" class="clip repodemo-cap" data-start="24" data-duration="8" data-track-index="5" data-layout-allow-caption-zone>
-      <span id="repodemo-cap-6-t" class="repodemo-line"><span class="repodemo-w">A</span> <span class="repodemo-w"><span id="repodemo-mk-6-bar" class="repodemo-bar"></span><span id="repodemo-mk-6-t" class="repodemo-mt">prompt</span></span> <span class="repodemo-w">to</span> <span class="repodemo-w">paste</span> <span class="repodemo-w">into</span> <span class="repodemo-w">your</span> <span class="repodemo-w">coding</span> <span class="repodemo-w">agent</span></span>
-    </div>
+    <div id="repodemo-wipe" class="clip" data-start="31.7333" data-duration="0.2667"></div>
   </div>
 
   <script>
     (function () {
       window.__timelines = window.__timelines || {};
-      const F = 1 / 30; // one frame
+      const ID = "repodemo";
+      const DUR = 32;
+      const FILM_START = 100;
+      const F = 1 / 30;
       const tl = gsap.timeline({ paused: true });
-      const sineIO = gsap.parseEase("sine.inOut");
+      const $ = (s) => document.getElementById(ID + "-" + s);
 
-      // ---------------------------------------------------------------- helpers
-      // Each shot: camera (x, y, scale, origin 0 0) > drift (scale 1 -> 1.03 around o, sine.inOut over the shot).
-      // A screen point P (1920x1080 layout of the screenshot) lands in the frame at
-      // cam.s * (o + d * (P - o)) + (cam.x, cam.y). The cursors use this so they sit on the real buttons.
-      const DRIFT = 0.03;
-      const G = {
-        a: { t0: 0, t1: 7.5, o: [258, 164] }, // Scan button
-        b: { t0: 7.5, t1: 12.5, o: [1120, 260] }, // progress card
-        c: { t0: 12.5, t1: 18, o: [780, 437] }, // first finding (click target)
-        d: { t0: 18, t1: 24, o: [877, 677] }, // "Preview" (click target)
-        e: { t0: 24, t1: 32, o: [752, 335] }, // "Copy fix prompt" (click target)
-      };
-      function drift(g, t) {
-        const p = Math.min(1, Math.max(0, (t - g.t0) / (g.t1 - g.t0)));
-        return 1 + DRIFT * sineIO(p);
+      // ---------------------------------------------------------------- world: dust drifting with film time (shared seed)
+      (function world(tl, id, FILM_START, DUR) {
+        let s = 20261122;
+        const rnd = () => { s |= 0; s = (s + 0x6d2b79f5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+        const box = document.getElementById(id + "-dust");
+        const dots = [];
+        for (let k = 0; k < 54; k++) {
+          const d = { x: rnd() * 1920, y: rnd() * 1180, z: 0.3 + rnd() * 0.7, ph: rnd() * 6.283 };
+          const el = document.createElement("i");
+          const size = 1 + d.z * 2;
+          el.style.width = el.style.height = size + "px";
+          el.style.opacity = (0.12 + d.z * 0.23).toFixed(3);
+          box.appendChild(el); d.el = el; dots.push(d);
+        }
+        const floor = document.getElementById(id + "-floor");
+        const draw = (T) => {
+          if (floor) floor.style.backgroundPosition = "0px " + ((T * 40) % 80) + "px";
+          for (const d of dots) {
+            const y = ((d.y - T * 14 * d.z) % 1180 + 1180) % 1180 - 50;
+            const x = d.x + Math.sin(T * 0.35 + d.ph) * 18 * d.z;
+            d.el.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px)";
+          }
+        };
+        const p = { t: 0 };
+        tl.fromTo(p, { t: 0 }, { t: DUR, duration: DUR, ease: "none", onUpdate: () => draw(FILM_START + p.t) }, 0);
+        draw(FILM_START);
+      })(tl, "repodemo", FILM_START, DUR);
+
+      // ---------------------------------------------------------------- keyframe tracks (pure functions of time)
+      // A track is a list of segments built in time order; each holds the absolute end state.
+      function track(init) {
+        const tr = { init: Object.assign({}, init), keys: [], last: Object.assign({}, init) };
+        tr.to = function (t, d, ease, to) {
+          const end = Object.assign({}, tr.last, to);
+          tr.keys.push({ t: t, d: d, e: gsap.parseEase(ease || "power2.inOut"), from: tr.last, end: end });
+          tr.last = end;
+          return tr;
+        };
+        tr.jump = function (t, delta) { // instantaneous relative change
+          const end = Object.assign({}, tr.last);
+          Object.keys(delta).forEach((k) => (end[k] += delta[k]));
+          tr.keys.push({ t: t, d: 0, e: null, from: tr.last, end: end });
+          tr.last = end;
+          return tr;
+        };
+        tr.at = function (T) {
+          let st = tr.init;
+          for (const k of tr.keys) {
+            if (T >= k.t + k.d) { st = k.end; continue; }
+            if (T > k.t) {
+              const p = k.e((T - k.t) / k.d);
+              const o = {};
+              Object.keys(k.end).forEach((n) => {
+                const a = k.from[n], b = k.end[n];
+                o[n] = n === "s" ? a * Math.pow(b / a, p) : a + (b - a) * p;
+              });
+              return o;
+            }
+            break;
+          }
+          return st;
+        };
+        return tr;
       }
-      function frameOf(g, cam, P, t) {
-        const k = drift(g, t);
-        return [cam.s * (g.o[0] + k * (P[0] - g.o[0])) + cam.x, cam.s * (g.o[1] + k * (P[1] - g.o[1])) + cam.y];
+
+      // Camera on the screen: screen point (fx, fy) lands on frame point (qx, qy) at scale s, the screen turned
+      // by ry/rx degrees around that point (perspective 2000 px). Flat when ry = rx = 0, so text is sharp.
+      const REST = { fx: 960, fy: 540, qx: 960, qy: 528, s: 0.82, ry: -10, rx: 6 };
+      const cam = track(REST);
+      // the cursor, in screen coordinates; k = click squeeze
+      const cur = track({ x: 900, y: 560, k: 1 });
+
+      const screen = $("screen");
+      const cursorEl = $("cursor");
+      function apply(T) {
+        const c = cam.at(T);
+        const rot = Math.abs(c.ry) < 0.001 && Math.abs(c.rx) < 0.001 ? "" : " rotateY(" + c.ry.toFixed(3) + "deg) rotateX(" + c.rx.toFixed(3) + "deg)";
+        screen.style.transform = "translate(" + c.qx.toFixed(2) + "px," + c.qy.toFixed(2) + "px) scale(" + c.s.toFixed(4) + ")" + rot +
+          " translate(" + (-c.fx).toFixed(2) + "px," + (-c.fy).toFixed(2) + "px)";
+        const m = cur.at(T);
+        cursorEl.style.transform = "translate(" + m.x.toFixed(2) + "px," + m.y.toFixed(2) + "px) scale(" + (m.k / c.s).toFixed(4) + ")";
       }
-      // camera state that starts "slightly large" around a click point and settles (match cut on a click)
-      function settleFrom(P) {
-        return { x: P[0] * (1 - 1.04), y: P[1] * (1 - 1.04), s: 1.04 };
+
+      // ---------------------------------------------------------------- the story (scene-local seconds, on the beat grid)
+      // 0.0 welcome: the whole app on its floating screen, slowly turning toward camera
+      cam.to(0, 3.5, "sine.inOut", { ry: -6, rx: 4, s: 0.84 });
+      // 3.5 typed: turn flat and punch in on the sidebar input
+      cam.to(3.5, 1.0, "power2.inOut", { fx: 160, fy: 128, qx: 960, qy: 430, s: 2.3, ry: 0, rx: 0 });
+      cam.to(5.5, 1.0, "power2.inOut", { fy: 140, qy: 440, s: 2.4 });        // re-target toward Scan
+      // 7.5 click Scan -> scanning: swoop out (tilted) and in onto the progress card
+      cam.to(7.5, 1.0, "power2.inOut", { fx: 900, fy: 420, qx: 960, qy: 520, s: 1.05, ry: -7, rx: 4 });
+      cam.to(8.5, 1.0, "power2.inOut", { fx: 1120, fy: 262, qx: 960, qy: 440, s: 2.0, ry: 0, rx: 0 });
+      cam.to(10.5, 1.0, "power2.inOut", { fy: 290, qy: 450, s: 2.1 });      // onto the stages
+      // 12.5 report: pull back (tilted), then flat onto the findings, grouped by severity
+      cam.to(12.5, 1.0, "power2.inOut", { fx: 1000, fy: 500, qx: 960, qy: 516, s: 0.92, ry: -8, rx: 5 });
+      cam.to(14.0, 1.0, "power2.inOut", { fx: 1120, fy: 470, qx: 960, qy: 430, s: 1.62, ry: 0, rx: 0 });
+      cam.to(16.0, 1.0, "power2.inOut", { fx: 1090, fy: 470, s: 1.68 });   // lean toward the first finding
+      // 18.0 the first finding opens (its row moves up 37 px on the real screen: keep it still)
+      cam.jump(18.0, { fy: -37 });
+      cam.to(18.5, 1.0, "power2.inOut", { fx: 1092, fy: 540, qx: 960, qy: 450, s: 1.9 });
+      cam.to(21.5, 1.0, "power2.inOut", { fy: 590, qy: 460, s: 1.95 });    // down to how to fix and its buttons
+      // 24.0 the prompt preview opens (the page scrolls 342 px: keep the buttons still), then read the prompt
+      cam.jump(24.0, { fy: -342 });
+      cam.to(24.5, 1.0, "power2.inOut", { fx: 1092, fy: 512, qx: 960, qy: 440, s: 1.9 });
+      cam.to(29.0, 1.0, "sine.inOut", { fy: 520, s: 1.96 });
+      // 30.0 back to the floating screen for the cut
+      cam.to(30.0, 1.5, "power2.inOut", { fx: 960, fy: 540, qx: 960, qy: 528, s: 0.82, ry: -10, rx: 6 });
+
+      // cursor (screen coordinates): to the input, then to Scan, click at 7.5 (sound)
+      cur.to(3.5, 0.5, "power2.out", { x: 178, y: 122 });                      // arrives on the input as it focuses
+      cur.to(6.0, 0.5, "power2.inOut", { x: 262, y: 170 });                    // onto Scan
+      cur.to(7.5 - 2 * F, 2 * F, "power2.out", { k: 0.85 });
+      cur.to(7.5, 2 * F, "power2.out", { k: 1 });                               // click: 7.5 s exactly
+      cur.to(9.0, 0.5, "power2.inOut", { x: 1250, y: 420 });                   // out of the way of the card
+      // report: onto the first finding, click opens it at 18.0
+      cur.to(16.5, 0.5, "power2.inOut", { x: 790, y: 440 });
+      cur.to(18.0 - 2 * F, 2 * F, "power2.out", { k: 0.85 });
+      cur.to(18.0, 2 * F, "power2.out", { k: 1 });
+      cur.jump(18.0, { y: -37 });
+      cur.to(19.0, 0.5, "power2.inOut", { x: 1540, y: 470 });                  // aside while we read
+      cur.to(23.0, 0.5, "power2.inOut", { x: 868, y: 680 });                   // onto "Preview"
+      cur.to(24.0 - 2 * F, 2 * F, "power2.out", { k: 0.85 });
+      cur.to(24.0, 2 * F, "power2.out", { k: 1 });
+      cur.jump(24.0, { y: -342 });
+      cur.to(25.0, 0.5, "power2.inOut", { x: 1540, y: 300 });                  // aside while the prompt is read
+      cur.to(27.0, 0.5, "power2.inOut", { x: 752, y: 338 });                   // onto "Copy fix prompt"
+      cur.to(28.0 - 2 * F, 2 * F, "power2.out", { k: 0.85 });
+      cur.to(28.0, 2 * F, "power2.out", { k: 1 });                              // click: 28.0 s exactly
+      tl.fromTo(cursorEl, { opacity: 0 }, { opacity: 1, duration: 6 * F, ease: "none" }, 3.5);
+      tl.to(cursorEl, { opacity: 0, duration: 6 * F, ease: "none" }, 9.0);
+      tl.to(cursorEl, { opacity: 1, duration: 6 * F, ease: "none" }, 16.5);
+      tl.to(cursorEl, { opacity: 0, duration: 6 * F, ease: "none" }, 19.0);
+      tl.to(cursorEl, { opacity: 1, duration: 6 * F, ease: "none" }, 23.0);
+      tl.to(cursorEl, { opacity: 0, duration: 6 * F, ease: "none" }, 25.0);
+      tl.to(cursorEl, { opacity: 1, duration: 6 * F, ease: "none" }, 27.0);
+      tl.to(cursorEl, { opacity: 0, duration: 8 * F, ease: "none" }, 30.0);
+
+      const drive = { t: 0 };
+      tl.fromTo(drive, { t: 0 }, { t: DUR, duration: DUR, ease: "none", onUpdate: () => apply(drive.t) }, 0);
+      apply(0);
+
+      // ---------------------------------------------------------------- screen details
+      // light sweep as the screen appears
+      tl.fromTo($("sweep"), { xPercent: -110 }, { xPercent: 360, duration: 18 * F, ease: "power2.inOut" }, 0.3);
+      // typing "~/projects/taskflow" (19 characters) 4.0 -> 5.0, then the "Local folder" hint appears
+      const NCH = 19, CW = 123 / NCH;
+      const typing = { n: 0 };
+      const cover = $("typecover"), caret = $("caret");
+      tl.fromTo(typing, { n: 0 }, { n: NCH, duration: 1.0, ease: "steps(" + NCH + ")", onUpdate: () => {
+        cover.style.left = (53 + typing.n * CW).toFixed(2) + "px";
+        cover.style.width = (182 - typing.n * CW).toFixed(2) + "px";
+      } }, 4.0);
+      tl.fromTo(caret, { opacity: 1 }, { opacity: 0, duration: 0.25, ease: "steps(1)", repeat: 7, yoyo: true }, 5.0);
+      tl.fromTo($("labelcover"), { opacity: 1 }, { opacity: 0, duration: 8 * F, ease: "power2.out" }, 5.5);
+
+      // highlights: a soft slam in (scale 1.06 -> 1, expo.out) and a glow pulse on later beats
+      function hlIn(sel, at) {
+        tl.fromTo($(sel), { opacity: 0, scale: 1.06 }, { opacity: 1, scale: 1, duration: 12 * F, ease: "expo.out" }, at);
       }
-      const seen = {};
-      function camTo(sel, at, from, to, frames, ease) {
-        const first = !seen[sel];
-        seen[sel] = true;
-        tl.fromTo(sel, { x: from.x, y: from.y, scale: from.s }, { x: to.x, y: to.y, scale: to.s, duration: frames * F, ease: ease, immediateRender: first }, at);
+      function hlOut(sel, at) {
+        tl.to($(sel), { opacity: 0, duration: 8 * F, ease: "power3.in" }, at - 8 * F);
       }
-      Object.keys(G).forEach(function (k) {
-        const g = G[k];
-        const o = g.o[0] + "px " + g.o[1] + "px";
-        tl.fromTo("#repodemo-drift-" + k, { scale: 1, transformOrigin: o }, { scale: 1 + DRIFT, transformOrigin: o, duration: g.t1 - g.t0, ease: "sine.inOut" }, g.t0);
+      function hlMove(sel, at, box) {
+        tl.to($(sel), { left: box[0], top: box[1], width: box[2], height: box[3], duration: 14 * F, ease: "power3.inOut" }, at);
+      }
+      hlIn("hl-scan", 6.5);
+      hlOut("hl-scan", 8.0);
+      hlIn("hl-stages", 10.5);
+      hlOut("hl-stages", 12.5);
+      hlIn("hl-list", 15.0);
+      hlOut("hl-list", 18.0);
+      // the open finding: why it matters -> the evidence -> how to fix
+      hlIn("hl-open", 19.5);
+      hlMove("hl-open", 20.5, [656, 504, 870, 78]);
+      hlMove("hl-open", 21.5, [656, 584, 870, 132]);
+      hlOut("hl-open", 24.0);
+      // the prompt, then the "Copy fix prompt" button at the click
+      hlIn("hl-prompt", 25.5);
+      hlMove("hl-prompt", 28.0, [676, 318, 140, 32]);
+      hlOut("hl-prompt", 31.0);
+      // click ripples
+      ["ripple-1", "ripple-2"].forEach((r) => {
+        tl.fromTo($(r), { scale: 0.2, opacity: 1 }, { scale: 1.6, opacity: 0, duration: 20 * F, ease: "power2.out" }, r === "ripple-1" ? 7.5 : 28.0);
       });
+      // Vibeproof reading the scan card: the scan line sweeps down it
+      tl.fromTo($("scan-card"), { y: 0 }, { y: 276, duration: 1.5, ease: "sine.inOut" }, 9.5);
+      // toast "Prompt copied" slides in right after the click
+      tl.fromTo($("toast-box"), { x: 60, opacity: 0, scale: 0.96 }, { x: 0, opacity: 1, scale: 1, duration: 16 * F, ease: "expo.out" }, 28.0 + 2 * F);
 
-      // velocity-matched cuts on the scene camera: out = -420 px in 10 f power4.in, in = from +420 px in 12 f power4.out
-      function whipIn(t) {
-        tl.fromTo("#repodemo-scene", { x: 420 }, { x: 0, duration: 18 * F, ease: "expo.out", immediateRender: t === 0 }, t);
-      }
-      function whipOut(t) {
-        tl.fromTo("#repodemo-scene", { x: 0 }, { x: -420, duration: 10 * F, ease: "power3.in", immediateRender: false }, t - 10 * F);
-      }
+      // ---------------------------------------------------------------- HUD chapter label
+      const HUD = "06 / DEMO: A REPOSITORY";
+      const hud = $("hud");
+      const hp = { t: 0 };
+      const drawHud = () => {
+        const fr = Math.floor(hp.t * 30 + 1e-6);
+        const n = Math.min(HUD.length, fr);
+        const on = hp.t < 2 && Math.floor(fr / 15) % 2 === 0;
+        hud.innerHTML = HUD.slice(0, n) + (on ? "<b></b>" : "");
+      };
+      tl.fromTo(hp, { t: 0 }, { t: 3.5, duration: 3.5, ease: "none", onUpdate: drawHud }, 0);
+      drawHud();
+      tl.to(hud, { opacity: 0, duration: 10 * F, ease: "power3.in" }, 3.0);
 
-      // slam: scale 1.45 -> 1, power4.out, 9 f
-      function slam(sel, at) {
-        tl.fromTo(sel, { scale: 1.45, opacity: 0 }, { scale: 1, opacity: 1, duration: 9 * F, ease: "power4.out" }, at);
-      }
-
-      // cursor: move power2.inOut, click = scale 0.85 for 4 frames
-      function arrive(sel, at, from, to, frames) {
-        tl.fromTo(sel, { x: from[0], y: from[1], scale: 1 }, { x: to[0], y: to[1], scale: 1, duration: frames * F, ease: "power2.inOut" }, at);
-        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 6 * F, ease: "none" }, at);
-      }
-      function move(sel, at, from, to, frames, ease) {
-        tl.fromTo(sel, { x: from[0], y: from[1] }, { x: to[0], y: to[1], duration: frames * F, ease: ease || "power2.inOut", immediateRender: false }, at);
-      }
-      function click(sel, at) {
-        tl.fromTo(sel, { scale: 1 }, { scale: 0.85, duration: 2 * F, ease: "power2.out", immediateRender: false }, at);
-        tl.fromTo(sel, { scale: 0.85 }, { scale: 1, duration: 2 * F, ease: "power2.out", immediateRender: false }, at + 2 * F);
-      }
-
-      // captions: words rise from the mask (power4.out 14 f, 2 f stagger), one key word gets the white marker,
-      // the line leaves upward through the mask (power2.in 8 f, 1 f stagger) just before the next caption
-      function caption(n, t0, t1) {
-        const sel = "#repodemo-cap-" + n + "-t .repodemo-w";
-        const nW = document.querySelectorAll(sel).length || 8;
-        tl.fromTo(sel, { yPercent: 110 }, { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, t0);
-        const mk = t0 + ((nW - 1) * 2 + 10) * F;
-        tl.fromTo("#repodemo-mk-" + n + "-bar", { scaleX: 0 }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, mk);
-        tl.fromTo("#repodemo-mk-" + n + "-t", { color: "#ffffff" }, { color: "#0a0a0a", duration: 6 * F, ease: "power2.out" }, mk + 2 * F);
-        if (t1 !== null) {
-          tl.fromTo(sel, { yPercent: 0 }, { yPercent: -110, duration: 8 * F, ease: "power2.in", stagger: 1 * F, immediateRender: false }, t1 - (8 + (nW - 1) + 1) * F);
+      // ---------------------------------------------------------------- captions
+      const capBox = $("caps");
+      function caption(n, t0, t1, words, key) {
+        const wrap = document.createElement("div");
+        wrap.className = "clip repodemo-cap";
+        wrap.id = ID + "-cap-" + n;
+        wrap.setAttribute("data-start", String(t0));
+        wrap.setAttribute("data-duration", String(t1 - t0));
+        const line = document.createElement("div");
+        line.className = "repodemo-line";
+        words.split(" ").forEach((w, i) => {
+          if (i) line.appendChild(document.createTextNode(" "));
+          const sp = document.createElement("span");
+          sp.className = "repodemo-w";
+          const bare = w.replace(/[,.]$/, "");
+          if (bare === key) {
+            const k = document.createElement("span");
+            k.className = "repodemo-key";
+            k.textContent = bare;
+            const bar = document.createElement("span");
+            bar.className = "repodemo-bar";
+            sp.appendChild(k);
+            sp.appendChild(bar);
+            if (w !== bare) sp.appendChild(document.createTextNode(w.slice(bare.length)));
+          } else sp.textContent = w;
+          line.appendChild(sp);
+        });
+        wrap.appendChild(line);
+        capBox.appendChild(wrap);
+        const ws = line.querySelectorAll(".repodemo-w");
+        tl.fromTo(ws, { yPercent: 135 }, { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, t0);
+        const mk = t0 + 0.5;
+        const kEl = line.querySelector(".repodemo-key");
+        tl.fromTo(kEl, { color: "#ffffff", textShadow: "0 2px 14px rgba(0,0,0,0.75)" },
+          { color: "#3dffa2", textShadow: "0 0 18px rgba(61,255,162,0.6)", duration: 8 * F, ease: "power2.out" }, mk);
+        tl.fromTo(line.querySelector(".repodemo-bar"), { scaleX: 0 }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, mk);
+        if (t1 < DUR) {
+          tl.fromTo(ws, { yPercent: 0 }, { yPercent: -135, duration: 8 * F, ease: "power2.in", stagger: 1 * F, immediateRender: false },
+            t1 - (8 + ws.length - 1) * F);
         }
       }
-      caption(1, 0, 3.5);
-      caption(2, 3.5, 7.5);
-      caption(3, 7.5, 12.5);
-      caption(4, 12.5, 18);
-      caption(5, 18, 24);
-      caption(6, 24, null);
+      caption(1, 0, 3.5, "Vibeproof runs on your computer, in the browser", "computer");
+      caption(2, 3.5, 7.5, "Paste a repo link, a folder or a website", "repo");
+      caption(3, 7.5, 12.5, "It shows each stage as it runs", "stage");
+      caption(4, 12.5, 18, "Every finding, grouped by severity", "severity");
+      caption(5, 18, 24, "Why it matters, the evidence, how to fix it", "fix");
+      caption(6, 24, 32, "A prompt to paste into your coding agent", "prompt");
 
-      // ---------------------------------------------------------------- 0.0 welcome -> 3.5 typed (shot A)
-      whipIn(0);
-      const A0 = { x: 0, y: 0, s: 1 };
-      const A1 = { x: 0, y: 0, s: 1.15 }; // drift toward the sidebar
-      const A2 = { x: 0, y: 0, s: 1.45 }; // re-target onto the input as the link is in
-      camTo("#repodemo-cam-a", 1.6, A0, A1, 20, "power2.inOut");
-      camTo("#repodemo-cam-a", 3.5, A1, A2, 20, "power2.inOut");
-      // cursor to the input, then to Scan; click 7.367, cut 7.5
-      const pInput = frameOf(G.a, A2, [190, 116], 4.5);
-      const pScan = frameOf(G.a, A2, [252, 168], 7.2);
-      arrive("#repodemo-arrow-1", 3.8, [760, 640], pInput, 21);
-      move("#repodemo-arrow-1", 6.6, pInput, pScan, 18);
-      click("#repodemo-arrow-1", 7.5 - 4 * F);
+      // ---------------------------------------------------------------- v7 transitions
+      const camEl = [$("cam"), $("top")];
+      // in: scale 0.94 -> 1 (expo.out, 16 f), content fades in over 6 f
+      tl.fromTo(camEl, { scale: 0.94 }, { scale: 1, duration: 16 * F, ease: "expo.out" }, 0);
+      tl.fromTo(camEl, { opacity: 0 }, { opacity: 1, duration: 6 * F, ease: "none" }, 0);
+      // out: scale 1 -> 1.15 over the last 12 f, fade over the last 6 f, green scan line over the last 8 f
+      tl.fromTo(camEl, { scale: 1 }, { scale: 1.15, duration: 12 * F, ease: "power2.in", immediateRender: false }, DUR - 12 * F);
+      tl.fromTo(camEl, { opacity: 1 }, { opacity: 0, duration: 6 * F, ease: "power2.in", immediateRender: false }, DUR - 6 * F);
+      tl.fromTo($("wipe"), { y: -82 }, { y: 1080, duration: 8 * F, ease: "power1.in" }, DUR - 8 * F);
 
-      // ---------------------------------------------------------------- 7.5 scanning (shot B): match cut on the click
-      const B0 = settleFrom([258, 164]);
-      const B1 = { x: 0, y: 0, s: 1 };
-      const B2 = { x: -832, y: 0, s: 1.6 }; // punch-in 1.0 -> 1.6 on the progress card
-      const B3 = { x: -792, y: -80, s: 1.6 }; // re-target to the running stage
-      camTo("#repodemo-cam-b", 7.5, B0, B1, 12, "power4.out");
-      camTo("#repodemo-cam-b", 7.9, B1, B2, 60, "sine.inOut");
-      camTo("#repodemo-cam-b", 10.5, B2, B3, 20, "power2.inOut");
-      whipOut(12.5);
-
-      // ---------------------------------------------------------------- 12.5 report (shot C): velocity-matched cut
-      whipIn(12.5);
-      const C0 = { x: 0, y: 0, s: 1 };
-      const C1 = { x: -384, y: -40, s: 1.2 }; // toward the findings list
-      const C2 = { x: -330, y: -10, s: 1.2 }; // toward the first finding
-      camTo("#repodemo-cam-c", 12.9, C0, C1, 20, "power2.inOut");
-      slam("#repodemo-hl-list-box", 13.1);
-      camTo("#repodemo-cam-c", 15.2, C1, C2, 20, "power2.inOut");
-      // cursor clicks the first finding (17.867), which opens it: cut 18.0
-      const pFinding = frameOf(G.c, C2, [780, 437], 17.5);
-      arrive("#repodemo-arrow-2", 16.8, [pFinding[0] + 360, pFinding[1] + 330], pFinding, 21);
-      click("#repodemo-arrow-2", 18 - 4 * F);
-
-      // ---------------------------------------------------------------- 18.0 open finding (shot D): match cut on the click
-      const D0 = settleFrom([780, 437]);
-      const D1 = { x: 0, y: 0, s: 1 };
-      const D2 = { x: -1056, y: -480, s: 1.8 }; // punch-in on the open card: why it matters, the evidence
-      const D3 = { x: -1056, y: -560, s: 1.8 }; // re-target down to how to fix and its buttons
-      camTo("#repodemo-cam-d", 18, D0, D1, 12, "power4.out");
-      camTo("#repodemo-cam-d", 18.4, D1, D2, 66, "sine.inOut");
-      camTo("#repodemo-cam-d", 21.0, D2, D3, 20, "power2.inOut");
-      // cursor clicks "Preview" (23.3), which opens the prompt: whip 23.667 -> 24.0
-      const pPreview = frameOf(G.d, D3, [877, 677], 23.0);
-      arrive("#repodemo-arrow-3", 22.3, [pPreview[0] + 330, pPreview[1] + 230], pPreview, 21);
-      click("#repodemo-arrow-3", 23.3);
-      whipOut(24);
-
-      // ---------------------------------------------------------------- 24.0 prompt (shot E): velocity-matched cut
-      whipIn(24);
-      const E0 = { x: 0, y: 0, s: 1 };
-      const E1 = { x: -1223, y: -548, s: 2.0 }; // punch-in on the prompt preview
-      const E2 = { x: -1223, y: -600, s: 2.0 }; // re-target down the prompt text
-      const E3 = { x: -1290, y: -615, s: 2.0 }; // and along it
-      camTo("#repodemo-cam-e", 24.4, E0, E1, 60, "sine.inOut");
-      // cursor to "Copy fix prompt", click at 28.0
-      const pCopy1 = frameOf(G.e, E1, [752, 335], 27.4);
-      arrive("#repodemo-arrow-4", 26.6, [pCopy1[0] + 420, pCopy1[1] + 460], pCopy1, 24);
-      click("#repodemo-arrow-4", 28.0);
-      // the "Prompt copied" toast slams in after the click
-      slam("#repodemo-toast-box", 28.1);
-      // the camera keeps reading the prompt; the cursor rides with the button
-      camTo("#repodemo-cam-e", 29.0, E1, E2, 20, "power2.inOut");
-      const pCopy2 = frameOf(G.e, E2, [752, 335], 29.67);
-      move("#repodemo-arrow-4", 29.0, pCopy1, pCopy2, 20);
-      camTo("#repodemo-cam-e", 30.4, E2, E3, 20, "power2.inOut");
-      const pCopy3 = frameOf(G.e, E3, [752, 335], 31.07);
-      move("#repodemo-arrow-4", 30.4, pCopy2, pCopy3, 20);
-      whipOut(32);
-
-      // hold to the scene's end (32 s)
-      tl.set({}, {}, 32);
+      tl.set({}, {}, DUR);
       window.__timelines["repodemo"] = tl;
     })();
   </script>

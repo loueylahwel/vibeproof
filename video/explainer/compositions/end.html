@@ -3,130 +3,88 @@
     #root {
       position: absolute;
       inset: 0;
-      background: #0b0b0c;
+      background: #05060a;
       font-family: "Inter", sans-serif;
-      color: #f2f2f2;
+      color: #eaf2f7;
       overflow: visible;
     }
-    /* CODE world ground; it runs past the frame so the tilted card never shows an edge */
-    #end-grid {
-      position: absolute;
-      inset: -1400px;
-      background-color: #0b0b0c;
+
+    /* ---- v7 shared world. The whole card carries the owner's 3D tilt, so the world
+       layers run past the frame and the tilted plane never shows an edge. ---- */
+    #end-ground { position: absolute; inset: -1400px; background: #05060a; }
+    #end-glow { position: absolute; inset: -400px;
+      background: radial-gradient(ellipse 45% 42% at 50% 47%, rgba(61,255,162,0.07), transparent 70%); }
+    #end-floor-wrap { position: absolute; left: -600px; top: -300px; width: 3120px; height: 1680px;
+      perspective: 900px; perspective-origin: 50% 37.14%; overflow: hidden; }
+    #end-floor { position: absolute; left: -600px; width: 4320px; top: 860px; height: 1400px;
+      transform-origin: 50% 0%; transform: rotateX(72deg);
       background-image:
-        linear-gradient(to right, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
-      background-size: 48px 48px;
-      background-position: 0px 0px;
-    }
-    /* camera: cam carries the cut in and the slow push, rig the beat re-targets */
-    #end-cam,
-    #end-rig {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 1920px;
-      height: 1080px;
-      transform-origin: 300px 200px;
-    }
-    .end-full {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 1920px;
-      height: 1080px;
-    }
-    /* kinetic type: a line is a mask, each word rises through it */
-    .end-ln {
-      position: absolute;
-      overflow: hidden;
-      white-space: nowrap;
-      width: max-content;
-      padding: 0 18px;
-      margin-left: -18px;
-    }
-    .end-w {
-      display: inline-block;
-      position: relative;
-    }
-    .end-mk {
-      position: absolute;
-      left: -0.1em;
-      right: -0.1em;
-      top: 0.13em;
-      height: 0.9em;
-      background: #ff4d4f;
-      border-radius: 6px;
-      transform-origin: 0% 50%;
-    }
-    .end-mt {
-      position: relative;
-    }
-    .end-display {
-      left: 96px;
-      font-weight: 900;
-      font-size: 100px;
-      letter-spacing: -0.02em;
-      line-height: 1.12;
-    }
-    #end-claim1 {
-      top: 108px;
-    }
-    #end-claim2 {
-      top: 248px;
-    }
-    #end-mark-in {
-      position: absolute;
-      left: 96px;
-      top: 590px;
-      width: 900px;
-      height: 140px;
-      transform-origin: 60px 60px;
-    }
-    #end-shield {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 120px;
-      height: 120px;
-      overflow: visible;
-      transform-origin: 50% 50%;
-    }
-    .end-mark-ink {
-      fill: none;
-      stroke: #ffffff;
-      stroke-width: 1.7;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-    #end-word {
-      left: 160px;
-      top: -8px;
-      font-weight: 900;
-      font-size: 96px;
-      letter-spacing: -0.02em;
-      line-height: 136px;
-      color: #ffffff;
-    }
+        linear-gradient(to right, rgba(61,255,162,0.10) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(61,255,162,0.10) 1px, transparent 1px);
+      background-size: 80px 80px;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 100%);
+              mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 100%); }
+    #end-dust { position: absolute; inset: 0; }
+    #end-dust i { position: absolute; left: 0; top: 0; border-radius: 50%; background: #eaf2f7; }
+    /* same vignette as the other scenes (farthest-corner ellipse of the frame), on a big box
+       so the darkening continues past the frame instead of ending in an edge */
+    #end-vignette { position: absolute; inset: -1400px; pointer-events: none;
+      background: radial-gradient(ellipse 1358px 764px at 50% 50%, transparent 55%, rgba(0,0,0,0.6) 100%); }
+
+    /* ---- camera: cam = scene transition, rig = slow push + beat re-targets ---- */
+    #end-cam, #end-rig { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+    #end-cam { transform-origin: 960px 540px; }
+    #end-rig { transform-origin: 300px 300px; }
+    .end-full { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+
+    /* ---- kinetic type ---- */
+    .end-ln { position: absolute; overflow: hidden; white-space: nowrap; width: max-content;
+      padding: 0 18px 26px 18px; margin-left: -18px; }
+    .end-w { display: inline-block; position: relative; }
+    .end-ul { position: absolute; left: 0.02em; right: 0.02em; top: 1.06em; height: 6px; border-radius: 3px;
+      background: #3dffa2; box-shadow: 0 0 14px rgba(61,255,162,0.7); transform: scaleX(0); transform-origin: 0% 50%; }
+    .end-display { left: 96px; font-weight: 900; font-size: 112px; letter-spacing: -0.025em; line-height: 1.12; color: #eaf2f7; }
+    #end-claim1 { top: 108px; }
+    #end-claim2 { top: 254px; }
+
+    /* ---- the mark ---- */
+    #end-mark-in { position: absolute; left: 96px; top: 600px; width: 1100px; height: 180px; transform-origin: 75px 75px; }
+    #end-bloom { position: absolute; left: -150px; top: -150px; width: 450px; height: 450px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(61,255,162,0.20) 0%, rgba(61,255,162,0.06) 40%, transparent 70%); }
+    #end-shield { position: absolute; left: 0; top: 0; width: 150px; height: 150px; overflow: visible; transform-origin: 50% 50%;
+      filter: drop-shadow(0 0 6px rgba(61,255,162,0.8)) drop-shadow(0 0 22px rgba(61,255,162,0.45)); }
+    .end-mark-ink { fill: none; stroke: #3dffa2; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    #end-shield-fill { fill: rgba(61,255,162,0.08); stroke: none; }
+    #end-word { left: 192px; top: -8px; padding-bottom: 14px; font-weight: 900; font-size: 124px; letter-spacing: -0.03em; line-height: 166px; color: #eaf2f7; }
+    #end-word .end-w { text-shadow: 0 0 30px rgba(61,255,162,0.18); }
+    #end-sheen { position: absolute; left: 0; top: 0; width: 240px; height: 180px; pointer-events: none;
+      background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.16) 50%, rgba(255,255,255,0) 100%);
+      mix-blend-mode: screen; opacity: 0; }
   </style>
 
-  <div data-hf-id="hf-gwfo" id="root" data-composition-id="end" data-width="1920" data-height="1080">
-    <div data-hf-id="hf-98id" id="end-grid"></div>
+  <div id="root" data-composition-id="end" data-width="1920" data-height="1080">
+    <div id="end-ground"></div>
+    <div id="end-glow"></div>
+    <div id="end-floor-wrap"><div id="end-floor"></div></div>
+    <div id="end-dust"></div>
+    <div id="end-vignette"></div>
 
     <div id="end-cam">
       <div id="end-rig">
-        <div data-hf-id="hf-0bir" id="end-claim" class="clip end-full" data-start="0" data-duration="12">
-          <div data-hf-id="hf-3gwa" id="end-claim1" class="end-ln end-display"><span class="end-w">Scan</span> <span class="end-w">the</span> <span class="end-w"><span class="end-mk"></span><span class="end-mt">code.</span></span></div>
-          <div data-hf-id="hf-4l4b" id="end-claim2" class="end-ln end-display"><span class="end-w">Then</span> <span class="end-w">check</span> <span class="end-w">the</span> <span class="end-w"><span class="end-mk"></span><span class="end-mt">live</span></span> <span class="end-w">site.</span></div>
+        <div id="end-claim" class="clip end-full" data-start="0" data-duration="12">
+          <div id="end-claim1" class="end-ln end-display"><span class="end-w">Scan</span> <span class="end-w">the</span> <span id="end-mk-code" class="end-w">code.<i class="end-ul"></i></span></div>
+          <div id="end-claim2" class="end-ln end-display"><span class="end-w">Then</span> <span class="end-w">check</span> <span class="end-w">the</span> <span id="end-mk-live" class="end-w">live<i class="end-ul"></i></span> <span id="end-mk-site" class="end-w">site.<i class="end-ul"></i></span></div>
         </div>
 
-        <div data-hf-id="hf-jrma" id="end-mark" class="clip end-full" data-start="5" data-duration="7">
+        <div id="end-mark" class="clip end-full" data-start="5" data-duration="7">
           <div id="end-mark-in">
-            <svg data-hf-id="hf-l1xw" id="end-shield" viewBox="0 0 24 24">
-              <path data-hf-id="hf-93kq" id="end-shield-path" class="end-mark-ink" pathLength="1" d="M12 2.5 4.5 5.4v5.8c0 4.7 3.2 8.9 7.5 10.3 4.3-1.4 7.5-5.6 7.5-10.3V5.4L12 2.5Z" />
-              <path data-hf-id="hf-s5bs" id="end-check-path" class="end-mark-ink" pathLength="1" d="m8.8 12.2 2.3 2.3 4.3-4.6" />
+            <div id="end-bloom"></div>
+            <svg id="end-shield" viewBox="0 0 24 24">
+              <path id="end-shield-fill" d="M12 2.5 4.5 5.4v5.8c0 4.7 3.2 8.9 7.5 10.3 4.3-1.4 7.5-5.6 7.5-10.3V5.4L12 2.5Z" />
+              <path id="end-shield-path" class="end-mark-ink" pathLength="1" d="M12 2.5 4.5 5.4v5.8c0 4.7 3.2 8.9 7.5 10.3 4.3-1.4 7.5-5.6 7.5-10.3V5.4L12 2.5Z" />
+              <path id="end-check-path" class="end-mark-ink" pathLength="1" d="m8.8 12.2 2.3 2.3 4.3-4.6" />
             </svg>
-            <div data-hf-id="hf-jvm5" id="end-word" class="end-ln"><span class="end-w">Vibeproof</span></div>
+            <div id="end-word" class="end-ln"><span class="end-w">Vibeproof</span><div id="end-sheen"></div></div>
           </div>
         </div>
       </div>
@@ -139,78 +97,88 @@ gsap.set("#end", { z: -66, transformPerspective: 1080, rotationX: 10, rotationY:
       const tl = gsap.timeline({ paused: true });
       const F = 1 / 30;
       const DUR = 12;
+      const FILM_START = 210;
 
-      // ---- camera: velocity-matched cut in and a slow push (the film's last scene: no cut out)
-      tl.fromTo("#end-cam", { x: 420 }, { x: 0, duration: 18 * F, ease: "expo.out" }, 0);
-      tl.fromTo("#end-cam", { scale: 1 }, { scale: 1.06, duration: DUR, ease: "sine.inOut" }, 0);
-      let rx = 0;
-      let ry = 0;
-      const aim = (x, y, at, dur) => {
-        tl.fromTo(
-          "#end-rig",
-          { x: rx, y: ry },
-          { x: x, y: y, duration: dur || 20 * F, ease: "power2.inOut", immediateRender: false },
-          at,
-        );
-        rx = x;
-        ry = y;
+      // ---- shared world
+      (function world(tl, id, FILM_START, DUR) {
+        let s = 20261122;
+        const rnd = () => { s |= 0; s = (s + 0x6d2b79f5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+        const box = document.getElementById(id + "-dust");
+        const dots = [];
+        for (let k = 0; k < 54; k++) {
+          const d = { x: rnd() * 1920, y: rnd() * 1180, z: 0.3 + rnd() * 0.7, ph: rnd() * 6.283 };
+          const el = document.createElement("i");
+          const size = 1 + d.z * 2;
+          el.style.width = el.style.height = size + "px";
+          el.style.opacity = (0.12 + d.z * 0.23).toFixed(3);
+          box.appendChild(el); d.el = el; dots.push(d);
+        }
+        const floor = document.getElementById(id + "-floor");
+        const draw = (T) => {
+          if (floor) floor.style.backgroundPosition = "0px " + ((T * 40) % 80) + "px";
+          for (const d of dots) {
+            const y = ((d.y - T * 14 * d.z) % 1180 + 1180) % 1180 - 50;
+            const x = d.x + Math.sin(T * 0.35 + d.ph) * 18 * d.z;
+            d.el.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px)";
+          }
+        };
+        const p = { t: 0 };
+        tl.fromTo(p, { t: 0 }, { t: DUR, duration: DUR, ease: "none", onUpdate: () => draw(FILM_START + p.t) }, 0);
+        draw(FILM_START);
+      })(tl, "end", FILM_START, DUR);
+
+      // ---- scene in (v7); the film's last scene has no "out"
+      tl.fromTo("#end-cam", { scale: 0.94 }, { scale: 1, duration: 16 * F, ease: "expo.out" }, 0);
+      tl.fromTo("#end-cam", { opacity: 0 }, { opacity: 1, duration: 6 * F, ease: "power2.out" }, 0);
+
+      // ---- camera: slow push + re-targets on the beat
+      tl.fromTo("#end-rig", { scale: 1 }, { scale: 1.05, duration: DUR, ease: "sine.inOut" }, 0);
+      let rx = 0, ry = 0;
+      const aim = (x, y, at, frames) => {
+        tl.fromTo("#end-rig", { x: rx, y: ry }, { x: x, y: y, duration: (frames || 24) * F, ease: "power2.inOut", immediateRender: false }, at);
+        rx = x; ry = y;
       };
 
       // ---- kinetic type
       const wordsIn = (line, at) =>
-        tl.fromTo(
-          line + " > .end-w",
-          { yPercent: 110 },
-          { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F },
-          at,
-        );
-      const marker = (sel, at) => {
-        tl.fromTo(sel + " .end-mk", { scaleX: 0 }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, at);
+        tl.fromTo(line + " > .end-w", { yPercent: 120 }, { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, at);
+      const mark = (sel, at) => {
+        tl.fromTo(sel, { color: "#eaf2f7", textShadow: "0 0 18px rgba(61,255,162,0)" },
+          { color: "#3dffa2", textShadow: "0 0 18px rgba(61,255,162,0.55)", duration: 8 * F, ease: "power2.out" }, at);
+        tl.fromTo(sel + " .end-ul", { scaleX: 0 }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, at);
       };
 
       // 0.0 the claim, word by word, the second line 6 frames behind the first
       wordsIn("#end-claim1", 0);
       wordsIn("#end-claim2", 6 * F);
-      marker("#end-claim1", 1.1);
-      aim(30, 24, 1.5, 30 * F);
-      marker("#end-claim2", 2.6);
-      aim(60, 10, 3.3, 30 * F);
+      mark("#end-mk-code", 1.0);
+      aim(24, 18, 1.5, 30);
+      mark("#end-mk-live", 2.5);
+      mark("#end-mk-site", 2.5 + 3 * F);
+      aim(50, 6, 3.5, 30);
 
-      // 5.0 the mark: the camera turns to it, the shield draws on over 24 frames, then the check
-      aim(40, -30, 4.7, 30 * F);
+      // 5.0 the mark (chime): the camera turns to it, the shield draws on over 24 frames, then the check
+      aim(36, -34, 4.5, 30);
+      tl.fromTo("#end-bloom", { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 24 * F, ease: "expo.out" }, 5.0);
       tl.fromTo("#end-shield", { scale: 0.9 }, { scale: 1, duration: 16 * F, ease: "back.out(1.7)" }, 5.0);
-      tl.fromTo(
-        "#end-shield-path",
-        { strokeDasharray: 1, strokeDashoffset: 1 },
-        { strokeDashoffset: 0, duration: 24 * F, ease: "power2.inOut" },
-        5.0,
-      );
-      tl.fromTo(
-        "#end-check-path",
-        { strokeDasharray: 1, strokeDashoffset: 1 },
-        { strokeDashoffset: 0, duration: 10 * F, ease: "power2.out" },
-        5.0 + 18 * F,
-      );
-      // 5.6 the name rises in beside it; the shield takes the hit and settles
-      wordsIn("#end-word", 5.6);
-      tl.fromTo(
-        "#end-mark-in",
-        { x: -6 },
-        { x: 0, duration: 10 * F, ease: "power2.out", immediateRender: false },
-        5.6 + 10 * F,
-      );
-      tl.fromTo(
-        "#end-shield",
-        { scale: 1.12 },
-        { scale: 1, duration: 9 * F, ease: "power4.out", immediateRender: false },
-        5.6 + 10 * F,
-      );
+      tl.fromTo("#end-shield-path", { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 24 * F, ease: "power3.out" }, 5.0);
+      tl.fromTo("#end-shield-fill", { opacity: 0 }, { opacity: 1, duration: 12 * F, ease: "power2.out" }, 5.5);
+      tl.fromTo("#end-check-path", { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 10 * F, ease: "power2.out" }, 5.5 + 6 * F);
+      // 5.5 the name rises in beside it; 6.0 the shield takes the hit and settles
+      wordsIn("#end-word", 5.5);
+      tl.fromTo("#end-mark-in", { x: -6 }, { x: 0, duration: 10 * F, ease: "power2.out", immediateRender: false }, 6.0);
+      tl.fromTo("#end-shield", { scale: 1.1 }, { scale: 1, duration: 9 * F, ease: "power4.out", immediateRender: false }, 6.0);
 
-      // hold on the mark while the camera keeps travelling
-      aim(0, -10, 7.6, 45 * F);
-      aim(-30, -34, 9.6, 45 * F);
+      // hold (7.0 to the end): the camera keeps travelling, a light sweep and a glow pulse on the bars
+      aim(6, -16, 7.0, 45);
+      tl.fromTo("#end-sheen", { x: -240, opacity: 1 }, { x: 760, duration: 18 * F, ease: "power2.inOut" }, 8.0);
+      tl.fromTo("#end-bloom", { scale: 1, opacity: 1 }, { scale: 1.18, opacity: 0.7, duration: 15 * F, ease: "sine.inOut", yoyo: true, repeat: 1, immediateRender: false }, 8.0);
+      aim(-24, -40, 9.0, 60);
+      tl.fromTo("#end-bloom", { scale: 1, opacity: 1 }, { scale: 1.18, opacity: 0.7, duration: 15 * F, ease: "sine.inOut", yoyo: true, repeat: 1, immediateRender: false }, 10.0);
 
       tl.set({}, {}, DUR);
+      window.__timelines = window.__timelines || {};
       window.__timelines["end"] = tl;
     })();
   </script>

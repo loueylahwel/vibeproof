@@ -3,293 +3,231 @@
     #root {
       position: absolute;
       inset: 0;
-      background: #ffffff;
+      overflow: hidden;
+      background: #05060a;
       font-family: "Inter", sans-serif;
-      color: #0a0a0a;
-      overflow: hidden;
+      color: #eaf2f7;
     }
-    #safety-grid {
-      position: absolute;
-      inset: 0;
-      background-color: #ffffff;
+    /* ---- v7 shared world (ground, glow, floor grid, dust, vignette) ---- */
+    #safety-ground { position: absolute; inset: 0; background: #05060a; }
+    #safety-glow { position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 55% at 50% 45%, rgba(61,255,162,0.07), transparent 70%); }
+    #safety-floor-wrap { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;
+      perspective: 900px; perspective-origin: 50% 30%; overflow: hidden; }
+    #safety-floor { position: absolute; left: -1200px; width: 4320px; top: 560px; height: 1400px;
+      transform-origin: 50% 0%; transform: rotateX(72deg);
       background-image:
-        linear-gradient(to right, rgba(10, 10, 10, 0.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(10, 10, 10, 0.05) 1px, transparent 1px);
-      background-size: 48px 48px;
-    }
-    /* camera: cam carries the cuts and the slow push, rig the beat re-targets */
-    #safety-cam,
-    #safety-rig {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 1920px;
-      height: 1080px;
-      transform-origin: 240px 580px;
-    }
-    /* kinetic type: a line is a mask, each word rises through it */
-    .safety-ln {
-      position: absolute;
-      overflow: hidden;
-      white-space: nowrap;
-      width: max-content;
-      padding: 0 14px;
-      margin-left: -14px;
-    }
-    .safety-w {
-      display: inline-block;
-      position: relative;
-    }
-    .safety-mk {
-      position: absolute;
-      left: -0.12em;
-      right: -0.12em;
-      top: 0.14em;
-      height: 0.9em;
-      background: #e5342f;
-      border-radius: 4px;
-      transform-origin: 0% 50%;
-    }
-    .safety-mt {
-      position: relative;
-    }
-    .safety-display {
-      font-weight: 900;
-      font-size: 100px;
-      letter-spacing: -0.02em;
-      line-height: 1.12;
-    }
-    .safety-line {
-      font-weight: 700;
-      font-size: 44px;
-      letter-spacing: -0.01em;
-      line-height: 1.25;
-    }
-    #safety-title {
-      left: 96px;
-      top: 108px;
-    }
-    .safety-stmt {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 1920px;
-      height: 1080px;
-    }
-    .safety-say {
-      left: 96px;
-    }
-    .safety-obj {
-      position: absolute;
-      left: 96px;
-      transform-origin: 0% 50%;
-    }
-    .safety-obj svg {
-      display: block;
-      overflow: visible;
-    }
-    .safety-ink {
-      fill: none;
-      stroke: #0a0a0a;
-      stroke-width: 1.67;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-    /* 1: lock, 1.8x (block centred under the title) */
-    #safety-lock {
-      top: 280px;
-    }
-    #safety-lock-body {
-      fill: #ffffff;
-    }
-    #safety-s1-say {
-      top: 860px;
-    }
-    /* 2: GET arrow, 1.8x */
-    #safety-get {
-      top: 392px;
-      width: 1300px;
-      height: 316px;
-    }
-    #safety-get-tag {
-      position: absolute;
-      left: 0;
-      top: 0;
-      height: 116px;
-      padding: 0 40px;
-      border: 3px solid #0a0a0a;
-      border-radius: 14px;
-      background: #ffffff;
-      display: flex;
-      align-items: center;
-      font-family: "JetBrains Mono", monospace;
-      font-weight: 700;
-      font-size: 58px;
-      width: max-content;
-      transform-origin: 0% 50%;
-    }
-    #safety-get-svg {
-      position: absolute;
-      left: 0;
-      top: 172px;
-    }
-    #safety-get-dot {
-      fill: #0a0a0a;
-    }
-    #safety-s2-say {
-      top: 748px;
-    }
-    /* 3: key, 1.8x */
-    #safety-key {
-      top: 442px;
-    }
-    #safety-key-tag {
-      height: 216px;
-      border: 3px solid #0a0a0a;
-      border-radius: 18px;
-      display: flex;
-      align-items: center;
-      gap: 58px;
-      padding: 0 80px 0 64px;
-      width: max-content;
-      font-family: "JetBrains Mono", monospace;
-      font-size: 79px;
-      font-weight: 400;
-    }
-    #safety-key-hole {
-      width: 61px;
-      height: 61px;
-      border: 3px solid #0a0a0a;
-      border-radius: 50%;
-      flex: none;
-    }
-    #safety-key-text {
-      display: flex;
-      align-items: center;
-      white-space: nowrap;
-    }
-    #safety-key-mid {
-      display: inline-block;
-      padding: 0 4px;
-    }
-    #safety-s3-say {
-      top: 698px;
-    }
-    /* 4: table row, 1.7x */
-    #safety-table {
-      top: 420px;
-    }
-    #safety-table-box {
-      width: 1600px;
-      border: 3px solid #0a0a0a;
-      border-radius: 16px;
-      overflow: hidden;
-    }
-    .safety-trow {
-      display: flex;
-      height: 128px;
-    }
-    .safety-trow + .safety-trow {
-      border-top: 3px solid #0a0a0a;
-    }
-    .safety-cell {
-      display: flex;
-      align-items: center;
-      padding: 0 46px;
-      font-family: "JetBrains Mono", monospace;
-      font-size: 47px;
-      color: #6b6b6b;
-    }
-    .safety-cell + .safety-cell {
-      border-left: 3px solid #0a0a0a;
-    }
-    .safety-c1 {
-      width: 300px;
-    }
-    .safety-c2 {
-      width: 540px;
-    }
-    .safety-c3 {
-      flex: 1;
-    }
-    .safety-bar {
-      height: 38px;
-      border-radius: 19px;
-      background: #c8c8c6;
-    }
-    #safety-s4-say {
-      top: 720px;
-    }
+        linear-gradient(to right, rgba(61,255,162,0.10) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(61,255,162,0.10) 1px, transparent 1px);
+      background-size: 80px 80px;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 100%);
+              mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 100%); }
+    #safety-dust { position: absolute; inset: 0; }
+    #safety-dust i { position: absolute; left: 0; top: 0; border-radius: 50%; background: #eaf2f7; }
+    #safety-vignette { position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.6)); }
+
+    /* ---- transition wrapper, camera (push), rig (beat re-targets, 3D space) ---- */
+    #safety-fx, #safety-cam, #safety-rig { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+    #safety-fx { transform-origin: 960px 540px; }
+    #safety-cam { transform-origin: 640px 420px; }
+    #safety-rig { perspective: 1600px; perspective-origin: 480px 560px; }
+    #safety-halo { position: absolute; left: 30px; top: 170px; width: 900px; height: 800px; opacity: 0;
+      background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(61,255,162,0.16), rgba(61,255,162,0.05) 45%, transparent 70%); }
+
+    /* ---- HUD chapter label ---- */
+    #safety-hud { position: absolute; left: 96px; top: 60px; height: 30px; white-space: nowrap;
+      font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 22px; line-height: 30px;
+      letter-spacing: 0.22em; text-transform: uppercase; color: #3dffa2;
+      text-shadow: 0 0 14px rgba(61,255,162,0.45); }
+    #safety-hud-c { display: inline-block; width: 13px; height: 24px; margin-left: 2px; vertical-align: -4px;
+      background: #3dffa2; box-shadow: 0 0 12px rgba(61,255,162,0.6); }
+
+    /* ---- kinetic type ---- */
+    .safety-ln { position: absolute; overflow: hidden; white-space: nowrap; width: max-content;
+      padding: 6px 18px 16px 18px; margin-left: -18px; }
+    .safety-w { display: inline-block; position: relative; }
+    #safety-title { left: 96px; top: 100px; font-weight: 900; font-size: 100px; line-height: 1.05; letter-spacing: -0.025em; }
+    .safety-say { left: 900px; font-weight: 800; font-size: 64px; line-height: 76px; letter-spacing: -0.02em; }
+    .safety-idx { position: absolute; left: 900px; top: 452px; white-space: nowrap; overflow: hidden;
+      font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 22px; line-height: 30px;
+      letter-spacing: 0.22em; color: #3dffa2; padding: 0 4px; margin-left: -4px; }
+    .safety-idx span { display: inline-block; }
+    .safety-idx b { font-weight: 700; color: #7a8699; }
+    .safety-ul { position: absolute; left: 0; right: 0; bottom: -2px; height: 6px; border-radius: 3px;
+      background: #3dffa2; box-shadow: 0 0 14px rgba(61,255,162,0.7); transform: scaleX(0); transform-origin: 0% 50%; }
+
+    /* ---- statements ---- */
+    .safety-stmt { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+    .safety-obj { position: absolute; left: 150px; top: 330px; width: 680px; height: 560px; transform-origin: 50% 50%; }
+    .safety-glowsvg { overflow: visible;
+      filter: drop-shadow(0 0 8px rgba(61,255,162,0.75)) drop-shadow(0 0 30px rgba(61,255,162,0.30)); }
+    .safety-g { fill: none; stroke: #3dffa2; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* 1 lock */
+    #safety-lock { position: absolute; left: 175px; top: 0; }
+    #safety-domain { position: absolute; left: 186px; top: 448px; height: 72px; padding: 0 26px 0 20px; border-radius: 36px;
+      display: flex; align-items: center; gap: 16px; white-space: nowrap;
+      background: rgba(61,255,162,0.08); border: 1px solid rgba(61,255,162,0.45);
+      font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 32px; color: #eaf2f7; }
+    #safety-domain svg { flex: none; }
+
+    /* 2 GET */
+    #safety-get { position: absolute; left: 20px; top: 80px; height: 150px; padding: 0 50px; border-radius: 22px;
+      display: flex; align-items: center; background: rgba(61,255,162,0.08);
+      box-shadow: 0 0 0 2px #3dffa2, 0 0 28px rgba(61,255,162,0.45), 0 0 80px rgba(61,255,162,0.18);
+      font-family: "JetBrains Mono", monospace; font-weight: 800; font-size: 110px; color: #3dffa2;
+      text-shadow: 0 0 18px rgba(61,255,162,0.6); transform-origin: 0% 50%; }
+    #safety-arrow { position: absolute; left: 370px; top: 115px; }
+    #safety-packet { position: absolute; left: 380px; top: 143px; width: 24px; height: 24px; border-radius: 50%;
+      background: #eaffff; box-shadow: 0 0 10px #3dffa2, 0 0 28px rgba(61,255,162,0.8); opacity: 0; }
+    .safety-meth { position: absolute; top: 330px; height: 72px; padding: 0 22px; border-radius: 14px;
+      border: 1.5px solid rgba(122,134,153,0.45); display: flex; align-items: center;
+      font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 38px; color: #7a8699; white-space: nowrap; }
+    .safety-meth i { position: absolute; left: 10px; right: 10px; top: 50%; height: 3px; margin-top: -1px;
+      background: #7a8699; transform: scaleX(0); transform-origin: 0% 50%; }
+
+    /* 3 key */
+    #safety-keysvg { position: absolute; left: 30px; top: 20px; }
+    #safety-secret { position: absolute; left: 20px; top: 300px; height: 104px; padding: 0 30px; border-radius: 16px;
+      display: flex; align-items: center; white-space: nowrap; background: #0b0f16;
+      box-shadow: 0 0 0 1px #3dffa2, 0 0 28px rgba(61,255,162,0.45), 0 0 80px rgba(61,255,162,0.18);
+      font-family: "JetBrains Mono", monospace; font-weight: 500; font-size: 48px; color: #eaf2f7; overflow: hidden; }
+    #safety-mid { display: inline-block; width: 460.8px; overflow: hidden; color: #cfe3f0; }
+    #safety-mid span { display: inline-block; }
+    #safety-vscan { position: absolute; top: 0; left: 0; width: 44px; height: 104px; opacity: 0; }
+    #safety-vscan::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 42px;
+      background: linear-gradient(to right, rgba(61,255,162,0), rgba(61,255,162,0.25)); }
+    #safety-vscan::after { content: ""; position: absolute; top: 0; bottom: 0; left: 42px; width: 2px; background: #3dffa2;
+      box-shadow: 0 0 10px rgba(61,255,162,0.9), 0 0 28px rgba(61,255,162,0.45); }
+
+    /* 4 table */
+    #safety-tname { position: absolute; left: 20px; top: 40px; font-family: "JetBrains Mono", monospace; font-weight: 700;
+      font-size: 32px; color: #3dffa2; text-shadow: 0 0 18px rgba(61,255,162,0.6); }
+    #safety-table { position: absolute; left: 20px; top: 100px; width: 640px; border-radius: 16px; overflow: hidden;
+      background: #0b0f16; box-shadow: 0 0 0 1px #3dffa2, 0 0 28px rgba(61,255,162,0.45), 0 0 80px rgba(61,255,162,0.18); }
+    .safety-trow { position: relative; display: flex; height: 96px; }
+    .safety-trow + .safety-trow { height: 120px; border-top: 1px solid rgba(61,255,162,0.25); }
+    .safety-cell { display: flex; align-items: center; padding: 0 28px; font-family: "JetBrains Mono", monospace;
+      font-size: 30px; color: #7a8699; }
+    .safety-cell + .safety-cell { border-left: 1px solid rgba(61,255,162,0.25); }
+    .safety-c1 { width: 110px; } .safety-c2 { width: 220px; } .safety-c3 { flex: 1; }
+    .safety-bar { height: 34px; border-radius: 17px; background: #3a4556; position: relative; overflow: hidden; }
+    .safety-bar i { position: absolute; top: 0; bottom: 0; left: 0; width: 60%;
+      background: linear-gradient(90deg, transparent, rgba(234,242,247,0.18), transparent); }
+    #safety-tscan { position: absolute; left: 0; top: 0; width: 640px; height: 42px; opacity: 0; }
+    #safety-tscan::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 40px;
+      background: linear-gradient(to bottom, rgba(61,255,162,0), rgba(61,255,162,0.22)); }
+    #safety-tscan::after { content: ""; position: absolute; left: 0; right: 0; top: 40px; height: 2px; background: #3dffa2;
+      box-shadow: 0 0 10px rgba(61,255,162,0.9), 0 0 28px rgba(61,255,162,0.45); }
+    #safety-note { position: absolute; left: 20px; top: 356px; font-family: "JetBrains Mono", monospace; font-weight: 500;
+      font-size: 28px; color: #7a8699; white-space: nowrap; overflow: hidden; }
+
+    /* ---- out: full-width green scan line ---- */
+    #safety-wipe { position: absolute; left: 0; top: 0; width: 1920px; height: 122px; pointer-events: none; }
+    #safety-wipe::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 120px;
+      background: linear-gradient(to bottom, rgba(61,255,162,0), rgba(61,255,162,0.20)); }
+    #safety-wipe::after { content: ""; position: absolute; left: 0; right: 0; top: 120px; height: 2px; background: #3dffa2;
+      box-shadow: 0 0 12px rgba(61,255,162,0.95), 0 0 40px rgba(61,255,162,0.5); }
   </style>
 
   <div id="root" data-composition-id="safety" data-width="1920" data-height="1080">
-    <div id="safety-grid"></div>
+    <div id="safety-ground"></div>
+    <div id="safety-glow"></div>
+    <div id="safety-floor-wrap"><div id="safety-floor"></div></div>
+    <div id="safety-dust"></div>
+    <div id="safety-vignette"></div>
 
-    <div id="safety-cam">
-      <div id="safety-rig">
-        <div id="safety-title-clip" class="clip" data-start="0" data-duration="16">
-          <div id="safety-title" class="safety-ln safety-display"><span class="safety-w">Built</span> <span class="safety-w">to</span> <span class="safety-w">be</span> <span class="safety-w">safe</span> <span class="safety-w">to</span> <span class="safety-w">run</span></div>
-        </div>
+    <div id="safety-fx">
+      <div id="safety-cam">
+        <div id="safety-rig">
+          <div id="safety-halo"></div>
 
-        <!-- 1: lock -->
-        <div id="safety-s1" class="clip safety-stmt" data-start="2.5" data-duration="3.5">
-          <div id="safety-lock" class="safety-obj">
-            <svg width="432" height="540" viewBox="0 0 240 300">
-              <path id="safety-lock-shackle" class="safety-ink" pathLength="1" d="M62 160 V98 A58 58 0 0 1 178 98 V160" />
-              <rect id="safety-lock-body" class="safety-ink" pathLength="1" x="10" y="140" width="220" height="150" rx="10" />
-              <circle id="safety-lock-hole" class="safety-ink" pathLength="1" cx="120" cy="200" r="14" />
-              <path id="safety-lock-slot" class="safety-ink" pathLength="1" d="M120 214 V250" />
-            </svg>
-          </div>
-          <div id="safety-s1-say" class="safety-ln safety-say safety-line"><span class="safety-w">Only</span> <span class="safety-w">sites</span> <span class="safety-w">you</span> <span class="safety-w">prove</span> <span class="safety-w">you</span> <span class="safety-w">own</span></div>
-        </div>
 
-        <!-- 2: GET arrow -->
-        <div id="safety-s2" class="clip safety-stmt" data-start="6" data-duration="3.5">
-          <div id="safety-get" class="safety-obj">
-            <svg id="safety-get-svg" width="1296" height="144" viewBox="0 0 720 80">
-              <path id="safety-get-shaft" class="safety-ink" pathLength="1" d="M2 40 H700" />
-              <path id="safety-get-head" class="safety-ink" pathLength="1" d="M672 14 L702 40 L672 66" />
-              <circle id="safety-get-dot" cx="2" cy="40" r="9" />
-            </svg>
-            <div id="safety-get-tag">GET</div>
-          </div>
-          <div id="safety-s2-say" class="safety-ln safety-say safety-line"><span class="safety-w">Only</span> <span class="safety-w safety-mkw"><span class="safety-mk"></span><span class="safety-mt">read</span></span> <span class="safety-w">requests,</span> <span class="safety-w">nothing</span> <span class="safety-w">is</span> <span class="safety-w">changed</span></div>
-        </div>
-
-        <!-- 3: key with hidden middle -->
-        <div id="safety-s3" class="clip safety-stmt" data-start="9.5" data-duration="3.5">
-          <div id="safety-key" class="safety-obj">
-            <div id="safety-key-tag">
-              <div id="safety-key-hole"></div>
-              <div id="safety-key-text">
-                <span>sk_l</span><span id="safety-key-mid">ive_7Hq2Xm9Pz4Rw</span><span>Cd</span>
+          <!-- 1: lock + "Only sites you prove you own" -->
+          <div id="safety-s1" class="clip safety-stmt" data-start="2.5" data-duration="3.5">
+            <div id="safety-o1" class="safety-obj">
+              <svg id="safety-lock" class="safety-glowsvg" width="330" height="412" viewBox="0 0 240 300">
+                <path id="safety-lock-shackle" class="safety-g" pathLength="1" d="M62 150 V96 A58 58 0 0 1 178 96 V150" />
+                <rect id="safety-lock-fill" x="12" y="140" width="216" height="148" rx="16" fill="rgba(61,255,162,0.07)" />
+                <rect id="safety-lock-body" class="safety-g" pathLength="1" x="12" y="140" width="216" height="148" rx="16" />
+                <circle id="safety-lock-hole" class="safety-g" pathLength="1" cx="120" cy="204" r="15" />
+                <path id="safety-lock-slot" class="safety-g" pathLength="1" d="M120 219 V250" />
+              </svg>
+              <div id="safety-domain">
+                <svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" fill="#3dffa2" /><path d="M8 15.5 L13 20.5 L22 10.5" fill="none" stroke="#05060a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <span>taskflow.app</span>
               </div>
             </div>
+            <div id="safety-i1" class="safety-idx"><span>01 <b>/ 04</b></span></div>
+            <div id="safety-s1a" class="safety-ln safety-say" style="top: 488px"><span class="safety-w">Only</span> <span class="safety-w">sites</span> <span class="safety-w">you</span></div>
+            <div id="safety-s1b" class="safety-ln safety-say" style="top: 564px"><span class="safety-w">prove</span> <span class="safety-w">you</span> <span class="safety-w">own</span></div>
           </div>
-          <div id="safety-s3-say" class="safety-ln safety-say safety-line"><span class="safety-w">Secrets</span> <span class="safety-w">are</span> <span class="safety-w">hidden</span> <span class="safety-w">in</span> <span class="safety-w">every</span> <span class="safety-w">report</span></div>
-        </div>
 
-        <!-- 4: table row of grey bars -->
-        <div id="safety-s4" class="clip safety-stmt" data-start="13" data-duration="3">
-          <div id="safety-table" class="safety-obj">
-            <div id="safety-table-box">
-              <div class="safety-trow">
-                <div class="safety-cell safety-c1">id</div>
-                <div class="safety-cell safety-c2">owner</div>
-                <div class="safety-cell safety-c3">secret_note</div>
-              </div>
-              <div class="safety-trow">
-                <div class="safety-cell safety-c1"><div id="safety-bar1" class="safety-bar" style="width: 108px"></div></div>
-                <div class="safety-cell safety-c2"><div id="safety-bar2" class="safety-bar" style="width: 372px"></div></div>
-                <div class="safety-cell safety-c3"><div id="safety-bar3" class="safety-bar" style="width: 610px"></div></div>
-              </div>
+          <!-- 2: GET arrow + "Only read requests, nothing is changed" -->
+          <div id="safety-s2" class="clip safety-stmt" data-start="6" data-duration="3.5">
+            <div id="safety-o2" class="safety-obj">
+              <div id="safety-get">GET</div>
+              <svg id="safety-arrow" class="safety-glowsvg" width="260" height="80" viewBox="0 0 260 80">
+                <path id="safety-arrow-shaft" class="safety-g" pathLength="1" d="M10 40 H246" />
+                <path id="safety-arrow-head" class="safety-g" pathLength="1" d="M218 14 L248 40 L218 66" />
+              </svg>
+              <div id="safety-packet"></div>
+              <div class="safety-meth" id="safety-m1" style="left: 20px">POST<i></i></div>
+              <div class="safety-meth" id="safety-m2" style="left: 176px">PATCH<i></i></div>
+              <div class="safety-meth" id="safety-m3" style="left: 354px">DELETE<i></i></div>
             </div>
+            <div id="safety-i2" class="safety-idx"><span>02 <b>/ 04</b></span></div>
+            <div id="safety-s2a" class="safety-ln safety-say" style="top: 488px"><span class="safety-w">Only</span> <span id="safety-mk-read" class="safety-w">read<i class="safety-ul"></i></span> <span class="safety-w">requests,</span></div>
+            <div id="safety-s2b" class="safety-ln safety-say" style="top: 564px"><span class="safety-w">nothing</span> <span class="safety-w">is</span> <span class="safety-w">changed</span></div>
           </div>
-          <div id="safety-s4-say" class="safety-ln safety-say safety-line"><span class="safety-w">Row</span> <span class="safety-w">values</span> <span class="safety-w">are</span> <span class="safety-w safety-mkw"><span class="safety-mk"></span><span class="safety-mt">never</span></span> <span class="safety-w">stored</span></div>
+
+          <!-- 3: key with a hidden middle + "Secrets are hidden in every report" -->
+          <div id="safety-s3" class="clip safety-stmt" data-start="9.5" data-duration="3.5">
+            <div id="safety-o3" class="safety-obj">
+              <svg id="safety-keysvg" class="safety-glowsvg" width="600" height="220" viewBox="0 0 600 220">
+                <circle id="safety-key-bow" class="safety-g" pathLength="1" cx="100" cy="100" r="78" />
+                <circle id="safety-key-hole" class="safety-g" pathLength="1" cx="100" cy="100" r="26" />
+                <path id="safety-key-blade" class="safety-g" pathLength="1" d="M178 82 H560 V118 H178" />
+                <path id="safety-key-teeth" class="safety-g" pathLength="1" d="M470 118 V160 H500 V118 M520 118 V176 H548 V118" />
+              </svg>
+              <div id="safety-secret"><span>sk_l</span><span id="safety-mid"><span>ive_7Hq2Xm9Pz4Rw</span></span><span>Cd</span><div id="safety-vscan"></div></div>
+            </div>
+            <div id="safety-i3" class="safety-idx"><span>03 <b>/ 04</b></span></div>
+            <div id="safety-s3a" class="safety-ln safety-say" style="top: 488px"><span class="safety-w">Secrets</span> <span class="safety-w">are</span> <span class="safety-w">hidden</span></div>
+            <div id="safety-s3b" class="safety-ln safety-say" style="top: 564px"><span class="safety-w">in</span> <span class="safety-w">every</span> <span class="safety-w">report</span></div>
+          </div>
+
+          <!-- 4: a table row of grey bars + "Row values are never stored" -->
+          <div id="safety-s4" class="clip safety-stmt" data-start="13" data-duration="3">
+            <div id="safety-o4" class="safety-obj">
+              <div id="safety-tname">todos</div>
+              <div id="safety-table">
+                <div class="safety-trow">
+                  <div class="safety-cell safety-c1">id</div>
+                  <div class="safety-cell safety-c2">owner</div>
+                  <div class="safety-cell safety-c3">secret_note</div>
+                </div>
+                <div class="safety-trow">
+                  <div class="safety-cell safety-c1"><div id="safety-bar1" class="safety-bar" style="width: 48px"><i></i></div></div>
+                  <div class="safety-cell safety-c2"><div id="safety-bar2" class="safety-bar" style="width: 156px"><i></i></div></div>
+                  <div class="safety-cell safety-c3"><div id="safety-bar3" class="safety-bar" style="width: 240px"><i></i></div></div>
+                </div>
+                <div id="safety-tscan"></div>
+              </div>
+              <div id="safety-note">values not stored</div>
+            </div>
+            <div id="safety-i4" class="safety-idx"><span>04 <b>/ 04</b></span></div>
+            <div id="safety-s4a" class="safety-ln safety-say" style="top: 488px"><span class="safety-w">Row</span> <span class="safety-w">values</span> <span class="safety-w">are</span></div>
+            <div id="safety-s4b" class="safety-ln safety-say" style="top: 564px"><span id="safety-mk-never" class="safety-w">never<i class="safety-ul"></i></span> <span class="safety-w">stored</span></div>
+          </div>
         </div>
       </div>
+      <div id="safety-title" class="clip safety-ln" data-start="0" data-duration="16"><span class="safety-w">Built</span> <span class="safety-w">to</span> <span class="safety-w">be</span> <span class="safety-w">safe</span> <span class="safety-w">to</span> <span class="safety-w">run</span></div>
+      <div id="safety-hud"><span id="safety-hud-t"></span><span id="safety-hud-c"></span></div>
     </div>
+
+    <div id="safety-wipe" class="clip" data-start="15.7333" data-duration="0.2667"></div>
   </div>
 
   <script>
@@ -297,156 +235,195 @@
       const tl = gsap.timeline({ paused: true });
       const F = 1 / 30;
       const DUR = 16;
-      const OPEN = "inset(-25% -2% -25% -2%)";
-      const SHUT = "inset(-25% 100% -25% -2%)";
-      const GONE = "inset(-25% -2% -25% 100%)";
+      const FILM_START = 164;
+      const P = "#safety";
 
-      // ---- camera: velocity-matched cut in, slow push, beat re-targets, cut out
-      tl.fromTo("#safety-cam", { x: 420 }, { x: 0, duration: 18 * F, ease: "expo.out" }, 0);
-      tl.fromTo("#safety-cam", { scale: 1 }, { scale: 1.06, duration: DUR, ease: "sine.inOut" }, 0);
-      tl.fromTo(
-        "#safety-cam",
-        { x: 0 },
-        { x: -420, duration: 10 * F, ease: "power3.in", immediateRender: false },
-        DUR - 10 * F,
-      );
-      let rx = 0;
-      let ry = 0;
+      // ---- shared world: ground grid scroll + dust from FILM time (continuous across cuts)
+      (function world(tl, id, FILM_START, DUR) {
+        let s = 20261122;
+        const rnd = () => { s |= 0; s = (s + 0x6d2b79f5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+        const box = document.getElementById(id + "-dust");
+        const dots = [];
+        for (let k = 0; k < 54; k++) {
+          const d = { x: rnd() * 1920, y: rnd() * 1180, z: 0.3 + rnd() * 0.7, ph: rnd() * 6.283 };
+          const el = document.createElement("i");
+          const size = 1 + d.z * 2;
+          el.style.width = el.style.height = size + "px";
+          el.style.opacity = (0.12 + d.z * 0.23).toFixed(3);
+          box.appendChild(el); d.el = el; dots.push(d);
+        }
+        const floor = document.getElementById(id + "-floor");
+        const draw = (T) => {
+          if (floor) floor.style.backgroundPosition = "0px " + ((T * 40) % 80) + "px";
+          for (const d of dots) {
+            const y = ((d.y - T * 14 * d.z) % 1180 + 1180) % 1180 - 50;
+            const x = d.x + Math.sin(T * 0.35 + d.ph) * 18 * d.z;
+            d.el.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px)";
+          }
+        };
+        const p = { t: 0 };
+        tl.fromTo(p, { t: 0 }, { t: DUR, duration: DUR, ease: "none", onUpdate: () => draw(FILM_START + p.t) }, 0);
+        draw(FILM_START);
+      })(tl, "safety", FILM_START, DUR);
+
+      // ---- transitions: in (scale 0.94 -> 1, fade 6 f), out (scale -> 1.15, fade, green scan line)
+      tl.fromTo(P + "-fx", { scale: 0.94 }, { scale: 1, duration: 16 * F, ease: "expo.out" }, 0);
+      tl.fromTo(P + "-fx", { opacity: 0 }, { opacity: 1, duration: 6 * F, ease: "power2.out" }, 0);
+      tl.fromTo(P + "-fx", { scale: 1 }, { scale: 1.15, duration: 12 * F, ease: "power2.in", immediateRender: false }, DUR - 12 * F);
+      tl.fromTo(P + "-fx", { opacity: 1 }, { opacity: 0, duration: 6 * F, ease: "power2.in", immediateRender: false }, DUR - 6 * F);
+      tl.fromTo(P + "-wipe", { y: -122 }, { y: 1080, duration: 8 * F, ease: "power1.in" }, DUR - 8 * F);
+
+      // ---- HUD: types 1 char per frame, block cursor blinks on the beat, gone after 2 s
+      (function hud(text) {
+        const t = document.querySelector(P + "-hud-t");
+        const c = document.querySelector(P + "-hud-c");
+        const p = { t: 0 };
+        const draw = () => {
+          const f = Math.floor(p.t * 30 + 1e-4);
+          t.textContent = text.slice(0, Math.min(text.length, f));
+          c.style.opacity = p.t < 2 && f % 15 < 8 ? 1 : 0;
+        };
+        tl.fromTo(p, { t: 0 }, { t: 3, duration: 3, ease: "none", onUpdate: draw }, 0);
+        draw();
+      })("08 / Safe by design");
+
+      // ---- camera: slow push + beat re-targets
+      tl.fromTo(P + "-cam", { scale: 1 }, { scale: 1.05, duration: DUR, ease: "sine.inOut" }, 0);
+      let rx = 0, ry = 0;
       const aim = (x, y, at, dur) => {
-        tl.fromTo(
-          "#safety-rig",
-          { x: rx, y: ry },
-          { x: x, y: y, duration: dur || 20 * F, ease: "power2.inOut", immediateRender: false },
-          at,
-        );
-        rx = x;
-        ry = y;
+        tl.fromTo(P + "-rig", { x: rx, y: ry }, { x: x, y: y, duration: dur || 24 * F, ease: "power2.inOut", immediateRender: false }, at);
+        rx = x; ry = y;
       };
 
       // ---- kinetic type
-      const wordsIn = (line, at) =>
-        tl.fromTo(
-          line + " > .safety-w",
-          { yPercent: 110 },
-          { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F },
-          at,
-        );
-      const wordsOut = (line, at) =>
-        tl.fromTo(
-          line + " > .safety-w",
-          { yPercent: 0 },
-          { yPercent: -110, duration: 8 * F, ease: "power2.in", stagger: 1 * F, immediateRender: false },
-          at,
-        );
-      const marker = (line, at) => {
-        tl.fromTo(line + " .safety-mk", { scaleX: 0 }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, at);
-        tl.fromTo(
-          line + " .safety-mt",
-          { color: "#0a0a0a" },
-          { color: "#ffffff", duration: 4 * F, ease: "none" },
-          at + 2 * F,
-        );
+      const wordsIn = (sel, t) =>
+        tl.fromTo(sel + " .safety-w", { yPercent: 115 }, { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, t);
+      const wordsOut = (sel, end) => {
+        const n = document.querySelectorAll(sel + " .safety-w").length;
+        tl.fromTo(sel + " .safety-w", { yPercent: 0 }, { yPercent: -115, duration: 8 * F, ease: "power2.in", stagger: F, immediateRender: false }, end - (8 + n - 1) * F);
       };
-
-      // ---- objects
-      const pop = (sel, at) =>
-        tl.fromTo(sel, { scale: 0.9 }, { scale: 1, duration: 16 * F, ease: "back.out(1.7)" }, at);
-      const recoil = (sel, at, dx, dy) =>
-        tl.fromTo(
-          sel,
-          { x: dx || 0, y: dy || 0 },
-          { x: 0, y: 0, duration: 10 * F, ease: "power2.out", immediateRender: false },
-          at,
-        );
-      const objOut = (sel, at) => {
-        tl.fromTo(
-          sel,
-          { clipPath: OPEN },
-          { clipPath: GONE, duration: 12 * F, ease: "power2.in", immediateRender: false },
-          at,
-        );
-        tl.fromTo(sel, { x: 0 }, { x: -70, duration: 12 * F, ease: "power2.in", immediateRender: false }, at);
+      const marker = (sel, t) => {
+        tl.fromTo(sel, { color: "#eaf2f7", textShadow: "0 0 18px rgba(61,255,162,0)" },
+          { color: "#3dffa2", textShadow: "0 0 18px rgba(61,255,162,0.6)", duration: 6 * F, ease: "power2.out" }, t);
+        tl.fromTo(sel + " .safety-ul", { scaleX: 0 }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, t);
       };
-      const draw = (sel, at, dur, ease) =>
-        tl.fromTo(
-          sel,
-          { strokeDasharray: 1, strokeDashoffset: 1 },
-          { strokeDashoffset: 0, duration: dur, ease: ease || "power2.inOut" },
-          at,
-        );
+      const draw = (sel, t, dur, ease) =>
+        tl.fromTo(sel, { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: dur, ease: ease || "power2.inOut" }, t);
+      // a statement: index + two lines rise in on the beat; leave up through the mask just before the next
+      const say = (n, t, end) => {
+        tl.fromTo(P + "-i" + n + " span", { yPercent: 110 }, { yPercent: 0, duration: 12 * F, ease: "power4.out" }, t);
+        wordsIn(P + "-s" + n + "a", t);
+        wordsIn(P + "-s" + n + "b", t + 4 * F);
+        if (end) {
+          tl.fromTo(P + "-i" + n + " span", { yPercent: 0 }, { yPercent: -110, duration: 8 * F, ease: "power2.in", immediateRender: false }, end - 8 * F);
+          wordsOut(P + "-s" + n + "a", end - 2 * F);
+          wordsOut(P + "-s" + n + "b", end);
+        }
+      };
+      // the big object: arrives tilted in depth, turns to face the camera over its beat, leaves
+      const objIn = (n, t, hold) => {
+        const o = P + "-o" + n;
+        tl.fromTo(o, { opacity: 0 }, { opacity: 1, duration: 6 * F, ease: "power2.out" }, t);
+        tl.fromTo(o, { scale: 0.82, rotationY: 28, rotationX: 8, x: -40 }, { scale: 1, rotationY: 12, rotationX: 5, x: 0, duration: 20 * F, ease: "expo.out" }, t);
+        tl.fromTo(o, { rotationY: 12, rotationX: 5 }, { rotationY: 0, rotationX: 0, duration: hold - 20 * F, ease: "sine.inOut", immediateRender: false }, t + 20 * F);
+      };
+      const objOut = (n, end) => {
+        const o = P + "-o" + n;
+        tl.fromTo(o, { opacity: 1, scale: 1, y: 0 }, { opacity: 0, scale: 0.94, y: -24, duration: 10 * F, ease: "power3.in", immediateRender: false }, end - 10 * F);
+      };
+      // a glow flash behind the object, on the beat
+      const flash = (n, t, peak) =>
+        tl.fromTo(P + "-o" + n, { filter: "brightness(" + (1 + 0.7 * (peak || 1)) + ")" }, { filter: "brightness(1)", duration: 24 * F, ease: "power2.out", immediateRender: false }, t);
+      const halo = (t, from, to) =>
+        tl.fromTo(P + "-halo", { opacity: from }, { opacity: to, duration: 14 * F, ease: "power2.out", immediateRender: false }, t);
 
       // 0.0 title, word by word, under the incoming camera
-      wordsIn("#safety-title", 0);
-      aim(0, 24, 1.0, 30 * F);
+      wordsIn(P + "-title", 0);
+      tl.fromTo(P + "-halo", { opacity: 0 }, { opacity: 0.5, duration: 1.5, ease: "sine.inOut" }, 1.0);
+      aim(0, 10, 1.0, 30 * F);
 
-      // 2.5 lock: body draws, shackle drops shut and the lock recoils
-      aim(70, -10, 2.5);
-      pop("#safety-lock", 2.5);
-      draw("#safety-lock-body", 2.5, 18 * F);
-      draw("#safety-lock-hole", 2.65, 12 * F);
-      draw("#safety-lock-slot", 2.75, 8 * F);
-      draw("#safety-lock-shackle", 2.6, 15 * F);
-      tl.fromTo("#safety-lock-shackle", { y: -42 }, { y: 0, duration: 12 * F, ease: "power3.in" }, 3.2);
-      recoil("#safety-lock", 3.6, 0, 8);
-      wordsIn("#safety-s1-say", 2.5 + 5 * F);
-      aim(40, -60, 4.3, 24 * F);
-      objOut("#safety-lock", 5.55);
-      wordsOut("#safety-s1-say", 5.55);
+      // 2.5 lock: draws on, the shackle drops shut on 3.5, the domain is proven at 4.0
+      aim(20, 0, 2.5);
+      objIn(1, 2.5, 3.0);
+      say(1, 2.5, 6.0);
+      draw(P + "-lock-body", 2.5, 18 * F);
+      draw(P + "-lock-hole", 2.7, 12 * F);
+      draw(P + "-lock-slot", 2.8, 9 * F);
+      draw(P + "-lock-shackle", 2.6, 15 * F);
+      tl.fromTo(P + "-lock-fill", { opacity: 0 }, { opacity: 1, duration: 12 * F, ease: "power2.out" }, 2.8);
+      tl.fromTo(P + "-lock-shackle", { y: -34 }, { y: 0, duration: 9 * F, ease: "power3.in" }, 3.5 - 9 * F);
+      halo(3.5, 1, 0.55);
+      flash(1, 3.5);
+      tl.fromTo(P + "-lock", { y: 0 }, { y: 8, duration: 2 * F, ease: "power2.out", immediateRender: false }, 3.5);
+      tl.fromTo(P + "-lock", { y: 8 }, { y: 0, duration: 10 * F, ease: "power2.out", immediateRender: false }, 3.5 + 2 * F);
+      tl.fromTo(P + "-domain", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 18 * F, ease: "expo.out" }, 4.0);
+      tl.fromTo(P + "-domain svg", { scale: 0 }, { scale: 1, duration: 14 * F, ease: "back.out(2.2)" }, 4.5);
+      aim(10, -14, 4.5, 30 * F);
+      flash(1, 5.0, 0.6);
+      objOut(1, 6.0);
 
-      // 6.0 GET: the tag slams in, the arrow draws, then one request travels it
-      aim(-20, -10, 6.0);
-      tl.fromTo("#safety-get-tag", { scale: 1.45 }, { scale: 1, duration: 9 * F, ease: "power4.out" }, 6.0);
-      tl.fromTo("#safety-get-tag", { opacity: 0 }, { opacity: 1, duration: 3 * F, ease: "none" }, 6.0);
-      draw("#safety-get-shaft", 6.05, 24 * F);
-      draw("#safety-get-head", 6.05 + 20 * F, 8 * F, "power2.out");
-      recoil("#safety-get-tag", 6.05 + 26 * F, -6, 0);
-      wordsIn("#safety-s2-say", 6.0 + 5 * F);
-      marker("#safety-s2-say", 6.75);
-      tl.fromTo("#safety-get-dot", { opacity: 0 }, { opacity: 1, duration: 3 * F, ease: "none" }, 7.6);
-      tl.fromTo("#safety-get-dot", { x: 0 }, { x: 676, duration: 22 * F, ease: "power3.inOut" }, 7.6);
-      aim(-80, -10, 7.6, 22 * F);
-      recoil("#safety-get-svg", 7.6 + 22 * F, 8, 0);
-      objOut("#safety-get", 9.05);
-      wordsOut("#safety-s2-say", 9.05);
-
-      // 9.5 key travels in, then the middle of the secret blurs away
-      aim(40, 0, 9.5);
-      tl.fromTo("#safety-key", { x: -220 }, { x: 0, duration: 16 * F, ease: "power3.out" }, 9.5);
-      tl.fromTo("#safety-key", { opacity: 0 }, { opacity: 1, duration: 5 * F, ease: "none" }, 9.5);
-      recoil("#safety-key-tag", 9.5 + 16 * F, 6, 0);
-      tl.fromTo(
-        "#safety-key-mid",
-        { filter: "blur(0px)", opacity: 1 },
-        { filter: "blur(12px)", opacity: 0.5, duration: 18 * F, ease: "power2.inOut" },
-        10.3,
-      );
-      wordsIn("#safety-s3-say", 9.5 + 5 * F);
-      aim(0, -50, 11.2, 24 * F);
-      objOut("#safety-key", 12.55);
-      wordsOut("#safety-s3-say", 12.55);
-
-      // 13.0 table row: values replaced by grey bars
-      aim(-10, 0, 13.0);
-      pop("#safety-table", 13.0);
-      tl.fromTo(
-        "#safety-table-box",
-        { clipPath: SHUT },
-        { clipPath: OPEN, duration: 16 * F, ease: "power3.out" },
-        13.0,
-      );
-      ["#safety-bar1", "#safety-bar2", "#safety-bar3"].forEach((b, i) => {
-        tl.fromTo(
-          b,
-          { clipPath: "inset(0% 100% 0% 0%)" },
-          { clipPath: "inset(0% 0% 0% 0%)", duration: 12 * F, ease: "power3.out" },
-          13.3 + i * 6 * F,
-        );
+      // 6.0 GET: the tag slams in, the arrow draws, read-only requests travel it; writing methods are struck out
+      aim(-10, 0, 6.0);
+      objIn(2, 6.0, 3.0);
+      say(2, 6.0, 9.5);
+      tl.fromTo(P + "-get", { scale: 1.45 }, { scale: 1, duration: 9 * F, ease: "power4.out" }, 6.0);
+      draw(P + "-arrow-shaft", 6.2, 14 * F);
+      draw(P + "-arrow-head", 6.5, 8 * F, "power2.out");
+      marker(P + "-mk-read", 6.5);
+      halo(6.0, 1, 0.55);
+      [7.0, 8.0].forEach((t) => {
+        tl.fromTo(P + "-packet", { x: 0, opacity: 0 }, { x: 205, duration: 14 * F, ease: "power3.inOut", immediateRender: false }, t);
+        tl.fromTo(P + "-packet", { opacity: 0 }, { opacity: 1, duration: 3 * F, ease: "none", immediateRender: false }, t);
+        tl.fromTo(P + "-packet", { opacity: 1 }, { opacity: 0, duration: 4 * F, ease: "power2.in", immediateRender: false }, t + 12 * F);
       });
-      wordsIn("#safety-s4-say", 13.0 + 5 * F);
-      marker("#safety-s4-say", 13.75);
-      aim(-30, -50, 14.5, 24 * F);
+      [P + "-m1", P + "-m2", P + "-m3"].forEach((m, i) => {
+        tl.fromTo(m, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 16 * F, ease: "expo.out" }, 7.0 + i * 2 * F);
+        tl.fromTo(m + " i", { scaleX: 0 }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, 7.5 + i * 2 * F);
+        tl.fromTo(m, { opacity: 1 }, { opacity: 0.55, duration: 10 * F, ease: "power2.out", immediateRender: false }, 7.5 + i * 2 * F + 6 * F);
+      });
+      flash(2, 7.5, 0.7);
+      aim(-20, -12, 8.0, 30 * F);
+      objOut(2, 9.5);
+
+      // 9.5 key: draws on; at 10.5 a scan line reads the secret and its middle is hidden
+      aim(14, 0, 9.5);
+      objIn(3, 9.5, 3.0);
+      say(3, 9.5, 13.0);
+      draw(P + "-key-bow", 9.5, 16 * F);
+      draw(P + "-key-hole", 9.6, 12 * F);
+      draw(P + "-key-blade", 9.7, 16 * F);
+      draw(P + "-key-teeth", 10.0, 10 * F);
+      tl.fromTo(P + "-secret", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 18 * F, ease: "expo.out" }, 10.0);
+      halo(9.5, 1, 0.55);
+      tl.fromTo(P + "-vscan", { x: 120 }, { x: 640, duration: 0.5, ease: "sine.inOut" }, 10.5);
+      tl.fromTo(P + "-vscan", { opacity: 0 }, { opacity: 1, duration: 4 * F, ease: "none" }, 10.5);
+      tl.fromTo(P + "-vscan", { opacity: 1 }, { opacity: 0, duration: 4 * F, ease: "power2.in", immediateRender: false }, 10.85);
+      tl.fromTo(P + "-mid span", { filter: "blur(0px)" }, { filter: "blur(8px)", duration: 14 * F, ease: "sine.inOut" }, 10.5);
+      tl.fromTo(P + "-mid", { width: 460.8 }, { width: 110, duration: 16 * F, ease: "power3.inOut" }, 11.0);
+      flash(3, 11.5, 0.8);
+      aim(4, -14, 11.5, 30 * F);
+      objOut(3, 13.0);
+
+      // 13.0 the table: one row comes back, its values are grey bars; nothing is kept
+      aim(-6, 0, 13.0);
+      objIn(4, 13.0, 2.6);
+      say(4, 13.0);
+      halo(13.0, 1, 0.55);
+      ["#safety-bar1", "#safety-bar2", "#safety-bar3"].forEach((b, i) => {
+        tl.fromTo(b, { scaleX: 0, transformOrigin: "0% 50%" }, { scaleX: 1, duration: 12 * F, ease: "power3.out" }, 13.5 + i * 2 * F);
+        tl.fromTo(b + " i", { xPercent: -120 }, { xPercent: 220, duration: 1.0, ease: "sine.inOut" }, 13.5 + i * 2 * F);
+      });
+      marker(P + "-mk-never", 13.5);
+      tl.fromTo(P + "-tscan", { y: -40 }, { y: 176, duration: 1.0, ease: "sine.inOut" }, 14.0);
+      tl.fromTo(P + "-tscan", { opacity: 0 }, { opacity: 1, duration: 4 * F, ease: "none" }, 14.0);
+      tl.fromTo(P + "-tscan", { opacity: 1 }, { opacity: 0, duration: 6 * F, ease: "power2.in", immediateRender: false }, 14.8);
+      tl.fromTo(P + "-note", { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 14 * F, ease: "power3.out" }, 14.5);
+      flash(4, 15.0, 0.7);
+      aim(-10, -10, 14.5, 30 * F);
 
       tl.set({}, {}, DUR);
+      window.__timelines = window.__timelines || {};
       window.__timelines["safety"] = tl;
     })();
   </script>

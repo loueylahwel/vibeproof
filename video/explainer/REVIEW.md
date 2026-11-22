@@ -1,5 +1,12 @@
 # Review: Vibeproof explainer ("Two ways in")
 
+## v7 (owner: "remake the whole video in a better style with better sound effects"; chose dark tech glowing + music-led)
+
+- Look: SPEC.md "v7 DARK TECH REMAKE". Near-black ground with a green glow, a perspective floor grid and dust that run continuously across cuts (compositions/_world.snippet.html), green for Vibeproof and red for the flaw, panels in 3D turning to camera, typed chapter labels (01 / THE QUESTION ...), scan lines where Vibeproof reads, light sweeps, product screens as one big floating screen with rim light and reflection that turns flat for every punch-in. Cuts: push-in and fade with a green scan line. Same story, text, facts and numbers.
+- Sound: an F-minor 120 BPM electronic track synthesized in numpy (tools/sound/music.py), arranged per scene (intro, groove, breakdown at blind spots, brighter demos, calm safety, build, one beat of silence, drop exactly on the results join at 205 s, outro). Only 10 effects, each in key: split hit, key clink, shield crack, four lock-on blips on "found", two UI clicks, the end chime. No whooshes. -16 LUFS, true peak -1.2 dBTP.
+- Picture rendered by tools/render (33.5 min, 3563 of 6660 frames motion-blurred). Render: renders/vibeproof-explainer-v7.mp4.
+- Not done: nobody has listened to the music; it was checked by measurements and spectrograms only.
+
 ## v6 (owner: does not like the whooshes, too repetitive)
 
 - No whooshes left. The 45 camera puffs and the cursor slide are gone. The 13 scene cuts are now a warm low note from the background chord. Text lines get a soft mallet note from the current chord, never the same note twice in a row, and thinned to at least 0.5 s apart (37 left). Highlights are a glass ping only, punch-ins a soft knock only, and the join's noise riser is turned down.
