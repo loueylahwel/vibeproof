@@ -66,40 +66,28 @@
       width: max-content;
       white-space: nowrap;
     }
-    #end-sub {
-      position: absolute;
-      left: 256px;
-      top: 732px;
-      font-weight: 700;
-      font-size: 44px;
-      letter-spacing: -0.01em;
-      line-height: 1.2;
-      color: #6b6b6b;
-      width: max-content;
-      white-space: nowrap;
-    }
   </style>
 
-  <div id="root" data-composition-id="end" data-width="1920" data-height="1080">
-    <div id="end-grid"></div>
+  <div data-hf-id="hf-gwfo" id="root" data-composition-id="end" data-width="1920" data-height="1080">
+    <div data-hf-id="hf-98id" id="end-grid"></div>
 
-    <div id="end-claim" class="clip end-full" data-hold data-start="0" data-duration="12">
-      <div id="end-claim1" class="end-display">Scan the code.</div>
-      <div id="end-claim2" class="end-display">Then check the live site.</div>
+    <div data-hf-id="hf-0bir" id="end-claim" class="clip end-full" data-hold="" data-start="0" data-duration="12">
+      <div data-hf-id="hf-3gwa" id="end-claim1" class="end-display">Scan the code.</div>
+      <div data-hf-id="hf-4l4b" id="end-claim2" class="end-display">Then check the live site.</div>
     </div>
 
-    <div id="end-mark" class="clip end-full" data-start="5" data-duration="7">
-      <svg id="end-shield" viewBox="0 0 24 24">
-        <path id="end-shield-path" class="end-mark-ink" pathLength="1" d="M12 2.5 4.5 5.4v5.8c0 4.7 3.2 8.9 7.5 10.3 4.3-1.4 7.5-5.6 7.5-10.3V5.4L12 2.5Z" />
-        <path id="end-check-path" class="end-mark-ink" pathLength="1" d="m8.8 12.2 2.3 2.3 4.3-4.6" />
+    <div data-hf-id="hf-jrma" id="end-mark" class="clip end-full" data-start="5" data-duration="7">
+      <svg data-hf-id="hf-l1xw" id="end-shield" viewBox="0 0 24 24">
+        <path data-hf-id="hf-93kq" id="end-shield-path" class="end-mark-ink" pathLength="1" d="M12 2.5 4.5 5.4v5.8c0 4.7 3.2 8.9 7.5 10.3 4.3-1.4 7.5-5.6 7.5-10.3V5.4L12 2.5Z" />
+        <path data-hf-id="hf-s5bs" id="end-check-path" class="end-mark-ink" pathLength="1" d="m8.8 12.2 2.3 2.3 4.3-4.6" />
       </svg>
-      <div id="end-word">Vibeproof</div>
-      <div id="end-sub">Security scanner for vibe-coded apps · university project</div>
+      <div data-hf-id="hf-jvm5" id="end-word">Vibeproof</div>
     </div>
   </div>
 
   <script>
     (function () {
+gsap.set("#end", { z: -66, transformPerspective: 1080, rotationX: 10, rotationY: -15 });
       const tl = gsap.timeline({ paused: true });
       const F = 1 / 30;
       const SHUT = "inset(-25% 100% -25% -2%)";
@@ -126,7 +114,6 @@
       );
       // 5.6 the name wipes in beside it (impact peak), then the line under it
       wipeIn("#end-word", 5.6);
-      wipeIn("#end-sub", 5.6 + 6 * F);
 
       tl.set({}, {}, 12);
       window.__timelines["end"] = tl;

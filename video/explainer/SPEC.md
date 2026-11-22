@@ -149,3 +149,33 @@ Defaults from the spec guide, plus for this film:
 - 172 s: one safety statement, its object.
 - 192 s and 205 s: bars with correct numbers 24, 19, 33 and 11, 6, 12.
 - 218 s: end card complete.
+
+## v2 ALIVE PASS (owner feedback: "the video is so dead", no sound effects, no end-card subtitle)
+
+Applies to every scene on top of v1. Same text, same timings, same facts. No sound at all for now.
+
+1. TWO WORLDS that carry the story.
+   - CODE world (dark): ground #0B0B0C, grid lines #FFFFFF at 6% every 48 px, text #F2F2F2, muted #8A8A8A, code panels #17171A with #F2F2F2 code and #5C5C5C line numbers, flaw red #FF4D4F, "found" tags white with black text.
+   - SITE world (light): the v1 PAPER world.
+   - hook: starts in SITE; at the split (5.4 s) the left half's ground turns to CODE (dark) behind the file tree, the right half stays white: the frame becomes half dark, half light.
+   - stack: SITE. code: CODE. site: SITE. blind: left half CODE, right half SITE (hard vertical seam at x 960). repodemo, webdemo: product black (unchanged). safety: SITE. results: SITE. end: CODE (white mark and type on the dark ground).
+2. CAMERA always moving. Wrap all scene content (not the grid ground) in `#<id>-cam`, transform-origin at the active area.
+   - A slow push across the whole scene: scale 1.00 -> 1.06, sine.inOut, full scene duration.
+   - At every beat the camera re-targets towards the element that just appeared: translate 40-120 px, power2.inOut, 20 frames (attention leads the frame).
+   - Product scenes: between punch-ins a slow drift 1.00 -> 1.03; keep the existing punch-ins.
+3. KINETIC TYPE.
+   - Every line enters word by word from a mask: the line box has overflow hidden; each word starts at translateY 110% and lands at 0, power4.out, 14 frames, 2-frame stagger. A leaving line exits upward through the mask, power2.in, 8 frames, 1-frame stagger. This replaces the v1 wipes for text (wipes stay for drawn lines and bars).
+   - Display lines (hook, blind opener, safety title, end claim) grow from 84 px to 100 px.
+   - One key word per beat gets a marker: a FLAW red bar (height 0.9em, behind the word, white text on top) that grows scaleX 0 -> 1 from the left in 10 frames, power3.out. At most 2 per scene. Product captions: the marker is white with black text.
+4. OBJECTS react.
+   - "found" tags and badges slam in: scale 1.45 -> 1, power4.out, 9 frames, with the parent panel recoiling 6 px and settling (power2.out, 10 frames).
+   - Things that appear overshoot: scale 0.9 -> 1, back.out(1.7), 16 frames; things that travel use power3.out and arrive with a 4-frame settle.
+   - Counting numbers in results: on landing, each number scales 1.18 -> 1 in 8 frames.
+5. VELOCITY-MATCHED CUTS on every scene boundary, always the same direction (forward = to the left).
+   - Outgoing: in the scene's last 10 frames the camera wrapper accelerates to translateX -420 px, power4.in.
+   - Incoming: in the scene's first 12 frames the camera wrapper travels from translateX +420 px to 0, power4.out.
+   - hook has no incoming move (frame 0 stays the app); end has no outgoing move.
+   - Product scenes apply the same moves to their screenshot camera.
+6. NO DEAD AIR: never more than 2 s without a visible change of at least 20 px or a new element. Fill long holds with the camera re-target or a secondary reaction, never with breathing loops.
+
+BANNED additions: plain left-to-right wipe on text; a line that appears all at once; any hold longer than 2 s with nothing moving; sound effects.
