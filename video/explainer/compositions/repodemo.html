@@ -289,10 +289,10 @@
 
       // velocity-matched cuts on the scene camera: out = -420 px in 10 f power4.in, in = from +420 px in 12 f power4.out
       function whipIn(t) {
-        tl.fromTo("#repodemo-scene", { x: 420 }, { x: 0, duration: 12 * F, ease: "power4.out", immediateRender: t === 0 }, t);
+        tl.fromTo("#repodemo-scene", { x: 420 }, { x: 0, duration: 18 * F, ease: "expo.out", immediateRender: t === 0 }, t);
       }
       function whipOut(t) {
-        tl.fromTo("#repodemo-scene", { x: 0 }, { x: -420, duration: 10 * F, ease: "power4.in", immediateRender: false }, t - 10 * F);
+        tl.fromTo("#repodemo-scene", { x: 0 }, { x: -420, duration: 10 * F, ease: "power3.in", immediateRender: false }, t - 10 * F);
       }
 
       // slam: scale 1.45 -> 1, power4.out, 9 f

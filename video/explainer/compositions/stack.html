@@ -173,7 +173,7 @@
 
       // camera: slow push, re-target at each beat, velocity-matched cut in and out
       tl.fromTo(CAM, { scale: 1 }, { scale: 1.06, duration: D, ease: "sine.inOut" }, 0);
-      tl.fromTo(CAM, { x: 420 }, { x: 0, duration: 12 * F, ease: "power4.out" }, 0);
+      tl.fromTo(CAM, { x: 420 }, { x: 0, duration: 18 * F, ease: "expo.out" }, 0);
       let cx = 0, cy = 0;
       function cam(t, x, y) {
         tl.fromTo(CAM, { x: cx, y: cy }, { x: x, y: y, duration: 20 * F, ease: "power2.inOut", immediateRender: false }, t);
@@ -188,7 +188,7 @@
       cam(12.5, -10, -30); // the shield breaks
       cam(15.2, 30, 20);   // the data reaches the browser
       cam(16.8, 0, 50);    // back to the line
-      tl.fromTo(CAM, { x: cx }, { x: -420, duration: 10 * F, ease: "power4.in", immediateRender: false }, D - 10 * F);
+      tl.fromTo(CAM, { x: cx }, { x: -420, duration: 10 * F, ease: "power3.in", immediateRender: false }, D - 10 * F);
 
       // lines
       lineIn("#stack-l1", 1.0);

@@ -418,12 +418,12 @@
       const SHUT = "inset(-25% 100% -25% -2%)";
 
       // ---- camera: velocity-matched cut in, slow push, beat re-targets, cut out
-      tl.fromTo("#results-cam", { x: 420 }, { x: 0, duration: 12 * F, ease: "power4.out" }, 0);
+      tl.fromTo("#results-cam", { x: 420 }, { x: 0, duration: 18 * F, ease: "expo.out" }, 0);
       tl.fromTo("#results-cam", { scale: 1 }, { scale: 1.06, duration: DUR, ease: "sine.inOut" }, 0);
       tl.fromTo(
         "#results-cam",
         { x: 0 },
-        { x: -420, duration: 10 * F, ease: "power4.in", immediateRender: false },
+        { x: -420, duration: 10 * F, ease: "power3.in", immediateRender: false },
         DUR - 10 * F,
       );
       let rx = 0;

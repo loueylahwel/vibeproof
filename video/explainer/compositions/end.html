@@ -141,7 +141,7 @@ gsap.set("#end", { z: -66, transformPerspective: 1080, rotationX: 10, rotationY:
       const DUR = 12;
 
       // ---- camera: velocity-matched cut in and a slow push (the film's last scene: no cut out)
-      tl.fromTo("#end-cam", { x: 420 }, { x: 0, duration: 12 * F, ease: "power4.out" }, 0);
+      tl.fromTo("#end-cam", { x: 420 }, { x: 0, duration: 18 * F, ease: "expo.out" }, 0);
       tl.fromTo("#end-cam", { scale: 1 }, { scale: 1.06, duration: DUR, ease: "sine.inOut" }, 0);
       let rx = 0;
       let ry = 0;

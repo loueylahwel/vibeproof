@@ -235,7 +235,7 @@
       cam(5.4, 0, -30);   // the split, both halves and their labels
       cam(8.0, 50, 40);   // the question
       cam(10.0, 0, 0);    // settle on both halves
-      tl.fromTo(CAM, { x: cx }, { x: -420, duration: 10 * F, ease: "power4.in", immediateRender: false }, D - 10 * F);
+      tl.fromTo(CAM, { x: cx }, { x: -420, duration: 10 * F, ease: "power3.in", immediateRender: false }, D - 10 * F);
 
       // 0.4 / 3.0 / 8.0: display lines
       lineIn("#hook-l1", 0.4);

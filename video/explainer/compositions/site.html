@@ -441,8 +441,8 @@
 
       // ---- camera
       // cuts: in from +420 px (12 f, power4.out), out to -420 px (last 10 f, power4.in)
-      tl.fromTo("#site-cam", { x: 420 }, { x: 0, duration: 12 * F, ease: "power4.out" }, 0);
-      tl.fromTo("#site-cam", { x: 0 }, { x: -420, duration: 10 * F, ease: "power4.in", immediateRender: false }, SCENE - 10 * F);
+      tl.fromTo("#site-cam", { x: 420 }, { x: 0, duration: 18 * F, ease: "expo.out" }, 0);
+      tl.fromTo("#site-cam", { x: 0 }, { x: -420, duration: 10 * F, ease: "power3.in", immediateRender: false }, SCENE - 10 * F);
       // slow push over the whole scene
       tl.fromTo("#site-dolly", { scale: 1 }, { scale: 1.06, duration: SCENE, ease: "sine.inOut" }, 0);
       // re-targets: attention leads the frame

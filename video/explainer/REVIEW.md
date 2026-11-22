@@ -1,5 +1,11 @@
 # Review: Vibeproof explainer ("Two ways in")
 
+## v4 (owner feedback: parts with no sound; panels moved like they were dragged)
+
+- Motion: every scene-to-scene move softened (exit power3.in, arrival 18 frames expo.out instead of power4 in 10-12 frames) and render-time motion blur on (`data-motion-blur="on"` on the root), so fast moves smear instead of stepping. Checked frame by frame: smooth glide, no jumps.
+- Sound: 137 short effects (no music): swishes on every line and every camera move, typing and key ticks under the code and the request log, thuds on tag slams, the key and the shield, ticks on each result number, clicks on real clicks, one hit on the join, a chime on the mark. Silences over 3 s in the render: 30 -> 5 (each 3-4.5 s, plus the end hold).
+- Render: renders/vibeproof-explainer-v4.mp4.
+
 ## v2 (owner feedback: "dead", no sound effects, no end-card subtitle)
 
 - Removed the 44 original sound effects. v3: a smaller, quieter set of 26 (soft whooshes on the 13 camera swings, soft clicks on the 5 real clicks, low thuds on the 6 tag slams, one bass hit on the results join, a chime on the end mark). No music, by the owner's choice. Render: renders/vibeproof-explainer-v3.mp4.

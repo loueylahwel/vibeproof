@@ -216,7 +216,7 @@
 
       // camera: push, vertical re-targets (x stays 0 so the seam holds at x 960), cuts in and out
       tl.fromTo(CAM, { scale: 1 }, { scale: 1.06, duration: D, ease: "sine.inOut" }, 0);
-      tl.fromTo(CAM, { x: 420 }, { x: 0, duration: 12 * F, ease: "power4.out" }, 0);
+      tl.fromTo(CAM, { x: 420 }, { x: 0, duration: 18 * F, ease: "expo.out" }, 0);
       let cy = 0;
       function cam(t, y) {
         tl.fromTo(CAM, { y: cy }, { y: y, duration: 20 * F, ease: "power2.inOut", immediateRender: false }, t);
@@ -228,7 +228,7 @@
       cam(13.0, 10);  // both "not here" tags
       cam(15.0, 50);  // the closing line
       cam(16.6, 10);
-      tl.fromTo(CAM, { x: 0 }, { x: -420, duration: 10 * F, ease: "power4.in", immediateRender: false }, D - 10 * F);
+      tl.fromTo(CAM, { x: 0 }, { x: -420, duration: 10 * F, ease: "power3.in", immediateRender: false }, D - 10 * F);
 
       // labels
       tl.fromTo("#blind-lab-code .blind-w", { yPercent: 110 }, { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, 0.15);
