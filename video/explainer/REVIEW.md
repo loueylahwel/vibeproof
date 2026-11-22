@@ -1,5 +1,14 @@
 # Review: Vibeproof explainer ("Two ways in")
 
+## v2 (owner feedback: "dead", no sound effects, no end-card subtitle)
+
+- Removed all 44 sound effects; the film is silent until a music track is chosen.
+- Removed the end-card line under "Vibeproof" (including "university project").
+- Liveliness pass (SPEC.md "v2 ALIVE PASS"): code world dark, site world white, hook and blind split half dark / half light, end card dark; camera always moving and re-targeting each beat; words rise from a mask with one red marker per beat; found tags slam in; velocity-matched cuts between all scenes and between screens; safety objects enlarged.
+- Kept the owner's own Studio edit: the 3D tilt on the end card.
+- check: ok, no errors; remaining warnings are density advisories. Rendered renders/vibeproof-explainer-v2.mp4 (3:42, 1080p, silent).
+
+
 ## Creative calls
 
 - Storyline B "Two ways in" (STORYLINES.md), chosen for the class project because it carries the research question and its answer. A ("The night before launch") and C ("Follow one key") were not built.

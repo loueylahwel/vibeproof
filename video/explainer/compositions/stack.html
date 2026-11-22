@@ -9,17 +9,27 @@
       color: #0a0a0a;
     }
     #stack-grid { position: absolute; inset: 0; }
+    /* the camera: everything but the grid ground */
+    #stack-cam { position: absolute; inset: 0; transform-origin: 480px 540px; }
+    /* a line is a mask; its words rise through it */
     .stack-line {
       position: absolute;
-      left: 96px;
-      top: 108px;
+      left: 84px;
+      top: 104px;
+      padding: 4px 12px 10px 12px;
+      overflow: hidden;
       font-weight: 700;
       font-size: 44px;
       line-height: 56px;
       letter-spacing: -0.01em;
       white-space: nowrap;
     }
-    .stack-wipe { display: inline-block; }
+    .stack-w { display: inline-block; }
+    .stack-mk { position: relative; isolation: isolate; margin-left: 0.1em; }
+    .stack-bar {
+      position: absolute; left: -0.09em; right: -0.09em; top: calc(50% - 0.45em); height: 0.9em;
+      background: #e5342f; z-index: -1;
+    }
     .stack-label {
       position: absolute;
       font-weight: 700;
@@ -27,12 +37,13 @@
       line-height: 36px;
       white-space: nowrap;
     }
+    .stack-mask { overflow: hidden; padding: 0 6px 6px 6px; margin-left: -6px; }
     /* browser */
     #stack-browser {
       position: absolute; left: 200px; top: 380px; width: 520px; height: 400px;
       border: 2px solid #0a0a0a; border-radius: 10px; background: #ffffff; overflow: hidden;
     }
-    .stack-bar { position: absolute; left: 0; top: 0; right: 0; height: 68px; border-bottom: 2px solid #0a0a0a; }
+    .stack-bar-top { position: absolute; left: 0; top: 0; right: 0; height: 68px; border-bottom: 2px solid #0a0a0a; }
     .stack-addr {
       position: absolute; left: 92px; top: 11px; width: 408px; height: 44px;
       border: 2px solid #0a0a0a; border-radius: 22px; padding-left: 20px;
@@ -56,7 +67,10 @@
     #stack-key span { position: absolute; left: 62px; top: 12px; font-weight: 700; font-size: 28px; line-height: 36px; white-space: nowrap; }
     /* shield */
     #stack-shield { position: absolute; left: 1130px; top: 520px; width: 100px; height: 120px; }
-    #stack-shield svg { position: absolute; left: 0; top: 0; overflow: visible; }
+    #stack-shield-svg { position: absolute; left: 0; top: 0; overflow: visible; }
+    /* a request from the key, and rows of data */
+    #stack-req { position: absolute; left: 950px; top: 573px; width: 14px; height: 14px; border-radius: 7px; background: #0a0a0a; opacity: 0; }
+    .stack-datum { position: absolute; left: 1330px; top: 494px; width: 52px; height: 14px; border-radius: 7px; background: #0a0a0a; opacity: 0; }
   </style>
 
   <div id="root" data-composition-id="stack" data-width="1920" data-height="1080">
@@ -69,96 +83,161 @@
       <rect width="1920" height="1080" fill="url(#stack-gridpat)" />
     </svg>
 
-    <div id="stack-link"></div>
+    <div id="stack-cam" data-layout-allow-overflow>
+      <div id="stack-link"></div>
 
-    <!-- THE APP in the browser -->
-    <div id="stack-browser">
-      <div class="stack-bar">
-        <svg style="position: absolute; left: 18px; top: 28px" width="70" height="14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/><circle cx="29" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/><circle cx="51" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg>
-        <div class="stack-addr">taskflow.app</div>
+      <!-- THE APP in the browser -->
+      <div id="stack-browser">
+        <div class="stack-bar-top">
+          <svg style="position: absolute; left: 18px; top: 28px" width="70" height="14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/><circle cx="29" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/><circle cx="51" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg>
+          <div class="stack-addr">taskflow.app</div>
+        </div>
+        <div class="stack-row" style="top: 76px"><div class="stack-box stack-done"><svg width="20" height="18"><path d="M2 9 L8 15 L18 3" fill="none" stroke="#fff" stroke-width="3"/></svg></div><div class="stack-task">Ship landing page</div></div>
+        <div class="stack-row" style="top: 152px"><div class="stack-box"></div><div class="stack-task">Fix login bug</div></div>
+        <div class="stack-row" style="top: 228px"><div class="stack-box"></div><div class="stack-task">Write tests</div></div>
+        <div class="stack-row" style="top: 304px; border-bottom: 0"><div class="stack-box"></div><div class="stack-task">Launch</div></div>
       </div>
-      <div class="stack-row" style="top: 76px"><div class="stack-box stack-done"><svg width="20" height="18"><path d="M2 9 L8 15 L18 3" fill="none" stroke="#fff" stroke-width="3"/></svg></div><div class="stack-task">Ship landing page</div></div>
-      <div class="stack-row" style="top: 152px"><div class="stack-box"></div><div class="stack-task">Fix login bug</div></div>
-      <div class="stack-row" style="top: 228px"><div class="stack-box"></div><div class="stack-task">Write tests</div></div>
-      <div class="stack-row" style="top: 304px; border-bottom: 0"><div class="stack-box"></div><div class="stack-task">Launch</div></div>
-    </div>
 
-    <!-- THE DATABASE -->
-    <div id="stack-db">
-      <svg width="420" height="520">
-        <path d="M2 50 V470 A208 44 0 0 0 418 470 V50" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" />
-        <ellipse cx="210" cy="50" rx="208" ry="44" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" />
-        <!-- todos table grid -->
-        <rect x="50" y="186" width="320" height="40" fill="#f2f2f0" />
-        <rect x="50" y="186" width="320" height="200" fill="none" stroke="#0a0a0a" stroke-width="2" />
-        <path d="M50 226 H370 M50 266 H370 M50 306 H370 M50 346 H370 M130 186 V386 M250 186 V386" fill="none" stroke="#0a0a0a" stroke-width="2" />
-      </svg>
-      <div class="stack-tname">todos</div>
-    </div>
-    <div id="stack-dbname" class="stack-label" style="left: 1300px; top: 836px">Supabase</div>
-
-    <!-- shield: access rules -->
-    <div id="stack-shield" class="clip" data-start="8.5" data-duration="9.5">
-      <svg width="100" height="120">
-        <path id="stack-shield-whole" d="M50 6 L90 20 V58 C90 86 72 104 50 114 C28 104 10 86 10 58 V20 Z" pathLength="1" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" stroke-dasharray="1" />
-        <g id="stack-shield-l" opacity="0"><path d="M50 6 L10 20 V58 C10 86 28 104 50 114 L42 92 L56 72 L42 50 L56 30 Z" fill="#e5342f" stroke="#e5342f" stroke-width="2" stroke-linejoin="round" /></g>
-        <g id="stack-shield-r" opacity="0"><path d="M50 6 L90 20 V58 C90 86 72 104 50 114 L42 92 L56 72 L42 50 L56 30 Z" fill="#e5342f" stroke="#e5342f" stroke-width="2" stroke-linejoin="round" /></g>
-      </svg>
-    </div>
-    <div id="stack-rules" class="clip stack-label" data-start="8.5" data-duration="9.5" style="left: 1092px; top: 656px"><div id="stack-rules-t" class="stack-wipe">access rules</div></div>
-
-    <!-- THE ANON KEY -->
-    <div id="stack-key" class="clip" data-start="3.3" data-duration="14.7">
-      <div id="stack-key-in">
-        <svg width="216" height="60"><rect x="1" y="1" width="214" height="58" rx="29" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" /><circle cx="32" cy="30" r="10" fill="none" stroke="#0a0a0a" stroke-width="2" /></svg>
-        <span>anon key</span>
+      <!-- THE DATABASE -->
+      <div id="stack-db">
+        <svg width="420" height="520">
+          <path d="M2 50 V470 A208 44 0 0 0 418 470 V50" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" />
+          <ellipse cx="210" cy="50" rx="208" ry="44" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" />
+          <!-- todos table grid -->
+          <rect x="50" y="186" width="320" height="40" fill="#f2f2f0" />
+          <rect x="50" y="186" width="320" height="200" fill="none" stroke="#0a0a0a" stroke-width="2" />
+          <path d="M50 226 H370 M50 266 H370 M50 306 H370 M50 346 H370 M130 186 V386 M250 186 V386" fill="none" stroke="#0a0a0a" stroke-width="2" />
+        </svg>
+        <div class="stack-tname">todos</div>
       </div>
-    </div>
+      <div id="stack-dbname" class="stack-label" style="left: 1300px; top: 836px">Supabase</div>
 
-    <div id="stack-l1" class="clip stack-line" data-start="1" data-duration="3.5"><div id="stack-l1-t" class="stack-wipe">Apps like this talk to their database directly</div></div>
-    <div id="stack-l2" class="clip stack-line" data-start="4.5" data-duration="4"><div id="stack-l2-t" class="stack-wipe">Every visitor's browser gets this key</div></div>
-    <div id="stack-l3" class="clip stack-line" data-start="8.5" data-duration="4"><div id="stack-l3-t" class="stack-wipe">Only the access rules protect the data</div></div>
-    <div id="stack-l4" class="clip stack-line" data-hold data-start="12.5" data-duration="5.5"><div id="stack-l4-t" class="stack-wipe">One wrong rule, and the data is open</div></div>
+      <!-- rows of data leaving once the rule is broken -->
+      <div id="stack-datum1" class="stack-datum"></div>
+      <div id="stack-datum2" class="stack-datum"></div>
+      <div id="stack-datum3" class="stack-datum"></div>
+
+      <!-- shield: access rules -->
+      <div id="stack-shield" class="clip" data-start="8.5" data-duration="9.5">
+        <svg id="stack-shield-svg" width="100" height="120">
+          <path id="stack-shield-whole" d="M50 6 L90 20 V58 C90 86 72 104 50 114 C28 104 10 86 10 58 V20 Z" pathLength="1" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" stroke-dasharray="1" />
+          <g id="stack-shield-l" opacity="0"><path d="M50 6 L10 20 V58 C10 86 28 104 50 114 L42 92 L56 72 L42 50 L56 30 Z" fill="#e5342f" stroke="#e5342f" stroke-width="2" stroke-linejoin="round" /></g>
+          <g id="stack-shield-r" opacity="0"><path d="M50 6 L90 20 V58 C90 86 72 104 50 114 L42 92 L56 72 L42 50 L56 30 Z" fill="#e5342f" stroke="#e5342f" stroke-width="2" stroke-linejoin="round" /></g>
+        </svg>
+      </div>
+      <div id="stack-rules" class="clip stack-label" data-start="8.5" data-duration="9.5" style="left: 1092px; top: 656px"><div class="stack-mask"><span class="stack-w">access</span> <span class="stack-w">rules</span></div></div>
+
+      <!-- a request made with the key -->
+      <div id="stack-req"></div>
+
+      <!-- THE ANON KEY -->
+      <div id="stack-key" class="clip" data-start="3.3" data-duration="14.7">
+        <div id="stack-key-in">
+          <svg width="216" height="60"><rect x="1" y="1" width="214" height="58" rx="29" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" /><circle cx="32" cy="30" r="10" fill="none" stroke="#0a0a0a" stroke-width="2" /></svg>
+          <span>anon key</span>
+        </div>
+      </div>
+
+      <div id="stack-l1" class="clip stack-line" data-start="1" data-duration="3.5"><span class="stack-w">Apps</span> <span class="stack-w">like</span> <span class="stack-w">this</span> <span class="stack-w">talk</span> <span class="stack-w">to</span> <span class="stack-w">their</span> <span class="stack-w">database</span> <span class="stack-w">directly</span></div>
+      <div id="stack-l2" class="clip stack-line" data-start="4.5" data-duration="4"><span class="stack-w">Every</span> <span class="stack-w">visitor's</span> <span class="stack-w">browser</span> <span class="stack-w">gets</span> <span class="stack-w">this</span> <span id="stack-mk-key" class="stack-w stack-mk">key<i class="stack-bar"></i></span></div>
+      <div id="stack-l3" class="clip stack-line" data-start="8.5" data-duration="4"><span class="stack-w">Only</span> <span class="stack-w">the</span> <span class="stack-w">access</span> <span class="stack-w">rules</span> <span class="stack-w">protect</span> <span class="stack-w">the</span> <span class="stack-w">data</span></div>
+      <div id="stack-l4" class="clip stack-line" data-hold data-start="12.5" data-duration="5.5"><span class="stack-w">One</span> <span class="stack-w">wrong</span> <span class="stack-w">rule,</span> <span class="stack-w">and</span> <span class="stack-w">the</span> <span class="stack-w">data</span> <span class="stack-w">is</span> <span id="stack-mk-open" class="stack-w stack-mk">open<i class="stack-bar"></i></span></div>
+    </div>
   </div>
 
   <script>
     (function () {
       const tl = gsap.timeline({ paused: true });
-      const SHUT = "inset(0% 100% 0% 0%)";
+      const F = 1 / 30;
+      const D = 18;
+      const CAM = "#stack-cam";
       const OPEN = "inset(0% 0% 0% 0%)";
-      const GONE = "inset(0% 0% 0% 100%)";
-      function wipeIn(sel, t, d) {
-        tl.fromTo(sel, { clipPath: SHUT }, { clipPath: OPEN, duration: d || 0.6, ease: "power3.out" }, t);
+
+      // kinetic type: words rise through the line's mask, leave upward
+      function lineIn(sel, t) {
+        tl.fromTo(sel + " .stack-w", { yPercent: 110 }, { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, t);
       }
-      function wipeOut(sel, t) {
-        tl.fromTo(sel, { clipPath: OPEN }, { clipPath: GONE, duration: 0.4, ease: "power2.in", immediateRender: false }, t);
+      function lineOut(sel, end) {
+        const n = document.querySelectorAll(sel + " .stack-w").length;
+        tl.fromTo(sel + " .stack-w", { yPercent: 0 }, { yPercent: -110, duration: 8 * F, ease: "power2.in", stagger: F, immediateRender: false }, end - (8 + n) * F);
       }
+      function marker(sel, t) {
+        tl.fromTo(sel + " .stack-bar", { scaleX: 0, transformOrigin: "0% 50%" }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, t);
+        tl.fromTo(sel, { color: "#0a0a0a" }, { color: "#ffffff", duration: 6 * F, ease: "power2.out" }, t + 2 * F);
+      }
+      // a hit: the object is knocked a few px and settles
+      function recoil(sel, t, dx, dy) {
+        tl.fromTo(sel, { x: 0, y: 0 }, { x: dx, y: dy, duration: 2 * F, ease: "power2.out", immediateRender: false }, t);
+        tl.fromTo(sel, { x: dx, y: dy }, { x: 0, y: 0, duration: 10 * F, ease: "power2.out", immediateRender: false }, t + 2 * F);
+      }
+
+      // camera: slow push, re-target at each beat, velocity-matched cut in and out
+      tl.fromTo(CAM, { scale: 1 }, { scale: 1.06, duration: D, ease: "sine.inOut" }, 0);
+      tl.fromTo(CAM, { x: 420 }, { x: 0, duration: 12 * F, ease: "power4.out" }, 0);
+      let cx = 0, cy = 0;
+      function cam(t, x, y) {
+        tl.fromTo(CAM, { x: cx, y: cy }, { x: x, y: y, duration: 20 * F, ease: "power2.inOut", immediateRender: false }, t);
+        cx = x; cy = y;
+      }
+      cam(1.0, 30, 30);    // the line
+      cam(3.3, -10, -10);  // the key leaves the database
+      cam(4.5, 40, 0);     // the key lands at the browser
+      cam(6.6, -20, 30);   // towards the database
+      cam(8.5, 0, -20);    // the shield
+      cam(10.6, 30, 10);   // a request hits the shield
+      cam(12.5, -10, -30); // the shield breaks
+      cam(15.2, 30, 20);   // the data reaches the browser
+      cam(16.8, 0, 50);    // back to the line
+      tl.fromTo(CAM, { x: cx }, { x: -420, duration: 10 * F, ease: "power4.in", immediateRender: false }, D - 10 * F);
 
       // lines
-      wipeIn("#stack-l1-t", 1.0);
-      wipeOut("#stack-l1-t", 4.1);
-      wipeIn("#stack-l2-t", 4.5);
-      wipeOut("#stack-l2-t", 8.1);
-      wipeIn("#stack-l3-t", 8.5);
-      wipeOut("#stack-l3-t", 12.1);
-      wipeIn("#stack-l4-t", 12.5);
+      lineIn("#stack-l1", 1.0);
+      lineOut("#stack-l1", 4.5);
+      lineIn("#stack-l2", 4.5);
+      marker("#stack-mk-key", 5.3);
+      lineOut("#stack-l2", 8.5);
+      lineIn("#stack-l3", 8.5);
+      lineOut("#stack-l3", 12.5);
+      lineIn("#stack-l4", 12.5);
+      marker("#stack-mk-open", 13.45);
 
-      // 3.3: the anon key leaves the database; travels the line, lands on the browser at 4.5 (pop)
-      tl.fromTo("#stack-key-in", { clipPath: "inset(0% 0% 0% 100%)" }, { clipPath: OPEN, duration: 0.4, ease: "power3.out" }, 3.3);
-      tl.fromTo("#stack-key-in", { x: 0 }, { x: -340, duration: 0.8, ease: "power2.inOut" }, 3.7);
+      // 3.3: the anon key comes out of the database, travels the line (power3.out), settles at the browser at 4.5
+      tl.fromTo("#stack-key-in", { clipPath: "inset(0% 0% 0% 100%)" }, { clipPath: OPEN, duration: 0.3, ease: "power3.out" }, 3.3);
+      tl.fromTo("#stack-key-in", { x: 0 }, { x: -352, duration: 0.7, ease: "power3.out" }, 3.63);
+      tl.fromTo("#stack-key-in", { x: -352 }, { x: -340, duration: 4 * F, ease: "power2.inOut", immediateRender: false }, 4.37);
+      recoil("#stack-browser", 4.33, -6, 0);
 
-      // 8.5: the shield draws on at the database edge
-      tl.fromTo("#stack-shield-whole", { strokeDashoffset: 1, fillOpacity: 0 }, { strokeDashoffset: 0, duration: 0.8, ease: "power3.out" }, 8.5);
-      tl.fromTo("#stack-shield-whole", { fillOpacity: 0 }, { fillOpacity: 1, duration: 0.3, ease: "power2.out", immediateRender: false }, 8.6);
-      wipeIn("#stack-rules-t", 8.8);
+      // 8.5: the shield draws on at the database edge and overshoots into place
+      tl.fromTo("#stack-shield-svg", { scale: 0.9, transformOrigin: "50% 50%" }, { scale: 1, duration: 16 * F, ease: "back.out(1.7)" }, 8.5);
+      tl.fromTo("#stack-shield-whole", { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.8, ease: "power3.out" }, 8.5);
+      tl.fromTo("#stack-shield-whole", { fillOpacity: 0 }, { fillOpacity: 1, duration: 0.3, ease: "power2.out" }, 8.6);
+      tl.fromTo("#stack-rules .stack-w", { yPercent: 110 }, { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, 8.8);
 
-      // 12.5: the shield breaks, halves part 20 px and turn FLAW red (error sound)
+      // 10.6: a request made with the key hits the shield and bounces off
+      tl.fromTo("#stack-req", { opacity: 0 }, { opacity: 1, duration: 2 * F, ease: "none" }, 10.6);
+      tl.fromTo("#stack-req", { x: 0 }, { x: 166, duration: 0.4, ease: "power2.in" }, 10.6);
+      tl.fromTo("#stack-req", { x: 166 }, { x: 110, duration: 0.35, ease: "power2.out", immediateRender: false }, 11.0);
+      tl.fromTo("#stack-req", { opacity: 1 }, { opacity: 0, duration: 0.3, ease: "power2.in", immediateRender: false }, 11.05);
+      recoil("#stack-shield-svg", 11.0, 6, 0);
+
+      // 12.5: the shield breaks, halves part 20 px and turn FLAW red; the database takes the hit
       tl.fromTo("#stack-shield-whole", { opacity: 1 }, { opacity: 0, duration: 0.01 }, 12.5);
       tl.fromTo(["#stack-shield-l", "#stack-shield-r"], { opacity: 0 }, { opacity: 1, duration: 0.01 }, 12.5);
-      tl.fromTo("#stack-shield-l", { x: 0 }, { x: -10, duration: 0.4, ease: "power3.out" }, 12.5);
-      tl.fromTo("#stack-shield-r", { x: 0 }, { x: 10, duration: 0.4, ease: "power3.out" }, 12.5);
+      tl.fromTo("#stack-shield-l", { x: 0, y: 0 }, { x: -10, y: 4, duration: 0.4, ease: "power3.out" }, 12.5);
+      tl.fromTo("#stack-shield-r", { x: 0, y: 0 }, { x: 10, y: 4, duration: 0.4, ease: "power3.out" }, 12.5);
+      recoil("#stack-db", 12.5, 6, 0);
 
-      tl.set({}, {}, 18);
+      // 13.7: rows of data travel out of the open database to the browser
+      ["#stack-datum1", "#stack-datum2", "#stack-datum3"].forEach(function (s, i) {
+        const t = 13.7 + i * 6 * F;
+        tl.fromTo(s, { opacity: 0 }, { opacity: 1, duration: 3 * F, ease: "none" }, t);
+        tl.fromTo(s, { x: 0 }, { x: -620, duration: 0.7, ease: "power3.out" }, t);
+        tl.fromTo(s, { x: -620 }, { x: -608, duration: 4 * F, ease: "power2.inOut", immediateRender: false }, t + 0.7);
+        tl.fromTo(s, { opacity: 1 }, { opacity: 0, duration: 6 * F, ease: "power2.in", immediateRender: false }, t + 0.7 + 4 * F);
+      });
+      recoil("#stack-browser", 14.4, -6, 0);
+
+      tl.set({}, {}, D);
       window.__timelines = window.__timelines || {};
       window.__timelines["stack"] = tl;
     })();

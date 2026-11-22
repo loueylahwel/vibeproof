@@ -3,19 +3,31 @@
     #root {
       position: absolute;
       inset: 0;
-      background: #ffffff;
+      background: #0b0b0c;
       font-family: "Inter", sans-serif;
-      color: #0a0a0a;
-      overflow: hidden;
+      color: #f2f2f2;
+      overflow: visible;
     }
+    /* CODE world ground; it runs past the frame so the tilted card never shows an edge */
     #end-grid {
       position: absolute;
-      inset: 0;
-      background-color: #ffffff;
+      inset: -1400px;
+      background-color: #0b0b0c;
       background-image:
-        linear-gradient(to right, rgba(10, 10, 10, 0.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(10, 10, 10, 0.05) 1px, transparent 1px);
+        linear-gradient(to right, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
       background-size: 48px 48px;
+      background-position: 0px 0px;
+    }
+    /* camera: cam carries the cut in and the slow push, rig the beat re-targets */
+    #end-cam,
+    #end-rig {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+      transform-origin: 300px 200px;
     }
     .end-full {
       position: absolute;
@@ -24,64 +36,100 @@
       width: 1920px;
       height: 1080px;
     }
-    .end-display {
+    /* kinetic type: a line is a mask, each word rises through it */
+    .end-ln {
       position: absolute;
+      overflow: hidden;
+      white-space: nowrap;
+      width: max-content;
+      padding: 0 18px;
+      margin-left: -18px;
+    }
+    .end-w {
+      display: inline-block;
+      position: relative;
+    }
+    .end-mk {
+      position: absolute;
+      left: -0.1em;
+      right: -0.1em;
+      top: 0.13em;
+      height: 0.9em;
+      background: #ff4d4f;
+      border-radius: 6px;
+      transform-origin: 0% 50%;
+    }
+    .end-mt {
+      position: relative;
+    }
+    .end-display {
       left: 96px;
       font-weight: 900;
-      font-size: 84px;
+      font-size: 100px;
       letter-spacing: -0.02em;
-      line-height: 1.05;
-      width: max-content;
-      white-space: nowrap;
+      line-height: 1.12;
     }
     #end-claim1 {
       top: 108px;
     }
     #end-claim2 {
-      top: 196px;
+      top: 248px;
     }
-    #end-shield {
+    #end-mark-in {
       position: absolute;
       left: 96px;
       top: 590px;
+      width: 900px;
+      height: 140px;
+      transform-origin: 60px 60px;
+    }
+    #end-shield {
+      position: absolute;
+      left: 0;
+      top: 0;
       width: 120px;
       height: 120px;
       overflow: visible;
+      transform-origin: 50% 50%;
     }
     .end-mark-ink {
       fill: none;
-      stroke: #0a0a0a;
+      stroke: #ffffff;
       stroke-width: 1.7;
       stroke-linecap: round;
       stroke-linejoin: round;
     }
     #end-word {
-      position: absolute;
-      left: 256px;
-      top: 590px;
+      left: 160px;
+      top: -8px;
       font-weight: 900;
       font-size: 96px;
       letter-spacing: -0.02em;
-      line-height: 120px;
-      width: max-content;
-      white-space: nowrap;
+      line-height: 136px;
+      color: #ffffff;
     }
   </style>
 
   <div data-hf-id="hf-gwfo" id="root" data-composition-id="end" data-width="1920" data-height="1080">
     <div data-hf-id="hf-98id" id="end-grid"></div>
 
-    <div data-hf-id="hf-0bir" id="end-claim" class="clip end-full" data-hold="" data-start="0" data-duration="12">
-      <div data-hf-id="hf-3gwa" id="end-claim1" class="end-display">Scan the code.</div>
-      <div data-hf-id="hf-4l4b" id="end-claim2" class="end-display">Then check the live site.</div>
-    </div>
+    <div id="end-cam">
+      <div id="end-rig">
+        <div data-hf-id="hf-0bir" id="end-claim" class="clip end-full" data-start="0" data-duration="12">
+          <div data-hf-id="hf-3gwa" id="end-claim1" class="end-ln end-display"><span class="end-w">Scan</span> <span class="end-w">the</span> <span class="end-w"><span class="end-mk"></span><span class="end-mt">code.</span></span></div>
+          <div data-hf-id="hf-4l4b" id="end-claim2" class="end-ln end-display"><span class="end-w">Then</span> <span class="end-w">check</span> <span class="end-w">the</span> <span class="end-w"><span class="end-mk"></span><span class="end-mt">live</span></span> <span class="end-w">site.</span></div>
+        </div>
 
-    <div data-hf-id="hf-jrma" id="end-mark" class="clip end-full" data-start="5" data-duration="7">
-      <svg data-hf-id="hf-l1xw" id="end-shield" viewBox="0 0 24 24">
-        <path data-hf-id="hf-93kq" id="end-shield-path" class="end-mark-ink" pathLength="1" d="M12 2.5 4.5 5.4v5.8c0 4.7 3.2 8.9 7.5 10.3 4.3-1.4 7.5-5.6 7.5-10.3V5.4L12 2.5Z" />
-        <path data-hf-id="hf-s5bs" id="end-check-path" class="end-mark-ink" pathLength="1" d="m8.8 12.2 2.3 2.3 4.3-4.6" />
-      </svg>
-      <div data-hf-id="hf-jvm5" id="end-word">Vibeproof</div>
+        <div data-hf-id="hf-jrma" id="end-mark" class="clip end-full" data-start="5" data-duration="7">
+          <div id="end-mark-in">
+            <svg data-hf-id="hf-l1xw" id="end-shield" viewBox="0 0 24 24">
+              <path data-hf-id="hf-93kq" id="end-shield-path" class="end-mark-ink" pathLength="1" d="M12 2.5 4.5 5.4v5.8c0 4.7 3.2 8.9 7.5 10.3 4.3-1.4 7.5-5.6 7.5-10.3V5.4L12 2.5Z" />
+              <path data-hf-id="hf-s5bs" id="end-check-path" class="end-mark-ink" pathLength="1" d="m8.8 12.2 2.3 2.3 4.3-4.6" />
+            </svg>
+            <div data-hf-id="hf-jvm5" id="end-word" class="end-ln"><span class="end-w">Vibeproof</span></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -90,16 +138,47 @@
 gsap.set("#end", { z: -66, transformPerspective: 1080, rotationX: 10, rotationY: -15 });
       const tl = gsap.timeline({ paused: true });
       const F = 1 / 30;
-      const SHUT = "inset(-25% 100% -25% -2%)";
-      const OPEN = "inset(-25% -2% -25% -2%)";
-      const wipeIn = (sel, at, dur) =>
-        tl.fromTo(sel, { clipPath: SHUT }, { clipPath: OPEN, duration: dur || 18 * F, ease: "power3.out" }, at);
+      const DUR = 12;
 
-      // 0.0 the claim, two lines, 6 frames apart
-      wipeIn("#end-claim1", 0);
-      wipeIn("#end-claim2", 6 * F);
+      // ---- camera: velocity-matched cut in and a slow push (the film's last scene: no cut out)
+      tl.fromTo("#end-cam", { x: 420 }, { x: 0, duration: 12 * F, ease: "power4.out" }, 0);
+      tl.fromTo("#end-cam", { scale: 1 }, { scale: 1.06, duration: DUR, ease: "sine.inOut" }, 0);
+      let rx = 0;
+      let ry = 0;
+      const aim = (x, y, at, dur) => {
+        tl.fromTo(
+          "#end-rig",
+          { x: rx, y: ry },
+          { x: x, y: y, duration: dur || 20 * F, ease: "power2.inOut", immediateRender: false },
+          at,
+        );
+        rx = x;
+        ry = y;
+      };
 
-      // 5.0 the mark: shield draws on over 24 frames, then the check
+      // ---- kinetic type
+      const wordsIn = (line, at) =>
+        tl.fromTo(
+          line + " > .end-w",
+          { yPercent: 110 },
+          { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F },
+          at,
+        );
+      const marker = (sel, at) => {
+        tl.fromTo(sel + " .end-mk", { scaleX: 0 }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, at);
+      };
+
+      // 0.0 the claim, word by word, the second line 6 frames behind the first
+      wordsIn("#end-claim1", 0);
+      wordsIn("#end-claim2", 6 * F);
+      marker("#end-claim1", 1.1);
+      aim(30, 24, 1.5, 30 * F);
+      marker("#end-claim2", 2.6);
+      aim(60, 10, 3.3, 30 * F);
+
+      // 5.0 the mark: the camera turns to it, the shield draws on over 24 frames, then the check
+      aim(40, -30, 4.7, 30 * F);
+      tl.fromTo("#end-shield", { scale: 0.9 }, { scale: 1, duration: 16 * F, ease: "back.out(1.7)" }, 5.0);
       tl.fromTo(
         "#end-shield-path",
         { strokeDasharray: 1, strokeDashoffset: 1 },
@@ -112,10 +191,26 @@ gsap.set("#end", { z: -66, transformPerspective: 1080, rotationX: 10, rotationY:
         { strokeDashoffset: 0, duration: 10 * F, ease: "power2.out" },
         5.0 + 18 * F,
       );
-      // 5.6 the name wipes in beside it (impact peak), then the line under it
-      wipeIn("#end-word", 5.6);
+      // 5.6 the name rises in beside it; the shield takes the hit and settles
+      wordsIn("#end-word", 5.6);
+      tl.fromTo(
+        "#end-mark-in",
+        { x: -6 },
+        { x: 0, duration: 10 * F, ease: "power2.out", immediateRender: false },
+        5.6 + 10 * F,
+      );
+      tl.fromTo(
+        "#end-shield",
+        { scale: 1.12 },
+        { scale: 1, duration: 9 * F, ease: "power4.out", immediateRender: false },
+        5.6 + 10 * F,
+      );
 
-      tl.set({}, {}, 12);
+      // hold on the mark while the camera keeps travelling
+      aim(0, -10, 7.6, 45 * F);
+      aim(-30, -34, 9.6, 45 * F);
+
+      tl.set({}, {}, DUR);
       window.__timelines["end"] = tl;
     })();
   </script>

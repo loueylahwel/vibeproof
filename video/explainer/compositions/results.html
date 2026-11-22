@@ -17,6 +17,16 @@
         linear-gradient(to bottom, rgba(10, 10, 10, 0.05) 1px, transparent 1px);
       background-size: 48px 48px;
     }
+    /* camera: cam carries the cuts and the slow push, rig the beat re-targets */
+    #results-cam,
+    #results-rig {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+      transform-origin: 920px 540px;
+    }
     .results-full {
       position: absolute;
       left: 0;
@@ -24,26 +34,46 @@
       width: 1920px;
       height: 1080px;
     }
-    .results-line {
+    /* kinetic type: a line is a mask, each word rises through it */
+    .results-ln {
       position: absolute;
+      overflow: hidden;
+      white-space: nowrap;
+      width: max-content;
+      padding: 0 14px;
+      margin-left: -14px;
+    }
+    .results-w {
+      display: inline-block;
+      position: relative;
+    }
+    .results-mk {
+      position: absolute;
+      left: -0.12em;
+      right: -0.12em;
+      top: 0.16em;
+      height: 0.9em;
+      background: #e5342f;
+      border-radius: 4px;
+      transform-origin: 0% 50%;
+    }
+    .results-mt {
+      position: relative;
+    }
+    .results-line {
       left: 96px;
       top: 108px;
       font-weight: 700;
       font-size: 44px;
       letter-spacing: -0.01em;
-      line-height: 1.2;
-      width: max-content;
-      white-space: nowrap;
+      line-height: 1.25;
     }
     .results-label {
       font-weight: 700;
       font-size: 28px;
-      line-height: 1.2;
-      width: max-content;
-      white-space: nowrap;
+      line-height: 1.3;
     }
     .results-setname {
-      position: absolute;
       left: 96px;
       color: #6b6b6b;
     }
@@ -52,11 +82,16 @@
       left: 96px;
       width: 1700px;
     }
-    .results-row .results-label {
+    .results-lab {
       position: absolute;
       left: 0;
-      top: 50%;
-      transform: translateY(-50%);
+      top: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+    .results-lab .results-ln {
+      position: relative;
     }
     .results-track {
       position: absolute;
@@ -79,19 +114,26 @@
     }
     .results-num {
       position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
+      top: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+    .results-nd {
       display: flex;
       align-items: baseline;
       white-space: nowrap;
+      transform-origin: 0% 50%;
     }
     .results-n {
+      display: inline-block;
       font-weight: 900;
       font-variant-numeric: tabular-nums;
       line-height: 1;
       width: 2ch;
       text-align: right;
       letter-spacing: -0.02em;
+      transform-origin: 70% 60%;
     }
     .results-d {
       font-weight: 700;
@@ -100,9 +142,7 @@
       margin-left: 6px;
     }
     /* development set: big */
-    #results-set1 .results-row {
-      height: 56px;
-    }
+    #results-set1 .results-row,
     #results-set1 .results-track,
     #results-set1 .results-fill {
       height: 56px;
@@ -120,7 +160,9 @@
       font-size: 44px;
     }
     /* held-out set: smaller */
-    #results-set2 .results-row {
+    #results-set2 .results-row,
+    #results-set2 .results-track,
+    #results-set2 .results-fill {
       height: 32px;
     }
     #results-set2 .results-track {
@@ -139,7 +181,7 @@
     #results-set2 .results-d {
       font-size: 28px;
     }
-    /* the two halves */
+    /* the two halves: code (dark) and live site (light) */
     .results-half {
       position: absolute;
       top: 250px;
@@ -148,9 +190,11 @@
     }
     #results-halfL {
       left: 410px;
+      transform-origin: 100% 50%;
     }
     #results-halfR {
       left: 960px;
+      transform-origin: 0% 50%;
     }
     .results-half svg {
       position: absolute;
@@ -165,10 +209,22 @@
       stroke-linecap: round;
       stroke-linejoin: round;
     }
+    #results-halfL .results-ink {
+      stroke: #f2f2f2;
+    }
+    #results-halfL .results-dark {
+      fill: #0b0b0c;
+      stroke: #0a0a0a;
+      stroke-width: 2;
+    }
     .results-under {
       position: absolute;
       left: 0;
       top: 624px;
+      font-weight: 700;
+      font-size: 28px;
+      line-height: 1.3;
+      white-space: nowrap;
     }
     .results-tree {
       position: absolute;
@@ -178,6 +234,7 @@
       font-size: 28px;
       line-height: 72px;
       white-space: nowrap;
+      color: #f2f2f2;
     }
     .results-tree div {
       display: flex;
@@ -226,127 +283,128 @@
   <div id="root" data-composition-id="results" data-width="1920" data-height="1080">
     <div id="results-grid"></div>
 
-    <!-- lines at the top, one at a time -->
-    <div id="results-l1" class="clip results-full" data-start="0" data-duration="14">
-      <div id="results-l1t" class="results-line">We tested it on 12 lab apps with 33 planted flaws</div>
-    </div>
-    <div id="results-l2" class="clip results-full" data-start="14" data-duration="4">
-      <div id="results-l2t" class="results-line">Each side found flaws the other could not</div>
-    </div>
-    <div id="results-l3" class="clip results-full" data-start="18" data-duration="12">
-      <div id="results-l3t" class="results-line">On 6 new apps, both together found all 12</div>
-    </div>
-
-    <!-- development set: 12 lab apps, 33 flaws -->
-    <div id="results-set1" class="clip results-full" data-start="4" data-duration="19.7">
-      <div id="results-set1-in" class="results-full">
-        <div id="results-s1name" class="results-label results-setname" style="top: 190px">12 lab apps, 33 flaws</div>
-
-        <div id="results-r1" class="results-row" style="top: 258px">
-          <div id="results-r1-lab" class="results-label">Code only</div>
-          <div id="results-r1-trk" class="results-track"></div>
-          <div id="results-r1-fill" class="results-fill" style="width: 873px"></div>
-          <div id="results-r1-num" class="results-num"><span id="results-r1-n" class="results-n">0</span><span class="results-d">/33</span></div>
+    <div id="results-cam">
+      <div id="results-rig">
+        <!-- lines at the top, one at a time -->
+        <div id="results-l1" class="clip results-full" data-start="0" data-duration="14">
+          <div id="results-l1t" class="results-ln results-line"><span class="results-w">We</span> <span class="results-w">tested</span> <span class="results-w">it</span> <span class="results-w">on</span> <span class="results-w">12</span> <span class="results-w">lab</span> <span class="results-w">apps</span> <span class="results-w">with</span> <span class="results-w">33</span> <span class="results-w">planted</span> <span class="results-w">flaws</span></div>
+        </div>
+        <div id="results-l2" class="clip results-full" data-start="14" data-duration="4">
+          <div id="results-l2t" class="results-ln results-line"><span class="results-w">Each</span> <span class="results-w">side</span> <span class="results-w">found</span> <span class="results-w">flaws</span> <span class="results-w">the</span> <span class="results-w"><span class="results-mk"></span><span class="results-mt">other</span></span> <span class="results-w">could</span> <span class="results-w">not</span></div>
+        </div>
+        <div id="results-l3" class="clip results-full" data-start="18" data-duration="12">
+          <div id="results-l3t" class="results-ln results-line"><span class="results-w">On</span> <span class="results-w">6</span> <span class="results-w">new</span> <span class="results-w">apps,</span> <span class="results-w"><span class="results-mk"></span><span class="results-mt">both</span></span> <span class="results-w">together</span> <span class="results-w">found</span> <span class="results-w">all</span> <span class="results-w">12</span></div>
         </div>
 
-        <div id="results-r2" class="results-row" style="top: 382px">
-          <div id="results-r2-lab" class="results-label">Site only</div>
-          <div id="results-r2-trk" class="results-track"></div>
-          <div id="results-r2-fill" class="results-fill" style="width: 691px"></div>
-          <div id="results-r2-num" class="results-num"><span id="results-r2-n" class="results-n">0</span><span class="results-d">/33</span></div>
-        </div>
+        <!-- development set: 12 lab apps, 33 flaws -->
+        <div id="results-set1" class="clip results-full" data-start="4" data-duration="19.7">
+          <div id="results-s1name" class="results-ln results-label results-setname" style="top: 186px"><span class="results-w">12</span> <span class="results-w">lab</span> <span class="results-w">apps,</span> <span class="results-w">33</span> <span class="results-w">flaws</span></div>
 
-        <div id="results-r3" class="results-row" style="top: 506px">
-          <div id="results-r3-lab" class="results-label">Both</div>
-          <div id="results-r3-trk" class="results-track"></div>
-          <div id="results-r3-fill" class="results-fill results-both" style="width: 1200px"></div>
-          <div id="results-r3-num" class="results-num"><span id="results-r3-n" class="results-n">0</span><span class="results-d">/33</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- held-out set: 6 new apps, 12 flaws -->
-    <div id="results-set2" class="clip results-full" data-start="18" data-duration="5.7">
-      <div id="results-set2-in" class="results-full">
-        <div id="results-s2name" class="results-label results-setname" style="top: 650px">6 new apps, 12 flaws</div>
-
-        <div id="results-q1" class="results-row" style="top: 714px">
-          <div id="results-q1-lab" class="results-label">Code only</div>
-          <div id="results-q1-trk" class="results-track"></div>
-          <div id="results-q1-fill" class="results-fill" style="width: 550px"></div>
-          <div id="results-q1-num" class="results-num"><span id="results-q1-n" class="results-n">0</span><span class="results-d">/12</span></div>
-        </div>
-
-        <div id="results-q2" class="results-row" style="top: 790px">
-          <div id="results-q2-lab" class="results-label">Site only</div>
-          <div id="results-q2-trk" class="results-track"></div>
-          <div id="results-q2-fill" class="results-fill" style="width: 300px"></div>
-          <div id="results-q2-num" class="results-num"><span id="results-q2-n" class="results-n">0</span><span class="results-d">/12</span></div>
-        </div>
-
-        <div id="results-q3" class="results-row" style="top: 866px">
-          <div id="results-q3-lab" class="results-label">Both</div>
-          <div id="results-q3-trk" class="results-track"></div>
-          <div id="results-q3-fill" class="results-fill results-both" style="width: 600px"></div>
-          <div id="results-q3-num" class="results-num"><span id="results-q3-n" class="results-n">0</span><span class="results-d">/12</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 25.0: the two halves close into one shape -->
-    <div id="results-join" class="clip results-full" data-hold data-start="23.7" data-duration="6.3">
-      <div id="results-halfL" class="results-half">
-        <svg width="550" height="600" viewBox="0 0 550 600">
-          <path class="results-ink" d="M550 1 H11 A10 10 0 0 0 1 11 V589 A10 10 0 0 0 11 599 H550" />
-          <path class="results-ink" d="M1 64 H550" />
-          <circle class="results-ink" cx="34" cy="32" r="6" />
-          <circle class="results-ink" cx="58" cy="32" r="6" />
-          <circle class="results-ink" cx="82" cy="32" r="6" />
-          <path id="results-seamL" class="results-ink" d="M549 1 V599" />
-        </svg>
-        <div class="results-tree">
-          <div>
-            <svg width="34" height="26" viewBox="0 0 34 26" style="position: static">
-              <path class="results-ink" d="M2 4 A2 2 0 0 1 4 2 H12 L15 6 H30 A2 2 0 0 1 32 8 V22 A2 2 0 0 1 30 24 H4 A2 2 0 0 1 2 22 Z" />
-            </svg>
-            <span>supabase/</span>
+          <div id="results-r1" class="results-row" style="top: 258px">
+            <div class="results-lab"><div id="results-r1-lab" class="results-ln results-label"><span class="results-w">Code</span> <span class="results-w">only</span></div></div>
+            <div id="results-r1-trk" class="results-track"></div>
+            <div id="results-r1-fill" class="results-fill" style="width: 873px"></div>
+            <div class="results-num"><div id="results-r1-num" class="results-nd"><span id="results-r1-n" class="results-n">0</span><span class="results-d">/33</span></div></div>
           </div>
-          <div>
-            <svg width="34" height="26" viewBox="0 0 34 26" style="position: static">
-              <path class="results-ink" d="M2 4 A2 2 0 0 1 4 2 H12 L15 6 H30 A2 2 0 0 1 32 8 V22 A2 2 0 0 1 30 24 H4 A2 2 0 0 1 2 22 Z" />
-            </svg>
-            <span>src/</span>
+
+          <div id="results-r2" class="results-row" style="top: 382px">
+            <div class="results-lab"><div id="results-r2-lab" class="results-ln results-label"><span class="results-w">Site</span> <span class="results-w">only</span></div></div>
+            <div id="results-r2-trk" class="results-track"></div>
+            <div id="results-r2-fill" class="results-fill" style="width: 691px"></div>
+            <div class="results-num"><div id="results-r2-num" class="results-nd"><span id="results-r2-n" class="results-n">0</span><span class="results-d">/33</span></div></div>
           </div>
-          <div>
-            <svg width="34" height="26" viewBox="0 0 34 26" style="position: static">
-              <path class="results-ink" d="M9 1 H21 L27 7 V25 H9 Z" />
-            </svg>
-            <span>.env.example</span>
-          </div>
-          <div>
-            <svg width="34" height="26" viewBox="0 0 34 26" style="position: static">
-              <path class="results-ink" d="M9 1 H21 L27 7 V25 H9 Z" />
-            </svg>
-            <span>package.json</span>
+
+          <div id="results-r3" class="results-row" style="top: 506px">
+            <div class="results-lab"><div id="results-r3-lab" class="results-ln results-label"><span class="results-w">Both</span></div></div>
+            <div id="results-r3-trk" class="results-track"></div>
+            <div id="results-r3-fill" class="results-fill results-both" style="width: 1200px"></div>
+            <div class="results-num"><div id="results-r3-num" class="results-nd"><span id="results-r3-n" class="results-n">0</span><span class="results-d">/33</span></div></div>
           </div>
         </div>
-        <div class="results-label results-under">Its code</div>
-      </div>
 
-      <div id="results-halfR" class="results-half">
-        <svg width="550" height="600" viewBox="0 0 550 600">
-          <path class="results-ink" d="M0 1 H539 A10 10 0 0 1 549 11 V589 A10 10 0 0 1 539 599 H0" />
-          <path class="results-ink" d="M0 64 H549" />
-          <path id="results-seamR" class="results-ink" d="M1 1 V599" />
-        </svg>
-        <div class="results-addr">taskflow.app</div>
-        <div class="results-todo">
-          <div><span class="results-box"></span><span>Ship landing page</span></div>
-          <div><span class="results-box"></span><span>Fix login bug</span></div>
-          <div><span class="results-box"></span><span>Write tests</span></div>
-          <div><span class="results-box"></span><span>Launch</span></div>
+        <!-- held-out set: 6 new apps, 12 flaws -->
+        <div id="results-set2" class="clip results-full" data-start="18" data-duration="5.7">
+          <div id="results-s2name" class="results-ln results-label results-setname" style="top: 646px"><span class="results-w">6</span> <span class="results-w">new</span> <span class="results-w">apps,</span> <span class="results-w">12</span> <span class="results-w">flaws</span></div>
+
+          <div id="results-q1" class="results-row" style="top: 714px">
+            <div class="results-lab"><div id="results-q1-lab" class="results-ln results-label"><span class="results-w">Code</span> <span class="results-w">only</span></div></div>
+            <div id="results-q1-trk" class="results-track"></div>
+            <div id="results-q1-fill" class="results-fill" style="width: 550px"></div>
+            <div class="results-num"><div id="results-q1-num" class="results-nd"><span id="results-q1-n" class="results-n">0</span><span class="results-d">/12</span></div></div>
+          </div>
+
+          <div id="results-q2" class="results-row" style="top: 790px">
+            <div class="results-lab"><div id="results-q2-lab" class="results-ln results-label"><span class="results-w">Site</span> <span class="results-w">only</span></div></div>
+            <div id="results-q2-trk" class="results-track"></div>
+            <div id="results-q2-fill" class="results-fill" style="width: 300px"></div>
+            <div class="results-num"><div id="results-q2-num" class="results-nd"><span id="results-q2-n" class="results-n">0</span><span class="results-d">/12</span></div></div>
+          </div>
+
+          <div id="results-q3" class="results-row" style="top: 866px">
+            <div class="results-lab"><div id="results-q3-lab" class="results-ln results-label"><span class="results-w">Both</span></div></div>
+            <div id="results-q3-trk" class="results-track"></div>
+            <div id="results-q3-fill" class="results-fill results-both" style="width: 600px"></div>
+            <div class="results-num"><div id="results-q3-num" class="results-nd"><span id="results-q3-n" class="results-n">0</span><span class="results-d">/12</span></div></div>
+          </div>
         </div>
-        <div class="results-label results-under">Its live site</div>
+
+        <!-- 25.0: the two halves close into one shape -->
+        <div id="results-join" class="clip results-full" data-start="23.7" data-duration="6.3">
+          <div id="results-joined" class="results-full">
+            <div id="results-halfL" class="results-half">
+              <svg width="550" height="600" viewBox="0 0 550 600">
+                <path class="results-dark" d="M551 1 H11 A10 10 0 0 0 1 11 V589 A10 10 0 0 0 11 599 H551 Z" />
+                <path class="results-ink" d="M550 64 H2" />
+                <circle class="results-ink" cx="34" cy="32" r="6" />
+                <circle class="results-ink" cx="58" cy="32" r="6" />
+                <circle class="results-ink" cx="82" cy="32" r="6" />
+              </svg>
+              <div class="results-tree">
+                <div>
+                  <svg width="34" height="26" viewBox="0 0 34 26" style="position: static">
+                    <path class="results-ink" d="M2 4 A2 2 0 0 1 4 2 H12 L15 6 H30 A2 2 0 0 1 32 8 V22 A2 2 0 0 1 30 24 H4 A2 2 0 0 1 2 22 Z" />
+                  </svg>
+                  <span>supabase/</span>
+                </div>
+                <div>
+                  <svg width="34" height="26" viewBox="0 0 34 26" style="position: static">
+                    <path class="results-ink" d="M2 4 A2 2 0 0 1 4 2 H12 L15 6 H30 A2 2 0 0 1 32 8 V22 A2 2 0 0 1 30 24 H4 A2 2 0 0 1 2 22 Z" />
+                  </svg>
+                  <span>src/</span>
+                </div>
+                <div>
+                  <svg width="34" height="26" viewBox="0 0 34 26" style="position: static">
+                    <path class="results-ink" d="M9 1 H21 L27 7 V25 H9 Z" />
+                  </svg>
+                  <span>.env.example</span>
+                </div>
+                <div>
+                  <svg width="34" height="26" viewBox="0 0 34 26" style="position: static">
+                    <path class="results-ink" d="M9 1 H21 L27 7 V25 H9 Z" />
+                  </svg>
+                  <span>package.json</span>
+                </div>
+              </div>
+              <div class="results-under">Its code</div>
+            </div>
+
+            <div id="results-halfR" class="results-half">
+              <svg width="550" height="600" viewBox="0 0 550 600">
+                <path class="results-ink" d="M0 1 H539 A10 10 0 0 1 549 11 V589 A10 10 0 0 1 539 599 H0" />
+                <path class="results-ink" d="M0 64 H549" />
+                <path id="results-seamR" class="results-ink" d="M1 1 V599" />
+              </svg>
+              <div class="results-addr">taskflow.app</div>
+              <div class="results-todo">
+                <div><span class="results-box"></span><span>Ship landing page</span></div>
+                <div><span class="results-box"></span><span>Fix login bug</span></div>
+                <div><span class="results-box"></span><span>Write tests</span></div>
+                <div><span class="results-box"></span><span>Launch</span></div>
+              </div>
+              <div class="results-under">Its live site</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -355,78 +413,185 @@
     (function () {
       const tl = gsap.timeline({ paused: true });
       const F = 1 / 30;
-      const SHUT = "inset(-25% 100% -25% -2%)";
+      const DUR = 30;
       const OPEN = "inset(-25% -2% -25% -2%)";
-      const GONE = "inset(-25% -2% -25% 100%)";
+      const SHUT = "inset(-25% 100% -25% -2%)";
 
-      const wipeIn = (sel, at, dur) =>
-        tl.fromTo(sel, { clipPath: SHUT }, { clipPath: OPEN, duration: dur || 18 * F, ease: "power3.out" }, at);
-      const wipeOut = (sel, at) =>
+      // ---- camera: velocity-matched cut in, slow push, beat re-targets, cut out
+      tl.fromTo("#results-cam", { x: 420 }, { x: 0, duration: 12 * F, ease: "power4.out" }, 0);
+      tl.fromTo("#results-cam", { scale: 1 }, { scale: 1.06, duration: DUR, ease: "sine.inOut" }, 0);
+      tl.fromTo(
+        "#results-cam",
+        { x: 0 },
+        { x: -420, duration: 10 * F, ease: "power4.in", immediateRender: false },
+        DUR - 10 * F,
+      );
+      let rx = 0;
+      let ry = 0;
+      let rs = 1;
+      const aim = (x, y, s, at, dur, ease) => {
         tl.fromTo(
-          sel,
-          { clipPath: OPEN },
-          { clipPath: GONE, duration: 12 * F, ease: "power2.in", immediateRender: false },
+          "#results-rig",
+          { x: rx, y: ry, scale: rs },
+          { x: x, y: y, scale: s, duration: dur || 20 * F, ease: ease || "power2.inOut", immediateRender: false },
           at,
         );
+        rx = x;
+        ry = y;
+        rs = s;
+      };
 
-      // one bar: label + track wipe in, then the fill grows while the number counts
-      // (30 frames, power1.out, integers only; the text is a function of the tween's eased progress)
+      // ---- kinetic type
+      const wordsIn = (line, at) =>
+        tl.fromTo(
+          line + " > .results-w",
+          { yPercent: 110 },
+          { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F },
+          at,
+        );
+      const wordsOut = (line, at) =>
+        tl.fromTo(
+          line + " > .results-w",
+          { yPercent: 0 },
+          { yPercent: -110, duration: 8 * F, ease: "power2.in", stagger: 1 * F, immediateRender: false },
+          at,
+        );
+      const marker = (line, at) => {
+        tl.fromTo(line + " .results-mk", { scaleX: 0 }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, at);
+        tl.fromTo(
+          line + " .results-mt",
+          { color: "#0a0a0a" },
+          { color: "#ffffff", duration: 4 * F, ease: "none" },
+          at + 2 * F,
+        );
+      };
+
+      // ---- one bar: label rises, track draws, number pops; the fill grows (power3.out)
+      // while the number counts with it (integers only), and the number punches on landing
       const bar = (id, value, at) => {
         const n = document.getElementById(id + "-n");
-        wipeIn("#" + id + "-lab", at);
-        wipeIn("#" + id + "-trk", at);
-        wipeIn("#" + id + "-num", at + 4 * F);
+        const GROW = 30 * F;
+        wordsIn("#" + id + "-lab", at);
+        tl.fromTo(
+          "#" + id + "-trk",
+          { clipPath: SHUT },
+          { clipPath: OPEN, duration: 18 * F, ease: "power3.out" },
+          at,
+        );
+        tl.fromTo("#" + id + "-num", { opacity: 0 }, { opacity: 1, duration: 4 * F, ease: "none" }, at + 4 * F);
+        tl.fromTo(
+          "#" + id + "-num",
+          { scale: 0.9 },
+          { scale: 1, duration: 16 * F, ease: "back.out(1.7)" },
+          at + 4 * F,
+        );
         tl.fromTo(
           "#" + id + "-fill",
           { clipPath: "inset(0% 100% 0% 0%)" },
           {
             clipPath: "inset(0% 0% 0% 0%)",
-            duration: 30 * F,
-            ease: "power1.out",
+            duration: GROW,
+            ease: "power3.out",
             onUpdate: function () {
               n.textContent = String(Math.round(this.ratio * value));
             },
           },
           at + 0.3,
         );
+        tl.fromTo(
+          "#" + id + "-n",
+          { scale: 1.18 },
+          { scale: 1, duration: 8 * F, ease: "power2.out", immediateRender: false },
+          at + 0.3 + GROW,
+        );
       };
 
-      // lines
-      wipeIn("#results-l1t", 0);
-      wipeOut("#results-l1t", 13.55);
-      wipeIn("#results-l2t", 14.0);
-      wipeOut("#results-l2t", 17.55);
-      wipeIn("#results-l3t", 18.0);
+      // rows leave upward through their own mask
+      const rowsOut = (sels, at) =>
+        sels.forEach((s, i) => {
+          tl.fromTo(
+            s,
+            { clipPath: "inset(-40% -4% -40% -4%)", y: 0 },
+            {
+              clipPath: "inset(-40% -4% 140% -4%)",
+              y: -28,
+              duration: 10 * F,
+              ease: "power2.in",
+              immediateRender: false,
+            },
+            at + i * 2 * F,
+          );
+        });
 
-      // development set, one bar at a time (numbers land at 5.3, 7.8, 10.3)
-      wipeIn("#results-s1name", 4.0);
+      // 0.0 the question line
+      wordsIn("#results-l1t", 0);
+      aim(30, 30, 1, 1.6, 30 * F);
+
+      // 4.0 development set, one bar at a time (numbers land at 5.3, 7.8, 10.3)
+      aim(0, 0, 1, 4.0);
+      wordsIn("#results-s1name", 4.0);
       bar("results-r1", 24, 4.0);
+      aim(0, -30, 1, 6.5);
       bar("results-r2", 19, 6.5);
       bar("results-r3", 33, 9.0);
+      // the camera pushes in on the Both row as it lands
+      aim(0, -10, 1.04, 9.3, 30 * F, "power3.out");
+      aim(20, 20, 1.01, 11.8, 30 * F);
+      wordsOut("#results-l1t", 13.55);
 
-      // held-out set (numbers land at 19.6, 20.8, 22.0)
-      wipeIn("#results-s2name", 18.0);
+      // 14.0 each side found what the other could not
+      wordsIn("#results-l2t", 14.0);
+      aim(20, 0, 1, 14.0);
+      marker("#results-l2t", 14.7);
+      aim(40, 20, 1, 16.0, 30 * F);
+      wordsOut("#results-l2t", 17.55);
+
+      // 18.0 held-out set (numbers land at 19.6, 20.8, 22.0)
+      wordsIn("#results-l3t", 18.0);
+      aim(0, -20, 1, 18.0, 24 * F);
+      wordsIn("#results-s2name", 18.0);
       bar("results-q1", 11, 18.3);
+      marker("#results-l3t", 18.8);
       bar("results-q2", 6, 19.5);
       bar("results-q3", 12, 20.7);
+      aim(10, -24, 1.02, 21.0, 30 * F, "power3.out");
 
-      // clear the bars
-      wipeOut("#results-set1-in", 23.2);
-      wipeOut("#results-set2-in", 23.2);
+      // 23.2 clear the bars
+      rowsOut(
+        [
+          "#results-s1name",
+          "#results-r1",
+          "#results-r2",
+          "#results-r3",
+          "#results-s2name",
+          "#results-q1",
+          "#results-q2",
+          "#results-q3",
+        ],
+        23.2,
+      );
+      aim(0, 10, 1, 23.3, 24 * F);
 
-      // the two halves appear apart, then slide together and join at 25.0
-      wipeIn("#results-halfL", 23.7, 12 * F);
-      wipeIn("#results-halfR", 23.7, 12 * F);
+      // 23.7 the two halves pop in apart, slide together and join at 25.0
+      ["#results-halfL", "#results-halfR"].forEach((h) => {
+        tl.fromTo(h, { opacity: 0 }, { opacity: 1, duration: 5 * F, ease: "none" }, 23.7);
+        tl.fromTo(h, { scale: 0.9 }, { scale: 1, duration: 16 * F, ease: "back.out(1.7)" }, 23.7);
+      });
       tl.fromTo("#results-halfL", { x: -140 }, { x: 0, duration: 24 * F, ease: "power2.inOut" }, 25.0 - 24 * F);
       tl.fromTo("#results-halfR", { x: 140 }, { x: 0, duration: 24 * F, ease: "power2.inOut" }, 25.0 - 24 * F);
+      tl.fromTo("#results-seamR", { opacity: 1 }, { opacity: 0, duration: 4 * F, ease: "power2.out" }, 25.0);
+      // the join lands: one shape, it settles
       tl.fromTo(
-        ["#results-seamL", "#results-seamR"],
-        { opacity: 1 },
-        { opacity: 0, duration: 4 * F, ease: "power2.out" },
+        "#results-joined",
+        { scale: 1.04 },
+        { scale: 1, duration: 10 * F, ease: "power4.out", immediateRender: false },
         25.0,
       );
+      aim(30, 24, 1.02, 25.0, 30 * F);
+      aim(50, 36, 1.03, 26.6, 40 * F);
+      aim(70, 20, 1.03, 28.3, 40 * F);
 
-      tl.set({}, {}, 30);
+      tl.set({}, {}, DUR);
       window.__timelines["results"] = tl;
     })();
   </script>

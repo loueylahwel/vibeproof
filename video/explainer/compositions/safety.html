@@ -17,24 +17,55 @@
         linear-gradient(to bottom, rgba(10, 10, 10, 0.05) 1px, transparent 1px);
       background-size: 48px 48px;
     }
+    /* camera: cam carries the cuts and the slow push, rig the beat re-targets */
+    #safety-cam,
+    #safety-rig {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+      transform-origin: 240px 580px;
+    }
+    /* kinetic type: a line is a mask, each word rises through it */
+    .safety-ln {
+      position: absolute;
+      overflow: hidden;
+      white-space: nowrap;
+      width: max-content;
+      padding: 0 14px;
+      margin-left: -14px;
+    }
+    .safety-w {
+      display: inline-block;
+      position: relative;
+    }
+    .safety-mk {
+      position: absolute;
+      left: -0.12em;
+      right: -0.12em;
+      top: 0.14em;
+      height: 0.9em;
+      background: #e5342f;
+      border-radius: 4px;
+      transform-origin: 0% 50%;
+    }
+    .safety-mt {
+      position: relative;
+    }
     .safety-display {
       font-weight: 900;
-      font-size: 84px;
+      font-size: 100px;
       letter-spacing: -0.02em;
-      line-height: 1.05;
-      width: max-content;
-      white-space: nowrap;
+      line-height: 1.12;
     }
     .safety-line {
       font-weight: 700;
       font-size: 44px;
       letter-spacing: -0.01em;
-      line-height: 1.2;
-      width: max-content;
-      white-space: nowrap;
+      line-height: 1.25;
     }
     #safety-title {
-      position: absolute;
       left: 96px;
       top: 108px;
     }
@@ -46,13 +77,12 @@
       height: 1080px;
     }
     .safety-say {
-      position: absolute;
       left: 96px;
-      top: 676px;
     }
     .safety-obj {
       position: absolute;
       left: 96px;
+      transform-origin: 0% 50%;
     }
     .safety-obj svg {
       display: block;
@@ -61,62 +91,75 @@
     .safety-ink {
       fill: none;
       stroke: #0a0a0a;
-      stroke-width: 2;
+      stroke-width: 1.67;
       stroke-linecap: round;
       stroke-linejoin: round;
     }
-    /* 1: lock */
+    /* 1: lock, 1.8x (block centred under the title) */
     #safety-lock {
-      top: 318px;
+      top: 280px;
     }
     #safety-lock-body {
       fill: #ffffff;
     }
-    /* 2: GET arrow */
+    #safety-s1-say {
+      top: 860px;
+    }
+    /* 2: GET arrow, 1.8x */
     #safety-get {
-      top: 440px;
+      top: 392px;
+      width: 1300px;
+      height: 316px;
     }
     #safety-get-tag {
       position: absolute;
       left: 0;
       top: 0;
-      height: 64px;
-      padding: 0 22px;
-      border: 2px solid #0a0a0a;
-      border-radius: 10px;
+      height: 116px;
+      padding: 0 40px;
+      border: 3px solid #0a0a0a;
+      border-radius: 14px;
+      background: #ffffff;
       display: flex;
       align-items: center;
       font-family: "JetBrains Mono", monospace;
       font-weight: 700;
-      font-size: 32px;
+      font-size: 58px;
       width: max-content;
+      transform-origin: 0% 50%;
     }
     #safety-get-svg {
       position: absolute;
       left: 0;
-      top: 96px;
+      top: 172px;
     }
-    /* 3: key */
+    #safety-get-dot {
+      fill: #0a0a0a;
+    }
+    #safety-s2-say {
+      top: 748px;
+    }
+    /* 3: key, 1.8x */
     #safety-key {
-      top: 496px;
+      top: 442px;
     }
     #safety-key-tag {
-      height: 120px;
-      border: 2px solid #0a0a0a;
-      border-radius: 10px;
+      height: 216px;
+      border: 3px solid #0a0a0a;
+      border-radius: 18px;
       display: flex;
       align-items: center;
-      gap: 32px;
-      padding: 0 44px 0 36px;
+      gap: 58px;
+      padding: 0 80px 0 64px;
       width: max-content;
       font-family: "JetBrains Mono", monospace;
-      font-size: 44px;
+      font-size: 79px;
       font-weight: 400;
     }
     #safety-key-hole {
-      width: 34px;
-      height: 34px;
-      border: 2px solid #0a0a0a;
+      width: 61px;
+      height: 61px;
+      border: 3px solid #0a0a0a;
       border-radius: 50%;
       flex: none;
     }
@@ -127,114 +170,125 @@
     }
     #safety-key-mid {
       display: inline-block;
-      padding: 0 2px;
+      padding: 0 4px;
     }
-    /* 4: table row */
+    #safety-s3-say {
+      top: 698px;
+    }
+    /* 4: table row, 1.7x */
     #safety-table {
-      top: 462px;
+      top: 420px;
     }
     #safety-table-box {
-      width: 960px;
-      border: 2px solid #0a0a0a;
-      border-radius: 10px;
+      width: 1600px;
+      border: 3px solid #0a0a0a;
+      border-radius: 16px;
       overflow: hidden;
     }
     .safety-trow {
       display: flex;
-      height: 76px;
+      height: 128px;
     }
     .safety-trow + .safety-trow {
-      border-top: 2px solid #0a0a0a;
+      border-top: 3px solid #0a0a0a;
     }
     .safety-cell {
       display: flex;
       align-items: center;
-      padding: 0 28px;
+      padding: 0 46px;
       font-family: "JetBrains Mono", monospace;
-      font-size: 28px;
+      font-size: 47px;
       color: #6b6b6b;
     }
     .safety-cell + .safety-cell {
-      border-left: 2px solid #0a0a0a;
+      border-left: 3px solid #0a0a0a;
     }
     .safety-c1 {
-      width: 180px;
+      width: 300px;
     }
     .safety-c2 {
-      width: 320px;
+      width: 540px;
     }
     .safety-c3 {
       flex: 1;
     }
     .safety-bar {
-      height: 22px;
-      border-radius: 11px;
+      height: 38px;
+      border-radius: 19px;
       background: #c8c8c6;
+    }
+    #safety-s4-say {
+      top: 720px;
     }
   </style>
 
   <div id="root" data-composition-id="safety" data-width="1920" data-height="1080">
     <div id="safety-grid"></div>
 
-    <div id="safety-title-clip" class="clip" data-start="0" data-duration="16">
-      <div id="safety-title" class="safety-display">Built to be safe to run</div>
-    </div>
+    <div id="safety-cam">
+      <div id="safety-rig">
+        <div id="safety-title-clip" class="clip" data-start="0" data-duration="16">
+          <div id="safety-title" class="safety-ln safety-display"><span class="safety-w">Built</span> <span class="safety-w">to</span> <span class="safety-w">be</span> <span class="safety-w">safe</span> <span class="safety-w">to</span> <span class="safety-w">run</span></div>
+        </div>
 
-    <!-- 1: lock -->
-    <div id="safety-s1" class="clip safety-stmt" data-start="2.5" data-duration="3.5">
-      <div id="safety-lock" class="safety-obj">
-        <svg width="240" height="300" viewBox="0 0 240 300">
-          <path id="safety-lock-shackle" class="safety-ink" pathLength="1" d="M62 160 V98 A58 58 0 0 1 178 98 V160" />
-          <rect id="safety-lock-body" class="safety-ink" pathLength="1" x="10" y="140" width="220" height="150" rx="10" />
-          <circle id="safety-lock-hole" class="safety-ink" pathLength="1" cx="120" cy="200" r="14" />
-          <path id="safety-lock-slot" class="safety-ink" pathLength="1" d="M120 214 V250" />
-        </svg>
-      </div>
-      <div id="safety-s1-say" class="safety-say safety-line">Only sites you prove you own</div>
-    </div>
-
-    <!-- 2: GET arrow -->
-    <div id="safety-s2" class="clip safety-stmt" data-start="6" data-duration="3.5">
-      <div id="safety-get" class="safety-obj">
-        <div id="safety-get-tag">GET</div>
-        <svg id="safety-get-svg" width="720" height="80" viewBox="0 0 720 80">
-          <path id="safety-get-shaft" class="safety-ink" pathLength="1" d="M2 40 H700" />
-          <path id="safety-get-head" class="safety-ink" pathLength="1" d="M672 14 L702 40 L672 66" />
-        </svg>
-      </div>
-      <div id="safety-s2-say" class="safety-say safety-line">Only read requests, nothing is changed</div>
-    </div>
-
-    <!-- 3: key with hidden middle -->
-    <div id="safety-s3" class="clip safety-stmt" data-start="9.5" data-duration="3.5">
-      <div id="safety-key" class="safety-obj">
-        <div id="safety-key-tag">
-          <div id="safety-key-hole"></div>
-          <div id="safety-key-text">
-            <span>sk_l</span><span id="safety-key-mid">ive_7Hq2Xm9Pz4Rw</span><span>Cd</span>
+        <!-- 1: lock -->
+        <div id="safety-s1" class="clip safety-stmt" data-start="2.5" data-duration="3.5">
+          <div id="safety-lock" class="safety-obj">
+            <svg width="432" height="540" viewBox="0 0 240 300">
+              <path id="safety-lock-shackle" class="safety-ink" pathLength="1" d="M62 160 V98 A58 58 0 0 1 178 98 V160" />
+              <rect id="safety-lock-body" class="safety-ink" pathLength="1" x="10" y="140" width="220" height="150" rx="10" />
+              <circle id="safety-lock-hole" class="safety-ink" pathLength="1" cx="120" cy="200" r="14" />
+              <path id="safety-lock-slot" class="safety-ink" pathLength="1" d="M120 214 V250" />
+            </svg>
           </div>
+          <div id="safety-s1-say" class="safety-ln safety-say safety-line"><span class="safety-w">Only</span> <span class="safety-w">sites</span> <span class="safety-w">you</span> <span class="safety-w">prove</span> <span class="safety-w">you</span> <span class="safety-w">own</span></div>
+        </div>
+
+        <!-- 2: GET arrow -->
+        <div id="safety-s2" class="clip safety-stmt" data-start="6" data-duration="3.5">
+          <div id="safety-get" class="safety-obj">
+            <svg id="safety-get-svg" width="1296" height="144" viewBox="0 0 720 80">
+              <path id="safety-get-shaft" class="safety-ink" pathLength="1" d="M2 40 H700" />
+              <path id="safety-get-head" class="safety-ink" pathLength="1" d="M672 14 L702 40 L672 66" />
+              <circle id="safety-get-dot" cx="2" cy="40" r="9" />
+            </svg>
+            <div id="safety-get-tag">GET</div>
+          </div>
+          <div id="safety-s2-say" class="safety-ln safety-say safety-line"><span class="safety-w">Only</span> <span class="safety-w safety-mkw"><span class="safety-mk"></span><span class="safety-mt">read</span></span> <span class="safety-w">requests,</span> <span class="safety-w">nothing</span> <span class="safety-w">is</span> <span class="safety-w">changed</span></div>
+        </div>
+
+        <!-- 3: key with hidden middle -->
+        <div id="safety-s3" class="clip safety-stmt" data-start="9.5" data-duration="3.5">
+          <div id="safety-key" class="safety-obj">
+            <div id="safety-key-tag">
+              <div id="safety-key-hole"></div>
+              <div id="safety-key-text">
+                <span>sk_l</span><span id="safety-key-mid">ive_7Hq2Xm9Pz4Rw</span><span>Cd</span>
+              </div>
+            </div>
+          </div>
+          <div id="safety-s3-say" class="safety-ln safety-say safety-line"><span class="safety-w">Secrets</span> <span class="safety-w">are</span> <span class="safety-w">hidden</span> <span class="safety-w">in</span> <span class="safety-w">every</span> <span class="safety-w">report</span></div>
+        </div>
+
+        <!-- 4: table row of grey bars -->
+        <div id="safety-s4" class="clip safety-stmt" data-start="13" data-duration="3">
+          <div id="safety-table" class="safety-obj">
+            <div id="safety-table-box">
+              <div class="safety-trow">
+                <div class="safety-cell safety-c1">id</div>
+                <div class="safety-cell safety-c2">owner</div>
+                <div class="safety-cell safety-c3">secret_note</div>
+              </div>
+              <div class="safety-trow">
+                <div class="safety-cell safety-c1"><div id="safety-bar1" class="safety-bar" style="width: 108px"></div></div>
+                <div class="safety-cell safety-c2"><div id="safety-bar2" class="safety-bar" style="width: 372px"></div></div>
+                <div class="safety-cell safety-c3"><div id="safety-bar3" class="safety-bar" style="width: 610px"></div></div>
+              </div>
+            </div>
+          </div>
+          <div id="safety-s4-say" class="safety-ln safety-say safety-line"><span class="safety-w">Row</span> <span class="safety-w">values</span> <span class="safety-w">are</span> <span class="safety-w safety-mkw"><span class="safety-mk"></span><span class="safety-mt">never</span></span> <span class="safety-w">stored</span></div>
         </div>
       </div>
-      <div id="safety-s3-say" class="safety-say safety-line">Secrets are hidden in every report</div>
-    </div>
-
-    <!-- 4: table row of grey bars -->
-    <div id="safety-s4" class="clip safety-stmt" data-start="13" data-duration="3">
-      <div id="safety-table" class="safety-obj">
-        <div id="safety-table-box">
-          <div class="safety-trow">
-            <div class="safety-cell safety-c1">id</div>
-            <div class="safety-cell safety-c2">owner</div>
-            <div class="safety-cell safety-c3">secret_note</div>
-          </div>
-          <div class="safety-trow">
-            <div class="safety-cell safety-c1"><div id="safety-bar1" class="safety-bar" style="width: 64px"></div></div>
-            <div class="safety-cell safety-c2"><div id="safety-bar2" class="safety-bar" style="width: 220px"></div></div>
-            <div class="safety-cell safety-c3"><div id="safety-bar3" class="safety-bar" style="width: 360px"></div></div>
-          </div>
-        </div>
-      </div>
-      <div id="safety-s4-say" class="safety-say safety-line">Row values are never stored</div>
     </div>
   </div>
 
@@ -242,22 +296,77 @@
     (function () {
       const tl = gsap.timeline({ paused: true });
       const F = 1 / 30;
-      const SHUT = "inset(-25% 100% -25% -2%)";
+      const DUR = 16;
       const OPEN = "inset(-25% -2% -25% -2%)";
+      const SHUT = "inset(-25% 100% -25% -2%)";
       const GONE = "inset(-25% -2% -25% 100%)";
 
-      // enter: left-to-right wipe, power3.out, 18 frames
-      const wipeIn = (sel, at, dur) =>
-        tl.fromTo(sel, { clipPath: SHUT }, { clipPath: OPEN, duration: dur || 18 * F, ease: "power3.out" }, at);
-      // exit: wipe away, power2.in, 12 frames
-      const wipeOut = (sel, at) =>
+      // ---- camera: velocity-matched cut in, slow push, beat re-targets, cut out
+      tl.fromTo("#safety-cam", { x: 420 }, { x: 0, duration: 12 * F, ease: "power4.out" }, 0);
+      tl.fromTo("#safety-cam", { scale: 1 }, { scale: 1.06, duration: DUR, ease: "sine.inOut" }, 0);
+      tl.fromTo(
+        "#safety-cam",
+        { x: 0 },
+        { x: -420, duration: 10 * F, ease: "power4.in", immediateRender: false },
+        DUR - 10 * F,
+      );
+      let rx = 0;
+      let ry = 0;
+      const aim = (x, y, at, dur) => {
+        tl.fromTo(
+          "#safety-rig",
+          { x: rx, y: ry },
+          { x: x, y: y, duration: dur || 20 * F, ease: "power2.inOut", immediateRender: false },
+          at,
+        );
+        rx = x;
+        ry = y;
+      };
+
+      // ---- kinetic type
+      const wordsIn = (line, at) =>
+        tl.fromTo(
+          line + " > .safety-w",
+          { yPercent: 110 },
+          { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F },
+          at,
+        );
+      const wordsOut = (line, at) =>
+        tl.fromTo(
+          line + " > .safety-w",
+          { yPercent: 0 },
+          { yPercent: -110, duration: 8 * F, ease: "power2.in", stagger: 1 * F, immediateRender: false },
+          at,
+        );
+      const marker = (line, at) => {
+        tl.fromTo(line + " .safety-mk", { scaleX: 0 }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, at);
+        tl.fromTo(
+          line + " .safety-mt",
+          { color: "#0a0a0a" },
+          { color: "#ffffff", duration: 4 * F, ease: "none" },
+          at + 2 * F,
+        );
+      };
+
+      // ---- objects
+      const pop = (sel, at) =>
+        tl.fromTo(sel, { scale: 0.9 }, { scale: 1, duration: 16 * F, ease: "back.out(1.7)" }, at);
+      const recoil = (sel, at, dx, dy) =>
+        tl.fromTo(
+          sel,
+          { x: dx || 0, y: dy || 0 },
+          { x: 0, y: 0, duration: 10 * F, ease: "power2.out", immediateRender: false },
+          at,
+        );
+      const objOut = (sel, at) => {
         tl.fromTo(
           sel,
           { clipPath: OPEN },
           { clipPath: GONE, duration: 12 * F, ease: "power2.in", immediateRender: false },
           at,
         );
-      // stroke draw-on
+        tl.fromTo(sel, { x: 0 }, { x: -70, duration: 12 * F, ease: "power2.in", immediateRender: false }, at);
+      };
       const draw = (sel, at, dur, ease) =>
         tl.fromTo(
           sel,
@@ -266,48 +375,78 @@
           at,
         );
 
-      // 0.0 title
-      wipeIn("#safety-title", 0);
+      // 0.0 title, word by word, under the incoming camera
+      wordsIn("#safety-title", 0);
+      aim(0, 24, 1.0, 30 * F);
 
-      // 2.5 lock: body draws, shackle drops shut
+      // 2.5 lock: body draws, shackle drops shut and the lock recoils
+      aim(70, -10, 2.5);
+      pop("#safety-lock", 2.5);
       draw("#safety-lock-body", 2.5, 18 * F);
       draw("#safety-lock-hole", 2.65, 12 * F);
       draw("#safety-lock-slot", 2.75, 8 * F);
       draw("#safety-lock-shackle", 2.6, 15 * F);
       tl.fromTo("#safety-lock-shackle", { y: -42 }, { y: 0, duration: 12 * F, ease: "power3.in" }, 3.2);
-      wipeIn("#safety-s1-say", 2.5 + 5 * F);
-      wipeOut("#safety-lock", 5.55);
-      wipeOut("#safety-s1-say", 5.55);
+      recoil("#safety-lock", 3.6, 0, 8);
+      wordsIn("#safety-s1-say", 2.5 + 5 * F);
+      aim(40, -60, 4.3, 24 * F);
+      objOut("#safety-lock", 5.55);
+      wordsOut("#safety-s1-say", 5.55);
 
-      // 6.0 GET arrow draws left to right
-      wipeIn("#safety-get-tag", 6.0);
-      draw("#safety-get-shaft", 6.0, 24 * F);
-      draw("#safety-get-head", 6.0 + 20 * F, 8 * F, "power2.out");
-      wipeIn("#safety-s2-say", 6.0 + 5 * F);
-      wipeOut("#safety-get", 9.05);
-      wipeOut("#safety-s2-say", 9.05);
+      // 6.0 GET: the tag slams in, the arrow draws, then one request travels it
+      aim(-20, -10, 6.0);
+      tl.fromTo("#safety-get-tag", { scale: 1.45 }, { scale: 1, duration: 9 * F, ease: "power4.out" }, 6.0);
+      tl.fromTo("#safety-get-tag", { opacity: 0 }, { opacity: 1, duration: 3 * F, ease: "none" }, 6.0);
+      draw("#safety-get-shaft", 6.05, 24 * F);
+      draw("#safety-get-head", 6.05 + 20 * F, 8 * F, "power2.out");
+      recoil("#safety-get-tag", 6.05 + 26 * F, -6, 0);
+      wordsIn("#safety-s2-say", 6.0 + 5 * F);
+      marker("#safety-s2-say", 6.75);
+      tl.fromTo("#safety-get-dot", { opacity: 0 }, { opacity: 1, duration: 3 * F, ease: "none" }, 7.6);
+      tl.fromTo("#safety-get-dot", { x: 0 }, { x: 676, duration: 22 * F, ease: "power3.inOut" }, 7.6);
+      aim(-80, -10, 7.6, 22 * F);
+      recoil("#safety-get-svg", 7.6 + 22 * F, 8, 0);
+      objOut("#safety-get", 9.05);
+      wordsOut("#safety-s2-say", 9.05);
 
-      // 9.5 key: the middle of the secret blurs away
-      wipeIn("#safety-key-tag", 9.5);
+      // 9.5 key travels in, then the middle of the secret blurs away
+      aim(40, 0, 9.5);
+      tl.fromTo("#safety-key", { x: -220 }, { x: 0, duration: 16 * F, ease: "power3.out" }, 9.5);
+      tl.fromTo("#safety-key", { opacity: 0 }, { opacity: 1, duration: 5 * F, ease: "none" }, 9.5);
+      recoil("#safety-key-tag", 9.5 + 16 * F, 6, 0);
       tl.fromTo(
         "#safety-key-mid",
         { filter: "blur(0px)", opacity: 1 },
-        { filter: "blur(10px)", opacity: 0.55, duration: 18 * F, ease: "power2.inOut" },
+        { filter: "blur(12px)", opacity: 0.5, duration: 18 * F, ease: "power2.inOut" },
         10.3,
       );
-      wipeIn("#safety-s3-say", 9.5 + 5 * F);
-      wipeOut("#safety-key", 12.55);
-      wipeOut("#safety-s3-say", 12.55);
+      wordsIn("#safety-s3-say", 9.5 + 5 * F);
+      aim(0, -50, 11.2, 24 * F);
+      objOut("#safety-key", 12.55);
+      wordsOut("#safety-s3-say", 12.55);
 
       // 13.0 table row: values replaced by grey bars
-      wipeIn("#safety-table-box", 13.0);
-      wipeIn("#safety-bar1", 13.3, 12 * F);
-      wipeIn("#safety-bar2", 13.3 + 6 * F, 12 * F);
-      wipeIn("#safety-bar3", 13.3 + 12 * F, 12 * F);
-      wipeIn("#safety-s4-say", 13.0 + 5 * F);
+      aim(-10, 0, 13.0);
+      pop("#safety-table", 13.0);
+      tl.fromTo(
+        "#safety-table-box",
+        { clipPath: SHUT },
+        { clipPath: OPEN, duration: 16 * F, ease: "power3.out" },
+        13.0,
+      );
+      ["#safety-bar1", "#safety-bar2", "#safety-bar3"].forEach((b, i) => {
+        tl.fromTo(
+          b,
+          { clipPath: "inset(0% 100% 0% 0%)" },
+          { clipPath: "inset(0% 0% 0% 0%)", duration: 12 * F, ease: "power3.out" },
+          13.3 + i * 6 * F,
+        );
+      });
+      wordsIn("#safety-s4-say", 13.0 + 5 * F);
+      marker("#safety-s4-say", 13.75);
+      aim(-30, -50, 14.5, 24 * F);
 
-      // hold to the end of the 16 s slot
-      tl.set({}, {}, 16);
+      tl.set({}, {}, DUR);
       window.__timelines["safety"] = tl;
     })();
   </script>

@@ -7,14 +7,24 @@
       background: #000;
       font-family: "Inter", sans-serif;
     }
-    #root .repodemo-cam {
+    /* scene camera: carries the velocity-matched cuts (x only) */
+    #root .repodemo-scene {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+      z-index: 1;
+    }
+    /* per-shot camera (punch-ins, re-targets) and its slow drift */
+    #root .repodemo-cam,
+    #root .repodemo-drift {
       position: absolute;
       left: 0;
       top: 0;
       width: 1920px;
       height: 1080px;
       transform-origin: 0 0;
-      z-index: 1;
     }
     #root .repodemo-shot {
       position: absolute;
@@ -28,6 +38,14 @@
       position: absolute;
       z-index: 5;
     }
+    #root .repodemo-hl-box {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      transform-origin: 50% 50%;
+    }
     #root .repodemo-hl svg {
       position: absolute;
       left: 0;
@@ -37,8 +55,6 @@
     #root .repodemo-hl rect {
       fill: none;
       stroke: #ffffff;
-      stroke-width: 3;
-      stroke-dasharray: 1 1;
     }
     #root .repodemo-cursor {
       position: absolute;
@@ -80,6 +96,7 @@
       font-weight: 700;
       letter-spacing: -0.01em;
       white-space: nowrap;
+      transform-origin: 50% 50%;
     }
     #root .repodemo-band {
       position: absolute;
@@ -92,16 +109,19 @@
     }
     #root .repodemo-cap {
       position: absolute;
-      left: 96px;
+      left: 86px;
       top: 960px;
-      width: 1728px;
+      width: 1748px;
       height: 120px;
       display: flex;
       align-items: center;
       z-index: 11;
     }
-    #root .repodemo-cap span {
+    /* the mask: words rise into it and leave upward through it */
+    #root .repodemo-line {
       display: block;
+      overflow: hidden;
+      padding: 4px 10px;
       color: #ffffff;
       font-size: 44px;
       font-weight: 700;
@@ -109,72 +129,119 @@
       line-height: 1.2;
       white-space: nowrap;
     }
+    #root .repodemo-w {
+      display: inline-block;
+      position: relative;
+    }
+    #root .repodemo-bar {
+      position: absolute;
+      left: -6px;
+      right: -6px;
+      top: 0.15em;
+      height: 0.9em;
+      background: #ffffff;
+      border-radius: 3px;
+      transform-origin: 0 50%;
+      z-index: 0;
+    }
+    #root .repodemo-mt {
+      position: relative;
+      z-index: 1;
+      margin: 0 4px;
+      color: #ffffff;
+    }
   </style>
 
   <div id="root" data-composition-id="repodemo" data-width="1920" data-height="1080">
-    <!-- SCREENS (real app, 3840x2160 shown at 1920x1080). Camera = the untimed wrapper. -->
-    <div id="repodemo-cam-welcome" class="repodemo-cam" data-layout-allow-overflow>
-      <img id="repodemo-shot-welcome" class="clip repodemo-shot" src="assets/screens/welcome.png" alt="" data-start="0" data-duration="3.5" data-track-index="1" />
-    </div>
-    <div id="repodemo-cam-typed" class="repodemo-cam" data-layout-allow-overflow>
-      <img id="repodemo-shot-typed" class="clip repodemo-shot" src="assets/screens/typed.png" alt="" data-start="3.5" data-duration="4" data-track-index="1" />
-    </div>
-    <div id="repodemo-cam-scanning" class="repodemo-cam" data-layout-allow-overflow>
-      <img id="repodemo-shot-scanning" class="clip repodemo-shot" src="assets/screens/scanning.png" alt="" data-start="7.5" data-duration="5" data-track-index="1" />
-    </div>
-    <div id="repodemo-cam-report" class="repodemo-cam" data-layout-allow-overflow>
-      <img id="repodemo-shot-report" class="clip repodemo-shot" src="assets/screens/report-repo.png" alt="" data-start="12.5" data-duration="5.5" data-track-index="1" />
-    </div>
-    <div id="repodemo-cam-finding" class="repodemo-cam" data-layout-allow-overflow>
-      <img id="repodemo-shot-finding" class="clip repodemo-shot" src="assets/screens/finding-repo.png" alt="" data-start="18" data-duration="6" data-track-index="1" />
-    </div>
-    <div id="repodemo-cam-prompt" class="repodemo-cam" data-layout-allow-overflow>
-      <img id="repodemo-shot-prompt" class="clip repodemo-shot" src="assets/screens/prompt.png" alt="" data-start="24" data-duration="8" data-track-index="1" />
+    <div id="repodemo-scene" class="repodemo-scene" data-layout-allow-overflow>
+      <!-- SHOT A: welcome + typed share one camera (same layout, only the input changes) -->
+      <div id="repodemo-cam-a" class="repodemo-cam" data-layout-allow-overflow>
+        <div id="repodemo-drift-a" class="repodemo-drift" data-layout-allow-overflow>
+          <img id="repodemo-shot-welcome" class="clip repodemo-shot" src="assets/screens/welcome.png" alt="" data-start="0" data-duration="3.5" data-track-index="1" />
+          <img id="repodemo-shot-typed" class="clip repodemo-shot" src="assets/screens/typed.png" alt="" data-start="3.5" data-duration="4" data-track-index="1" />
+        </div>
+      </div>
+      <!-- SHOT B: scanning -->
+      <div id="repodemo-cam-b" class="repodemo-cam" data-layout-allow-overflow>
+        <div id="repodemo-drift-b" class="repodemo-drift" data-layout-allow-overflow>
+          <img id="repodemo-shot-scanning" class="clip repodemo-shot" src="assets/screens/scanning.png" alt="" data-start="7.5" data-duration="5" data-track-index="1" />
+        </div>
+      </div>
+      <!-- SHOT C: report, with the highlight on the 4-finding list (screen coords) -->
+      <div id="repodemo-cam-c" class="repodemo-cam" data-layout-allow-overflow>
+        <div id="repodemo-drift-c" class="repodemo-drift" data-layout-allow-overflow>
+          <img id="repodemo-shot-report" class="clip repodemo-shot" src="assets/screens/report-repo.png" alt="" data-start="12.5" data-duration="5.5" data-track-index="1" />
+          <div id="repodemo-hl-list" class="clip repodemo-hl" style="left: 624px; top: 405px; width: 992px; height: 233px" data-start="13.1" data-duration="4.9" data-track-index="2">
+            <div id="repodemo-hl-list-box" class="repodemo-hl-box">
+              <svg width="992" height="233" viewBox="0 0 992 233"><rect x="1.25" y="1.25" width="989.5" height="230.5" rx="8" ry="8" stroke-width="2.5" /></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- SHOT D: the open finding -->
+      <div id="repodemo-cam-d" class="repodemo-cam" data-layout-allow-overflow>
+        <div id="repodemo-drift-d" class="repodemo-drift" data-layout-allow-overflow>
+          <img id="repodemo-shot-finding" class="clip repodemo-shot" src="assets/screens/finding-repo.png" alt="" data-start="18" data-duration="6" data-track-index="1" />
+        </div>
+      </div>
+      <!-- SHOT E: the prompt preview -->
+      <div id="repodemo-cam-e" class="repodemo-cam" data-layout-allow-overflow>
+        <div id="repodemo-drift-e" class="repodemo-drift" data-layout-allow-overflow>
+          <img id="repodemo-shot-prompt" class="clip repodemo-shot" src="assets/screens/prompt.png" alt="" data-start="24" data-duration="8" data-track-index="1" />
+        </div>
+      </div>
+
+      <!-- CURSORS (frame coords, computed from the camera): tip of the arrow is the wrapper's origin -->
+      <div id="repodemo-cursor-1" class="clip repodemo-cursor" data-start="3.8" data-duration="3.7" data-track-index="3">
+        <div id="repodemo-arrow-1" class="repodemo-arrow">
+          <svg width="30" height="40" viewBox="-3 -3 30 40"><path d="M0 0 L0 30 L7.5 23 L12 34 L17.2 31.8 L12.6 21.2 L22.4 21.2 Z" fill="#ffffff" stroke="#000000" stroke-width="4" stroke-linejoin="round" paint-order="stroke" /></svg>
+        </div>
+      </div>
+      <div id="repodemo-cursor-2" class="clip repodemo-cursor" data-start="16.8" data-duration="1.2" data-track-index="3">
+        <div id="repodemo-arrow-2" class="repodemo-arrow">
+          <svg width="30" height="40" viewBox="-3 -3 30 40"><path d="M0 0 L0 30 L7.5 23 L12 34 L17.2 31.8 L12.6 21.2 L22.4 21.2 Z" fill="#ffffff" stroke="#000000" stroke-width="4" stroke-linejoin="round" paint-order="stroke" /></svg>
+        </div>
+      </div>
+      <div id="repodemo-cursor-3" class="clip repodemo-cursor" data-start="22.3" data-duration="1.7" data-track-index="3">
+        <div id="repodemo-arrow-3" class="repodemo-arrow">
+          <svg width="30" height="40" viewBox="-3 -3 30 40"><path d="M0 0 L0 30 L7.5 23 L12 34 L17.2 31.8 L12.6 21.2 L22.4 21.2 Z" fill="#ffffff" stroke="#000000" stroke-width="4" stroke-linejoin="round" paint-order="stroke" /></svg>
+        </div>
+      </div>
+      <div id="repodemo-cursor-4" class="clip repodemo-cursor" data-start="26.6" data-duration="5.4" data-track-index="3">
+        <div id="repodemo-arrow-4" class="repodemo-arrow">
+          <svg width="30" height="40" viewBox="-3 -3 30 40"><path d="M0 0 L0 30 L7.5 23 L12 34 L17.2 31.8 L12.6 21.2 L22.4 21.2 Z" fill="#ffffff" stroke="#000000" stroke-width="4" stroke-linejoin="round" paint-order="stroke" /></svg>
+        </div>
+      </div>
+
+      <!-- TOAST: mimics the app's own "Prompt copied" toast -->
+      <div id="repodemo-toast" class="clip repodemo-toast-clip" data-start="28.1" data-duration="3.9" data-track-index="4" data-hold>
+        <div id="repodemo-toast-box" class="repodemo-toast">
+          <svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 12.5 L9.5 18 L20 6.5" fill="none" stroke="#0a0a0a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          <span>Prompt copied</span>
+        </div>
+      </div>
     </div>
 
-    <!-- HIGHLIGHT: the 4-finding list on report-repo (frame coords, camera at 1.0) -->
-    <div id="repodemo-hl-list" class="clip repodemo-hl" style="left: 624px; top: 405px; width: 992px; height: 233px" data-start="13" data-duration="5" data-track-index="2">
-      <svg width="992" height="233" viewBox="0 0 992 233"><rect id="repodemo-hl-list-rect" x="1.5" y="1.5" width="989" height="230" rx="10" ry="10" pathLength="1" /></svg>
-    </div>
-
-    <!-- CURSORS: tip of the arrow is the wrapper's origin -->
-    <div id="repodemo-cursor-1" class="clip repodemo-cursor" data-start="3.7" data-duration="3.8" data-track-index="3">
-      <div id="repodemo-arrow-1" class="repodemo-arrow">
-        <svg width="30" height="40" viewBox="-3 -3 30 40"><path d="M0 0 L0 30 L7.5 23 L12 34 L17.2 31.8 L12.6 21.2 L22.4 21.2 Z" fill="#ffffff" stroke="#000000" stroke-width="4" stroke-linejoin="round" paint-order="stroke" /></svg>
-      </div>
-    </div>
-    <div id="repodemo-cursor-2" class="clip repodemo-cursor" data-start="16.6" data-duration="1.4" data-track-index="3">
-      <div id="repodemo-arrow-2" class="repodemo-arrow">
-        <svg width="30" height="40" viewBox="-3 -3 30 40"><path d="M0 0 L0 30 L7.5 23 L12 34 L17.2 31.8 L12.6 21.2 L22.4 21.2 Z" fill="#ffffff" stroke="#000000" stroke-width="4" stroke-linejoin="round" paint-order="stroke" /></svg>
-      </div>
-    </div>
-    <div id="repodemo-cursor-3" class="clip repodemo-cursor" data-start="22.4" data-duration="1.6" data-track-index="3">
-      <div id="repodemo-arrow-3" class="repodemo-arrow">
-        <svg width="30" height="40" viewBox="-3 -3 30 40"><path d="M0 0 L0 30 L7.5 23 L12 34 L17.2 31.8 L12.6 21.2 L22.4 21.2 Z" fill="#ffffff" stroke="#000000" stroke-width="4" stroke-linejoin="round" paint-order="stroke" /></svg>
-      </div>
-    </div>
-    <div id="repodemo-cursor-4" class="clip repodemo-cursor" data-start="26.6" data-duration="5.4" data-track-index="3">
-      <div id="repodemo-arrow-4" class="repodemo-arrow">
-        <svg width="30" height="40" viewBox="-3 -3 30 40"><path d="M0 0 L0 30 L7.5 23 L12 34 L17.2 31.8 L12.6 21.2 L22.4 21.2 Z" fill="#ffffff" stroke="#000000" stroke-width="4" stroke-linejoin="round" paint-order="stroke" /></svg>
-      </div>
-    </div>
-
-    <!-- TOAST: mimics the app's own "Prompt copied" toast -->
-    <div id="repodemo-toast" class="clip repodemo-toast-clip" data-start="28.1" data-duration="3.9" data-track-index="4" data-hold>
-      <div id="repodemo-toast-box" class="repodemo-toast">
-        <svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 12.5 L9.5 18 L20 6.5" fill="none" stroke="#0a0a0a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-        <span>Prompt copied</span>
-      </div>
-    </div>
-
-    <!-- CAPTION BAND -->
+    <!-- CAPTION BAND (static: the scene camera moves behind it) -->
     <div id="repodemo-band" class="repodemo-band"></div>
-    <div id="repodemo-cap-1" class="clip repodemo-cap" data-start="0" data-duration="3.5" data-track-index="5" data-layout-allow-caption-zone><span id="repodemo-cap-1-t">Vibeproof runs on your computer, in the browser</span></div>
-    <div id="repodemo-cap-2" class="clip repodemo-cap" data-start="3.5" data-duration="4" data-track-index="5" data-layout-allow-caption-zone><span id="repodemo-cap-2-t">Paste a repo link, a folder or a website</span></div>
-    <div id="repodemo-cap-3" class="clip repodemo-cap" data-start="7.5" data-duration="5" data-track-index="5" data-layout-allow-caption-zone><span id="repodemo-cap-3-t">It shows each stage as it runs</span></div>
-    <div id="repodemo-cap-4" class="clip repodemo-cap" data-start="12.5" data-duration="5.5" data-track-index="5" data-layout-allow-caption-zone><span id="repodemo-cap-4-t">Every finding, grouped by severity</span></div>
-    <div id="repodemo-cap-5" class="clip repodemo-cap" data-start="18" data-duration="6" data-track-index="5" data-layout-allow-caption-zone><span id="repodemo-cap-5-t">Why it matters, the evidence, how to fix it</span></div>
-    <div id="repodemo-cap-6" class="clip repodemo-cap" data-start="24" data-duration="8" data-track-index="5" data-layout-allow-caption-zone><span id="repodemo-cap-6-t">A prompt to paste into your coding agent</span></div>
+    <div id="repodemo-cap-1" class="clip repodemo-cap" data-start="0" data-duration="3.5" data-track-index="5" data-layout-allow-caption-zone>
+      <span id="repodemo-cap-1-t" class="repodemo-line"><span class="repodemo-w">Vibeproof</span> <span class="repodemo-w">runs</span> <span class="repodemo-w">on</span> <span class="repodemo-w">your</span> <span class="repodemo-w"><span id="repodemo-mk-1-bar" class="repodemo-bar"></span><span id="repodemo-mk-1-t" class="repodemo-mt">computer</span></span><span class="repodemo-w">,</span> <span class="repodemo-w">in</span> <span class="repodemo-w">the</span> <span class="repodemo-w">browser</span></span>
+    </div>
+    <div id="repodemo-cap-2" class="clip repodemo-cap" data-start="3.5" data-duration="4" data-track-index="5" data-layout-allow-caption-zone>
+      <span id="repodemo-cap-2-t" class="repodemo-line"><span class="repodemo-w">Paste</span> <span class="repodemo-w">a</span> <span class="repodemo-w"><span id="repodemo-mk-2-bar" class="repodemo-bar"></span><span id="repodemo-mk-2-t" class="repodemo-mt">repo</span></span> <span class="repodemo-w">link,</span> <span class="repodemo-w">a</span> <span class="repodemo-w">folder</span> <span class="repodemo-w">or</span> <span class="repodemo-w">a</span> <span class="repodemo-w">website</span></span>
+    </div>
+    <div id="repodemo-cap-3" class="clip repodemo-cap" data-start="7.5" data-duration="5" data-track-index="5" data-layout-allow-caption-zone>
+      <span id="repodemo-cap-3-t" class="repodemo-line"><span class="repodemo-w">It</span> <span class="repodemo-w">shows</span> <span class="repodemo-w">each</span> <span class="repodemo-w"><span id="repodemo-mk-3-bar" class="repodemo-bar"></span><span id="repodemo-mk-3-t" class="repodemo-mt">stage</span></span> <span class="repodemo-w">as</span> <span class="repodemo-w">it</span> <span class="repodemo-w">runs</span></span>
+    </div>
+    <div id="repodemo-cap-4" class="clip repodemo-cap" data-start="12.5" data-duration="5.5" data-track-index="5" data-layout-allow-caption-zone>
+      <span id="repodemo-cap-4-t" class="repodemo-line"><span class="repodemo-w">Every</span> <span class="repodemo-w">finding,</span> <span class="repodemo-w">grouped</span> <span class="repodemo-w">by</span> <span class="repodemo-w"><span id="repodemo-mk-4-bar" class="repodemo-bar"></span><span id="repodemo-mk-4-t" class="repodemo-mt">severity</span></span></span>
+    </div>
+    <div id="repodemo-cap-5" class="clip repodemo-cap" data-start="18" data-duration="6" data-track-index="5" data-layout-allow-caption-zone>
+      <span id="repodemo-cap-5-t" class="repodemo-line"><span class="repodemo-w">Why</span> <span class="repodemo-w">it</span> <span class="repodemo-w">matters,</span> <span class="repodemo-w">the</span> <span class="repodemo-w">evidence,</span> <span class="repodemo-w">how</span> <span class="repodemo-w">to</span> <span class="repodemo-w"><span id="repodemo-mk-5-bar" class="repodemo-bar"></span><span id="repodemo-mk-5-t" class="repodemo-mt">fix</span></span> <span class="repodemo-w">it</span></span>
+    </div>
+    <div id="repodemo-cap-6" class="clip repodemo-cap" data-start="24" data-duration="8" data-track-index="5" data-layout-allow-caption-zone>
+      <span id="repodemo-cap-6-t" class="repodemo-line"><span class="repodemo-w">A</span> <span class="repodemo-w"><span id="repodemo-mk-6-bar" class="repodemo-bar"></span><span id="repodemo-mk-6-t" class="repodemo-mt">prompt</span></span> <span class="repodemo-w">to</span> <span class="repodemo-w">paste</span> <span class="repodemo-w">into</span> <span class="repodemo-w">your</span> <span class="repodemo-w">coding</span> <span class="repodemo-w">agent</span></span>
+    </div>
   </div>
 
   <script>
@@ -182,64 +249,162 @@
       window.__timelines = window.__timelines || {};
       const F = 1 / 30; // one frame
       const tl = gsap.timeline({ paused: true });
+      const sineIO = gsap.parseEase("sine.inOut");
 
-      // ---- captions: wipe in (power3.out 18 f), wipe out (power2.in 12 f) just before the next one
-      const caps = [
-        ["#repodemo-cap-1-t", 0, 3.5],
-        ["#repodemo-cap-2-t", 3.5, 7.5],
-        ["#repodemo-cap-3-t", 7.5, 12.5],
-        ["#repodemo-cap-4-t", 12.5, 18],
-        ["#repodemo-cap-5-t", 18, 24],
-        ["#repodemo-cap-6-t", 24, null],
-      ];
-      caps.forEach(function (c) {
-        const inAt = c[1];
-        tl.fromTo(c[0], { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 18 * F, ease: "power3.out" }, inAt);
-        if (c[2] !== null) {
-          tl.fromTo(c[0], { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 100%)", duration: 12 * F, ease: "power2.in", immediateRender: false }, c[2] - 12 * F);
-        }
+      // ---------------------------------------------------------------- helpers
+      // Each shot: camera (x, y, scale, origin 0 0) > drift (scale 1 -> 1.03 around o, sine.inOut over the shot).
+      // A screen point P (1920x1080 layout of the screenshot) lands in the frame at
+      // cam.s * (o + d * (P - o)) + (cam.x, cam.y). The cursors use this so they sit on the real buttons.
+      const DRIFT = 0.03;
+      const G = {
+        a: { t0: 0, t1: 7.5, o: [258, 164] }, // Scan button
+        b: { t0: 7.5, t1: 12.5, o: [1120, 260] }, // progress card
+        c: { t0: 12.5, t1: 18, o: [780, 437] }, // first finding (click target)
+        d: { t0: 18, t1: 24, o: [877, 677] }, // "Preview" (click target)
+        e: { t0: 24, t1: 32, o: [752, 335] }, // "Copy fix prompt" (click target)
+      };
+      function drift(g, t) {
+        const p = Math.min(1, Math.max(0, (t - g.t0) / (g.t1 - g.t0)));
+        return 1 + DRIFT * sineIO(p);
+      }
+      function frameOf(g, cam, P, t) {
+        const k = drift(g, t);
+        return [cam.s * (g.o[0] + k * (P[0] - g.o[0])) + cam.x, cam.s * (g.o[1] + k * (P[1] - g.o[1])) + cam.y];
+      }
+      // camera state that starts "slightly large" around a click point and settles (match cut on a click)
+      function settleFrom(P) {
+        return { x: P[0] * (1 - 1.04), y: P[1] * (1 - 1.04), s: 1.04 };
+      }
+      const seen = {};
+      function camTo(sel, at, from, to, frames, ease) {
+        const first = !seen[sel];
+        seen[sel] = true;
+        tl.fromTo(sel, { x: from.x, y: from.y, scale: from.s }, { x: to.x, y: to.y, scale: to.s, duration: frames * F, ease: ease, immediateRender: first }, at);
+      }
+      Object.keys(G).forEach(function (k) {
+        const g = G[k];
+        const o = g.o[0] + "px " + g.o[1] + "px";
+        tl.fromTo("#repodemo-drift-" + k, { scale: 1, transformOrigin: o }, { scale: 1 + DRIFT, transformOrigin: o, duration: g.t1 - g.t0, ease: "sine.inOut" }, g.t0);
       });
 
-      // ---- cursor helper: move (power2.inOut), click = scale 0.85 for 4 frames
+      // velocity-matched cuts on the scene camera: out = -420 px in 10 f power4.in, in = from +420 px in 12 f power4.out
+      function whipIn(t) {
+        tl.fromTo("#repodemo-scene", { x: 420 }, { x: 0, duration: 12 * F, ease: "power4.out", immediateRender: t === 0 }, t);
+      }
+      function whipOut(t) {
+        tl.fromTo("#repodemo-scene", { x: 0 }, { x: -420, duration: 10 * F, ease: "power4.in", immediateRender: false }, t - 10 * F);
+      }
+
+      // slam: scale 1.45 -> 1, power4.out, 9 f
+      function slam(sel, at) {
+        tl.fromTo(sel, { scale: 1.45, opacity: 0 }, { scale: 1, opacity: 1, duration: 9 * F, ease: "power4.out" }, at);
+      }
+
+      // cursor: move power2.inOut, click = scale 0.85 for 4 frames
       function arrive(sel, at, from, to, frames) {
         tl.fromTo(sel, { x: from[0], y: from[1], scale: 1 }, { x: to[0], y: to[1], scale: 1, duration: frames * F, ease: "power2.inOut" }, at);
         tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 6 * F, ease: "none" }, at);
       }
-      function move(sel, at, from, to, frames) {
-        tl.fromTo(sel, { x: from[0], y: from[1] }, { x: to[0], y: to[1], duration: frames * F, ease: "power2.inOut", immediateRender: false }, at);
+      function move(sel, at, from, to, frames, ease) {
+        tl.fromTo(sel, { x: from[0], y: from[1] }, { x: to[0], y: to[1], duration: frames * F, ease: ease || "power2.inOut", immediateRender: false }, at);
       }
       function click(sel, at) {
         tl.fromTo(sel, { scale: 1 }, { scale: 0.85, duration: 2 * F, ease: "power2.out", immediateRender: false }, at);
         tl.fromTo(sel, { scale: 0.85 }, { scale: 1, duration: 2 * F, ease: "power2.out", immediateRender: false }, at + 2 * F);
       }
 
-      // ---- 3.5 typed: cursor to the input, then to Scan; click 7.367, cut 7.5
-      arrive("#repodemo-arrow-1", 3.8, [560, 430], [190, 116], 21);
-      move("#repodemo-arrow-1", 6.6, [190, 116], [252, 168], 18);
+      // captions: words rise from the mask (power4.out 14 f, 2 f stagger), one key word gets the white marker,
+      // the line leaves upward through the mask (power2.in 8 f, 1 f stagger) just before the next caption
+      function caption(n, t0, t1) {
+        const sel = "#repodemo-cap-" + n + "-t .repodemo-w";
+        const nW = document.querySelectorAll(sel).length || 8;
+        tl.fromTo(sel, { yPercent: 110 }, { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, t0);
+        const mk = t0 + ((nW - 1) * 2 + 10) * F;
+        tl.fromTo("#repodemo-mk-" + n + "-bar", { scaleX: 0 }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, mk);
+        tl.fromTo("#repodemo-mk-" + n + "-t", { color: "#ffffff" }, { color: "#0a0a0a", duration: 6 * F, ease: "power2.out" }, mk + 2 * F);
+        if (t1 !== null) {
+          tl.fromTo(sel, { yPercent: 0 }, { yPercent: -110, duration: 8 * F, ease: "power2.in", stagger: 1 * F, immediateRender: false }, t1 - (8 + (nW - 1) + 1) * F);
+        }
+      }
+      caption(1, 0, 3.5);
+      caption(2, 3.5, 7.5);
+      caption(3, 7.5, 12.5);
+      caption(4, 12.5, 18);
+      caption(5, 18, 24);
+      caption(6, 24, null);
+
+      // ---------------------------------------------------------------- 0.0 welcome -> 3.5 typed (shot A)
+      whipIn(0);
+      const A0 = { x: 0, y: 0, s: 1 };
+      const A1 = { x: 0, y: 0, s: 1.15 }; // drift toward the sidebar
+      const A2 = { x: 0, y: 0, s: 1.45 }; // re-target onto the input as the link is in
+      camTo("#repodemo-cam-a", 1.6, A0, A1, 20, "power2.inOut");
+      camTo("#repodemo-cam-a", 3.5, A1, A2, 20, "power2.inOut");
+      // cursor to the input, then to Scan; click 7.367, cut 7.5
+      const pInput = frameOf(G.a, A2, [190, 116], 4.5);
+      const pScan = frameOf(G.a, A2, [252, 168], 7.2);
+      arrive("#repodemo-arrow-1", 3.8, [760, 640], pInput, 21);
+      move("#repodemo-arrow-1", 6.6, pInput, pScan, 18);
       click("#repodemo-arrow-1", 7.5 - 4 * F);
 
-      // ---- 7.5 scanning: punch-in 1.0 -> 1.6 on the progress card (sine.inOut 60 f)
-      tl.fromTo("#repodemo-cam-scanning", { x: 0, y: 0, scale: 1 }, { x: -832, y: 0, scale: 1.6, duration: 60 * F, ease: "sine.inOut" }, 7.8);
+      // ---------------------------------------------------------------- 7.5 scanning (shot B): match cut on the click
+      const B0 = settleFrom([258, 164]);
+      const B1 = { x: 0, y: 0, s: 1 };
+      const B2 = { x: -832, y: 0, s: 1.6 }; // punch-in 1.0 -> 1.6 on the progress card
+      const B3 = { x: -792, y: -80, s: 1.6 }; // re-target to the running stage
+      camTo("#repodemo-cam-b", 7.5, B0, B1, 12, "power4.out");
+      camTo("#repodemo-cam-b", 7.9, B1, B2, 60, "sine.inOut");
+      camTo("#repodemo-cam-b", 10.5, B2, B3, 20, "power2.inOut");
+      whipOut(12.5);
 
-      // ---- 12.5 report: highlight the 4-finding list
-      tl.fromTo("#repodemo-hl-list-rect", { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 18 * F, ease: "power3.out" }, 13.0);
+      // ---------------------------------------------------------------- 12.5 report (shot C): velocity-matched cut
+      whipIn(12.5);
+      const C0 = { x: 0, y: 0, s: 1 };
+      const C1 = { x: -384, y: -40, s: 1.2 }; // toward the findings list
+      const C2 = { x: -330, y: -10, s: 1.2 }; // toward the first finding
+      camTo("#repodemo-cam-c", 12.9, C0, C1, 20, "power2.inOut");
+      slam("#repodemo-hl-list-box", 13.1);
+      camTo("#repodemo-cam-c", 15.2, C1, C2, 20, "power2.inOut");
       // cursor clicks the first finding (17.867), which opens it: cut 18.0
-      arrive("#repodemo-arrow-2", 16.8, [1120, 780], [780, 437], 21);
+      const pFinding = frameOf(G.c, C2, [780, 437], 17.5);
+      arrive("#repodemo-arrow-2", 16.8, [pFinding[0] + 360, pFinding[1] + 330], pFinding, 21);
       click("#repodemo-arrow-2", 18 - 4 * F);
 
-      // ---- 18.0 open finding: punch-in on the expanded card (1.8, sine.inOut 66 f)
-      tl.fromTo("#repodemo-cam-finding", { x: 0, y: 0, scale: 1 }, { x: -1056, y: -541, scale: 1.8, duration: 66 * F, ease: "sine.inOut" }, 18.2);
-      // cursor clicks "Preview" (23.867), which opens the prompt: cut 24.0
-      arrive("#repodemo-arrow-3", 22.6, [860, 900], [522, 678], 21);
-      click("#repodemo-arrow-3", 24 - 4 * F);
+      // ---------------------------------------------------------------- 18.0 open finding (shot D): match cut on the click
+      const D0 = settleFrom([780, 437]);
+      const D1 = { x: 0, y: 0, s: 1 };
+      const D2 = { x: -1056, y: -480, s: 1.8 }; // punch-in on the open card: why it matters, the evidence
+      const D3 = { x: -1056, y: -560, s: 1.8 }; // re-target down to how to fix and its buttons
+      camTo("#repodemo-cam-d", 18, D0, D1, 12, "power4.out");
+      camTo("#repodemo-cam-d", 18.4, D1, D2, 66, "sine.inOut");
+      camTo("#repodemo-cam-d", 21.0, D2, D3, 20, "power2.inOut");
+      // cursor clicks "Preview" (23.3), which opens the prompt: whip 23.667 -> 24.0
+      const pPreview = frameOf(G.d, D3, [877, 677], 23.0);
+      arrive("#repodemo-arrow-3", 22.3, [pPreview[0] + 330, pPreview[1] + 230], pPreview, 21);
+      click("#repodemo-arrow-3", 23.3);
+      whipOut(24);
 
-      // ---- 24.0 prompt: punch-in on the prompt preview (2.0, sine.inOut 60 f)
-      tl.fromTo("#repodemo-cam-prompt", { x: 0, y: 0, scale: 1 }, { x: -1223, y: -548, scale: 2.0, duration: 60 * F, ease: "sine.inOut" }, 24.2);
+      // ---------------------------------------------------------------- 24.0 prompt (shot E): velocity-matched cut
+      whipIn(24);
+      const E0 = { x: 0, y: 0, s: 1 };
+      const E1 = { x: -1223, y: -548, s: 2.0 }; // punch-in on the prompt preview
+      const E2 = { x: -1223, y: -600, s: 2.0 }; // re-target down the prompt text
+      const E3 = { x: -1290, y: -615, s: 2.0 }; // and along it
+      camTo("#repodemo-cam-e", 24.4, E0, E1, 60, "sine.inOut");
       // cursor to "Copy fix prompt", click at 28.0
-      arrive("#repodemo-arrow-4", 26.8, [760, 640], [282, 122], 24);
+      const pCopy1 = frameOf(G.e, E1, [752, 335], 27.4);
+      arrive("#repodemo-arrow-4", 26.6, [pCopy1[0] + 420, pCopy1[1] + 460], pCopy1, 24);
       click("#repodemo-arrow-4", 28.0);
-      // toast slides in from the right edge after the click
-      tl.fromTo("#repodemo-toast-box", { x: 420 }, { x: 0, duration: 18 * F, ease: "power3.out" }, 28.1);
+      // the "Prompt copied" toast slams in after the click
+      slam("#repodemo-toast-box", 28.1);
+      // the camera keeps reading the prompt; the cursor rides with the button
+      camTo("#repodemo-cam-e", 29.0, E1, E2, 20, "power2.inOut");
+      const pCopy2 = frameOf(G.e, E2, [752, 335], 29.67);
+      move("#repodemo-arrow-4", 29.0, pCopy1, pCopy2, 20);
+      camTo("#repodemo-cam-e", 30.4, E2, E3, 20, "power2.inOut");
+      const pCopy3 = frameOf(G.e, E3, [752, 335], 31.07);
+      move("#repodemo-arrow-4", 30.4, pCopy2, pCopy3, 20);
+      whipOut(32);
 
       // hold to the scene's end (32 s)
       tl.set({}, {}, 32);

@@ -8,23 +8,39 @@
       font-family: "Inter", sans-serif;
       color: #0a0a0a;
     }
-    #hook-grid { position: absolute; inset: 0; }
+    /* the camera carries everything, ground included (the seam and the words blend together) */
+    #hook-cam { position: absolute; inset: 0; transform-origin: 300px 540px; }
+    #hook-grid { position: absolute; left: -816px; top: -624px; }
+    /* CODE world: the left half turns dark at the split */
+    #hook-dark { position: absolute; left: -816px; top: -624px; width: 1776px; height: 2304px; background: #0b0b0c; }
+    #hook-dark svg { position: absolute; left: 0; top: 0; }
+    /* kinetic type: a line is a mask, its words rise through it; words blend
+       so they read ink on the light ground and light on the dark one */
     .hook-display {
       position: absolute;
-      left: 96px;
-      top: 108px;
-      width: 1500px;
+      left: 80px;
+      top: 100px;
+      padding: 4px 16px 18px 16px;
+      overflow: hidden;
       font-weight: 900;
-      font-size: 84px;
+      font-size: 100px;
       line-height: 1.05;
       letter-spacing: -0.02em;
       white-space: nowrap;
     }
-    .hook-wipe { display: inline-block; }
-    .hook-red { color: #e5342f; }
+    .hook-w { display: inline-block; }
+    .hook-x { color: #f5f5f5; mix-blend-mode: difference; }
+    .hook-mk { position: relative; isolation: isolate; margin: 0 0.04em 0 0.08em; color: #0a0a0a; }
+    .hook-mbar {
+      position: absolute; left: -0.08em; right: -0.08em; top: calc(50% - 0.45em); height: 0.9em;
+      background: #e5342f; z-index: -1;
+    }
     .hook-label {
       position: absolute;
       top: 900px;
+      padding: 0 6px 6px 6px;
+      margin-left: -6px;
+      overflow: hidden;
       font-weight: 700;
       font-size: 28px;
       line-height: 36px;
@@ -69,9 +85,10 @@
     }
     /* code tree */
     .hook-tree { position: absolute; inset: 0; background: #ffffff; }
+    #hook-tree { background: #17171a; color: #f2f2f2; }
     .hook-treehead {
       position: absolute; left: 0; top: 0; right: 0; height: 72px;
-      border-bottom: 2px solid #0a0a0a;
+      border-bottom: 2px solid rgba(242, 242, 242, 0.16);
       font-weight: 700; font-size: 28px; line-height: 70px; padding-left: 68px;
     }
     .hook-treehead svg { position: absolute; left: 24px; top: 23px; }
@@ -85,14 +102,26 @@
   </style>
 
   <div id="root" data-composition-id="hook" data-width="1920" data-height="1080">
-    <svg id="hook-grid" width="1920" height="1080" data-layout-ignore>
-      <defs>
-        <pattern id="hook-gridpat" width="48" height="48" patternUnits="userSpaceOnUse">
-          <path d="M48 0 V48 M0 48 H48" fill="none" stroke="#0a0a0a" stroke-opacity="0.05" stroke-width="1" />
-        </pattern>
-      </defs>
-      <rect width="1920" height="1080" fill="url(#hook-gridpat)" />
-    </svg>
+    <div id="hook-cam" data-layout-allow-overflow>
+      <svg id="hook-grid" width="3552" height="2304" data-layout-ignore>
+        <defs>
+          <pattern id="hook-gridpat" width="48" height="48" patternUnits="userSpaceOnUse">
+            <path d="M48 0 V48 M0 48 H48" fill="none" stroke="#0a0a0a" stroke-opacity="0.05" stroke-width="1" />
+          </pattern>
+        </defs>
+        <rect width="3552" height="2304" fill="#ffffff" />
+        <rect width="3552" height="2304" fill="url(#hook-gridpat)" />
+      </svg>
+      <div id="hook-dark" data-layout-ignore>
+        <svg width="1776" height="2304">
+          <defs>
+            <pattern id="hook-gridpat-d" width="48" height="48" patternUnits="userSpaceOnUse">
+              <path d="M48 0 V48 M0 48 H48" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1" />
+            </pattern>
+          </defs>
+          <rect width="1776" height="2304" fill="url(#hook-gridpat-d)" />
+        </svg>
+      </div>
 
     <!-- THE APP, whole (0 to 5.4 s) -->
     <div id="hook-app" class="hook-win" style="left: 410px; width: 1100px">
@@ -121,19 +150,19 @@
         <div class="hook-row" style="top: 408px; width: 1000px"><div class="hook-box"></div><div class="hook-task" data-layout-allow-overlap>Launch</div></div>
       </div>
       <div id="hook-tree" class="hook-tree">
-        <div class="hook-treehead"><svg width="32" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h8 l3 3 h13 a2 2 0 0 1 2 2 v14 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg>taskflow</div>
-        <div class="hook-trow" style="left: 24px; top: 84px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg><span>supabase/</span></div>
-        <div class="hook-trow" style="left: 60px; top: 128px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg><span>migrations/</span></div>
-        <div class="hook-trow" style="left: 96px; top: 172px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg><span>20260101_init.sql</span></div>
-        <div class="hook-trow" style="left: 24px; top: 216px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg><span>src/</span></div>
-        <div class="hook-trow" style="left: 60px; top: 260px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg><span>lib/</span></div>
-        <div class="hook-trow" style="left: 96px; top: 304px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg><span>supabase.ts</span></div>
-        <div class="hook-trow" style="left: 60px; top: 348px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg><span>App.tsx</span></div>
-        <div class="hook-trow" style="left: 60px; top: 392px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg><span>main.tsx</span></div>
-        <div class="hook-trow" style="left: 24px; top: 436px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg><span>.env.example</span></div>
-        <div class="hook-trow" style="left: 24px; top: 480px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg><span>package.json</span></div>
-        <div class="hook-trow" style="left: 24px; top: 524px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg><span>package-lock.json</span></div>
-        <div class="hook-trow" style="left: 24px; top: 568px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg><span>README.md</span></div>
+        <div class="hook-treehead"><svg width="32" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h8 l3 3 h13 a2 2 0 0 1 2 2 v14 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>taskflow</div>
+        <div class="hook-trow" style="left: 24px; top: 84px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>supabase/</span></div>
+        <div class="hook-trow" style="left: 60px; top: 128px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>migrations/</span></div>
+        <div class="hook-trow" style="left: 96px; top: 172px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>20260101_init.sql</span></div>
+        <div class="hook-trow" style="left: 24px; top: 216px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>src/</span></div>
+        <div class="hook-trow" style="left: 60px; top: 260px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>lib/</span></div>
+        <div class="hook-trow" style="left: 96px; top: 304px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>supabase.ts</span></div>
+        <div class="hook-trow" style="left: 60px; top: 348px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>App.tsx</span></div>
+        <div class="hook-trow" style="left: 60px; top: 392px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>main.tsx</span></div>
+        <div class="hook-trow" style="left: 24px; top: 436px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>.env.example</span></div>
+        <div class="hook-trow" style="left: 24px; top: 480px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>package.json</span></div>
+        <div class="hook-trow" style="left: 24px; top: 524px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>package-lock.json</span></div>
+        <div class="hook-trow" style="left: 24px; top: 568px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>README.md</span></div>
       </div>
     </div>
 
@@ -161,53 +190,87 @@
       </div>
     </div>
 
-    <div id="hook-lab-code" class="clip hook-label" data-start="5.8" data-duration="6.2" style="left: 270px"><div id="hook-lab-code-t" class="hook-wipe">Its code</div></div>
-    <div id="hook-lab-site" class="clip hook-label" data-start="6" data-duration="6" style="left: 1100px"><div id="hook-lab-site-t" class="hook-wipe">Its live site</div></div>
+    <div id="hook-lab-code" class="clip hook-label" data-start="5.8" data-duration="6.2" style="left: 270px"><span class="hook-w hook-x">Its</span> <span class="hook-w hook-x">code</span></div>
+    <div id="hook-lab-site" class="clip hook-label" data-start="6" data-duration="6" style="left: 1100px"><span class="hook-w hook-x">Its</span> <span class="hook-w hook-x">live</span> <span class="hook-w hook-x">site</span></div>
 
-    <div id="hook-l1" class="clip hook-display" data-start="0.4" data-duration="2.6"><div id="hook-l1-t" class="hook-wipe">This app was built by an AI.</div></div>
-    <div id="hook-l2" class="clip hook-display" data-start="3" data-duration="5"><div id="hook-l2-t" class="hook-wipe">It works. But is it safe?</div></div>
-    <div id="hook-l3" class="clip hook-display" data-hold data-start="8" data-duration="4"><div id="hook-l3-t" class="hook-wipe">Where do you look for the <span class="hook-red">leak</span>?</div></div>
+    <div id="hook-l1" class="clip hook-display" data-start="0.4" data-duration="2.6"><span class="hook-w hook-x">This</span> <span class="hook-w hook-x">app</span> <span class="hook-w hook-x">was</span> <span class="hook-w hook-x">built</span> <span class="hook-w hook-x">by</span> <span class="hook-w hook-x">an</span> <span class="hook-w hook-x">AI.</span></div>
+    <div id="hook-l2" class="clip hook-display" data-start="3" data-duration="5"><span class="hook-w hook-x">It</span> <span class="hook-w hook-x">works.</span> <span class="hook-w hook-x">But</span> <span class="hook-w hook-x">is</span> <span class="hook-w hook-x">it</span> <span id="hook-mk-safe" class="hook-w hook-mk">safe<i class="hook-mbar"></i></span><span class="hook-w hook-x">?</span></div>
+    <div id="hook-l3" class="clip hook-display" data-hold data-start="8" data-duration="4"><span class="hook-w hook-x">Where</span> <span class="hook-w hook-x">do</span> <span class="hook-w hook-x">you</span> <span class="hook-w hook-x">look</span> <span class="hook-w hook-x">for</span> <span class="hook-w hook-x">the</span> <span id="hook-mk-leak" class="hook-w hook-mk">leak<i class="hook-mbar"></i></span><span class="hook-w hook-x">?</span></div>
+    </div>
   </div>
 
   <script>
     (function () {
       const tl = gsap.timeline({ paused: true });
+      const F = 1 / 30;
+      const D = 12;
+      const CAM = "#hook-cam";
       const SHUT = "inset(0% 100% 0% 0%)";
       const OPEN = "inset(0% 0% 0% 0%)";
-      const GONE = "inset(0% 0% 0% 100%)";
       function wipeIn(sel, t) {
         tl.fromTo(sel, { clipPath: SHUT }, { clipPath: OPEN, duration: 0.6, ease: "power3.out" }, t);
       }
-      function wipeOut(sel, t) {
-        tl.fromTo(sel, { clipPath: OPEN }, { clipPath: GONE, duration: 0.4, ease: "power2.in", immediateRender: false }, t);
+      // kinetic type: words rise through the line's mask, leave upward
+      function lineIn(sel, t) {
+        tl.fromTo(sel + " .hook-w", { yPercent: 110 }, { yPercent: 0, duration: 14 * F, ease: "power4.out", stagger: 2 * F }, t);
+      }
+      function lineOut(sel, end) {
+        const n = document.querySelectorAll(sel + " .hook-w").length;
+        tl.fromTo(sel + " .hook-w", { yPercent: 0 }, { yPercent: -110, duration: 8 * F, ease: "power2.in", stagger: F, immediateRender: false }, end - (8 + n) * F);
+      }
+      function marker(sel, t) {
+        tl.fromTo(sel + " .hook-mbar", { scaleX: 0, transformOrigin: "0% 50%" }, { scaleX: 1, duration: 10 * F, ease: "power3.out" }, t);
+        tl.fromTo(sel, { color: "#0a0a0a" }, { color: "#ffffff", duration: 6 * F, ease: "power2.out" }, t + 2 * F);
       }
 
+      // camera: slow push and a re-target at each beat; no incoming move (frame 0 is the app)
+      tl.fromTo(CAM, { scale: 1 }, { scale: 1.06, duration: D, ease: "sine.inOut" }, 0);
+      let cx = 0, cy = 0;
+      function cam(t, x, y) {
+        tl.fromTo(CAM, { x: cx, y: cy }, { x: x, y: y, duration: 20 * F, ease: "power2.inOut", immediateRender: false }, t);
+        cx = x; cy = y;
+      }
+      cam(0.4, 30, 40);   // the first line
+      cam(3.0, 70, 10);   // "safe?"
+      cam(5.4, 0, -30);   // the split, both halves and their labels
+      cam(8.0, 50, 40);   // the question
+      cam(10.0, 0, 0);    // settle on both halves
+      tl.fromTo(CAM, { x: cx }, { x: -420, duration: 10 * F, ease: "power4.in", immediateRender: false }, D - 10 * F);
+
       // 0.4 / 3.0 / 8.0: display lines
-      wipeIn("#hook-l1-t", 0.4);
-      wipeOut("#hook-l1-t", 2.6);
-      wipeIn("#hook-l2-t", 3.0);
-      wipeOut("#hook-l2-t", 7.6);
-      wipeIn("#hook-l3-t", 8.0);
+      lineIn("#hook-l1", 0.4);
+      lineOut("#hook-l1", 3.0);
+      lineIn("#hook-l2", 3.0);
+      marker("#hook-mk-safe", 3.62);
+      lineOut("#hook-l2", 8.0);
+      lineIn("#hook-l3", 8.0);
+      marker("#hook-mk-leak", 8.66);
 
       // 5.4: the app splits down the middle (hero move, power2.inOut, 24 f)
       tl.fromTo("#hook-app", { opacity: 1 }, { opacity: 0, duration: 0.01 }, 5.4);
       tl.fromTo(["#hook-left", "#hook-right"], { opacity: 0 }, { opacity: 1, duration: 0.01 }, 5.4);
       tl.fromTo("#hook-left", { x: 0, borderRadius: "10px 0px 0px 10px" }, { x: -140, borderRadius: "10px 10px 10px 10px", duration: 0.8, ease: "power2.inOut" }, 5.4);
       tl.fromTo("#hook-right", { x: 0, borderRadius: "0px 10px 10px 0px" }, { x: 140, borderRadius: "10px 10px 10px 10px", duration: 0.8, ease: "power2.inOut" }, 5.4);
+      // the left half's ground floods to CODE dark from the seam outwards; the right stays white
+      tl.fromTo("#hook-dark", { scaleX: 0, transformOrigin: "100% 50%" }, { scaleX: 1, duration: 0.8, ease: "power2.inOut" }, 5.4);
+      tl.fromTo("#hook-left", { borderColor: "#0a0a0a" }, { borderColor: "#2c2c30", duration: 0.6, ease: "power2.inOut" }, 5.7);
 
-      // left half turns into THE CODE, right half re-lays as a browser
+      // left half turns into THE CODE (dark panel), right half re-lays as a browser
       wipeIn("#hook-tree", 5.9);
       wipeIn("#hook-mini", 6.1);
-      // the covered crops are gone once the wipes land
       tl.fromTo("#hook-left-old", { opacity: 1 }, { opacity: 0, duration: 0.01 }, 6.55);
       tl.fromTo("#hook-right-old", { opacity: 1 }, { opacity: 0, duration: 0.01 }, 6.75);
+      // each half lands with a small overshoot settle
+      tl.fromTo("#hook-left", { y: 0 }, { y: -8, duration: 6 * F, ease: "power2.out", immediateRender: false }, 6.2);
+      tl.fromTo("#hook-left", { y: -8 }, { y: 0, duration: 10 * F, ease: "power2.inOut", immediateRender: false }, 6.4);
+      tl.fromTo("#hook-right", { y: 0 }, { y: -8, duration: 6 * F, ease: "power2.out", immediateRender: false }, 6.3);
+      tl.fromTo("#hook-right", { y: -8 }, { y: 0, duration: 10 * F, ease: "power2.inOut", immediateRender: false }, 6.5);
 
       // labels under each half
-      wipeIn("#hook-lab-code-t", 5.8);
-      wipeIn("#hook-lab-site-t", 6.0);
+      lineIn("#hook-lab-code", 5.8);
+      lineIn("#hook-lab-site", 6.0);
 
-      // hold to 12 s
-      tl.set({}, {}, 12);
+      tl.set({}, {}, D);
       window.__timelines = window.__timelines || {};
       window.__timelines["hook"] = tl;
     })();
