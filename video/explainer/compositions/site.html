@@ -1,0 +1,414 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: #ffffff;
+      font-family: "Inter", sans-serif;
+      color: #0a0a0a;
+    }
+    #site-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(10, 10, 10, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(10, 10, 10, 0.05) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    .site-line {
+      position: absolute;
+      left: 96px;
+      top: 108px;
+      width: 1536px;
+      height: 60px;
+    }
+    .site-line span {
+      display: inline-block;
+      font-family: "Inter", sans-serif;
+      font-weight: 700;
+      font-size: 44px;
+      line-height: 60px;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      color: #0a0a0a;
+    }
+    .site-mono {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 28px;
+      line-height: 48px;
+      white-space: pre;
+    }
+    /* THE APP: taskflow in a browser window */
+    #site-app {
+      position: absolute;
+      left: 96px;
+      top: 216px;
+      width: 904px;
+      height: 576px;
+      border: 2px solid #0a0a0a;
+      border-radius: 10px;
+      background: #ffffff;
+    }
+    .site-dotc {
+      position: absolute;
+      top: 28px;
+      width: 12px;
+      height: 12px;
+      border: 2px solid #0a0a0a;
+      border-radius: 50%;
+    }
+    #site-addr {
+      position: absolute;
+      left: 104px;
+      top: 12px;
+      width: 560px;
+      height: 44px;
+      border: 2px solid #0a0a0a;
+      border-radius: 22px;
+      padding-left: 22px;
+      font-family: "Inter", sans-serif;
+      font-weight: 400;
+      font-size: 28px;
+      line-height: 40px;
+      color: #0a0a0a;
+    }
+    #site-bar-rule {
+      position: absolute;
+      left: 0;
+      top: 66px;
+      width: 900px;
+      height: 2px;
+      background: #0a0a0a;
+    }
+    .site-todo {
+      position: absolute;
+      left: 56px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-family: "Inter", sans-serif;
+      font-weight: 400;
+      font-size: 30px;
+      color: #0a0a0a;
+    }
+    .site-todo i {
+      width: 28px;
+      height: 28px;
+      border: 2px solid #0a0a0a;
+      border-radius: 6px;
+      flex: none;
+    }
+    /* request log */
+    #site-log {
+      position: absolute;
+      left: 1060px;
+      top: 216px;
+      width: 764px;
+      height: 264px;
+      background: #f2f2f0;
+      border-radius: 10px;
+    }
+    .site-row {
+      position: absolute;
+      color: #0a0a0a;
+    }
+    #site-caret {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 3px;
+      height: 34px;
+      background: #0a0a0a;
+      opacity: 0;
+    }
+    .site-tag {
+      position: absolute;
+      height: 44px;
+      padding: 0 16px;
+      border-radius: 10px;
+      background: #0a0a0a;
+      color: #ffffff;
+      font-family: "Inter", sans-serif;
+      font-weight: 700;
+      font-size: 28px;
+      line-height: 44px;
+      transform-origin: left center;
+    }
+    .site-ul {
+      position: absolute;
+      height: 3px;
+      background: #e5342f;
+      transform-origin: left center;
+    }
+    .site-group {
+      position: absolute;
+      inset: 0;
+    }
+    /* the shipped JavaScript */
+    #site-js {
+      position: absolute;
+      left: 1060px;
+      top: 528px;
+      width: 764px;
+      height: 232px;
+      background: #f2f2f0;
+      border-radius: 10px;
+    }
+    #site-ring {
+      position: absolute;
+      left: 1112px;
+      top: 698px;
+      width: 264px;
+      height: 44px;
+      border: 2px solid #0a0a0a;
+      border-radius: 10px;
+    }
+    #site-arrow {
+      position: absolute;
+      left: 1235px;
+      top: 748px;
+      width: 16px;
+      height: 64px;
+      transform-origin: center top;
+    }
+    /* THE DATABASE */
+    #site-db {
+      position: absolute;
+      left: 1076px;
+      top: 528px;
+      width: 308px;
+      height: 400px;
+    }
+    #site-db svg {
+      position: absolute;
+      left: 0;
+      top: 0;
+      overflow: visible;
+    }
+    .site-dblabel {
+      position: absolute;
+      left: 40px;
+      font-family: "Inter", sans-serif;
+      font-weight: 700;
+      font-size: 28px;
+      line-height: 36px;
+      color: #0a0a0a;
+    }
+    #site-rowwin {
+      position: absolute;
+      left: 1384px;
+      top: 668px;
+      width: 440px;
+      height: 104px;
+      overflow: hidden;
+    }
+    #site-trow {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 404px;
+      height: 104px;
+      border: 2px solid #0a0a0a;
+      border-radius: 10px;
+      background: #ffffff;
+      display: grid;
+      grid-template-columns: 68px 118px 214px;
+      grid-template-rows: 50px 50px;
+    }
+    #site-trow div {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 28px;
+      line-height: 50px;
+      padding-left: 14px;
+      color: #0a0a0a;
+      border-left: 2px solid #0a0a0a;
+      position: relative;
+    }
+    #site-trow div.site-c0 {
+      border-left: none;
+    }
+    #site-trow div.site-v {
+      border-top: 2px solid #0a0a0a;
+    }
+    #site-trow div.site-v b {
+      position: absolute;
+      left: 14px;
+      top: 17px;
+      height: 14px;
+      border-radius: 4px;
+      background: #c4c4c0;
+    }
+    #site-nostore {
+      position: absolute;
+      left: 1424px;
+      top: 796px;
+      font-family: "Inter", sans-serif;
+      font-weight: 700;
+      font-size: 28px;
+      line-height: 40px;
+      color: #6b6b6b;
+    }
+  </style>
+
+  <div id="root" data-composition-id="site" data-start="0" data-duration="26" data-width="1920" data-height="1080">
+    <div id="site-grid"></div>
+
+    <!-- THE APP -->
+    <div id="site-app">
+      <div class="site-dotc" style="left: 24px"></div>
+      <div class="site-dotc" style="left: 46px"></div>
+      <div class="site-dotc" style="left: 68px"></div>
+      <div id="site-addr">taskflow.app</div>
+      <div id="site-bar-rule"></div>
+      <div class="site-todo" style="top: 116px"><i></i><span>Ship landing page</span></div>
+      <div class="site-todo" style="top: 212px"><i></i><span>Fix login bug</span></div>
+      <div class="site-todo" style="top: 308px"><i></i><span>Write tests</span></div>
+      <div class="site-todo" style="top: 404px"><i></i><span>Launch</span></div>
+    </div>
+
+    <!-- request log (empty at 0.0) -->
+    <div id="site-log"></div>
+    <div id="site-r1" class="site-row site-mono" style="left: 1084px; top: 240px">GET /</div>
+    <div id="site-s1" class="site-row site-mono" style="left: 1454px; top: 240px">200</div>
+    <div id="site-r2" class="site-row site-mono" style="left: 1084px; top: 288px">GET /assets/index.js</div>
+    <div id="site-s2" class="site-row site-mono" style="left: 1454px; top: 288px">200</div>
+    <div id="site-r3" class="site-row site-mono" style="left: 1084px; top: 336px">GET /rest/v1/todos?select=*&amp;limit=1</div>
+    <div id="site-s3" class="site-row site-mono" style="left: 1454px; top: 384px">200 · 1 row</div>
+    <div id="site-s3-ul" class="site-ul" style="left: 1454px; top: 424px; width: 185px"></div>
+    <div id="site-found2" class="site-tag" style="left: 1663px; top: 386px">found</div>
+
+    <!-- the JavaScript the page ships, and the key inside it -->
+    <div id="site-jsgroup" class="site-group clip" data-start="8.5" data-duration="5.3">
+      <div id="site-jsinner" class="site-group">
+        <div id="site-js"></div>
+        <div class="site-row site-mono" style="left: 1084px; top: 548px; color: #6b6b6b">index.js</div>
+        <div class="site-row site-mono" style="left: 1084px; top: 600px">const admin=createClient(</div>
+        <div class="site-row site-mono" style="left: 1084px; top: 648px">  "https://taskflow.app",</div>
+        <div class="site-row site-mono" style="left: 1084px; top: 696px">  "eyJhbGciOi...");</div>
+        <div id="site-ring"></div>
+        <svg id="site-arrow" viewBox="0 0 16 64"><path d="M8 0V60M1 52l7 9 7-9" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" /></svg>
+        <div id="site-json" class="site-row site-mono" style="left: 1084px; top: 820px">{ "role": "<span style="color: #e5342f">service_role</span>" }</div>
+        <div id="site-found1" class="site-tag" style="left: 1546px; top: 822px">found</div>
+      </div>
+    </div>
+
+    <!-- THE DATABASE and the one row it answered -->
+    <div id="site-dbgroup" class="clip" data-start="14.2" data-duration="11.8">
+      <div id="site-db">
+        <svg width="308" height="400" viewBox="0 0 308 400">
+          <path d="M4 34 A150 30 0 0 1 304 34 V366 A150 30 0 0 1 4 366 Z" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" />
+          <path d="M4 34 A150 30 0 0 0 304 34" fill="none" stroke="#0a0a0a" stroke-width="2" />
+          <g fill="none" stroke="#0a0a0a" stroke-width="2">
+            <rect x="40" y="200" width="228" height="132" rx="6" />
+            <line x1="40" y1="244" x2="268" y2="244" />
+            <line x1="40" y1="288" x2="268" y2="288" />
+            <line x1="108" y1="200" x2="108" y2="332" />
+            <line x1="186" y1="200" x2="186" y2="332" />
+          </g>
+        </svg>
+        <div class="site-dblabel" style="top: 82px">Supabase</div>
+        <div class="site-dblabel" style="top: 152px; font-family: 'JetBrains Mono', monospace; font-weight: 400">todos</div>
+      </div>
+      <div id="site-rowwin" data-layout-allow-overflow>
+        <div id="site-trow">
+          <div class="site-c0">id</div>
+          <div>owner</div>
+          <div>secret_note</div>
+          <div class="site-c0 site-v"><b style="width: 36px"></b></div>
+          <div class="site-v"><b style="width: 84px"></b></div>
+          <div class="site-v"><b style="width: 170px"></b></div>
+        </div>
+      </div>
+      <div id="site-nostore">values not stored</div>
+    </div>
+
+    <div id="site-caret"></div>
+
+    <!-- on-screen lines -->
+    <div id="site-l1" class="site-line clip" data-start="0" data-duration="4"><span id="site-l1-t">Without the code, it sees what every visitor sees</span></div>
+    <div id="site-l2" class="site-line clip" data-start="4" data-duration="4.5"><span id="site-l2-t">the page and the JavaScript it ships</span></div>
+    <div id="site-l3" class="site-line clip" data-start="8.5" data-duration="5.5"><span id="site-l3-t">The admin key is inside, for anyone to copy</span></div>
+    <div id="site-l4" class="site-line clip" data-start="14" data-duration="5"><span id="site-l4-t">It asks the database for one row, read-only</span></div>
+    <div id="site-l5" class="site-line clip" data-start="19" data-duration="4"><span id="site-l5-t">It answered. Anyone can read this table.</span></div>
+    <div id="site-l6" class="site-line clip" data-start="23" data-duration="3"><span id="site-l6-t">Every request only reads, nothing is changed</span></div>
+  </div>
+
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const SCENE = 26;
+      const CW = 16.8; // JetBrains Mono advance at 28 px (0.6 em)
+      const SHUT = "inset(0% 100% 0% 0%)";
+      const OPEN = "inset(0% 0% 0% 0%)";
+      const GONE = "inset(0% 0% 0% 100%)";
+
+      function wipeIn(sel, t, dur) {
+        tl.fromTo(sel, { clipPath: SHUT }, { clipPath: OPEN, duration: dur || 0.6, ease: "power3.out" }, t);
+      }
+      function wipeOut(sel, t) {
+        tl.fromTo(sel, { clipPath: OPEN }, { clipPath: GONE, duration: 0.4, ease: "power2.in", immediateRender: false }, t);
+      }
+      // Typing: one character per step, the caret follows in the same steps.
+      function type(sel, n, t, rowLeft, rowTop, cps) {
+        const d = Math.max(n / (cps || 50), 1 / 30);
+        tl.fromTo(sel, { clipPath: SHUT }, { clipPath: OPEN, duration: d, ease: "steps(" + n + ")" }, t);
+        tl.set("#site-caret", { opacity: 1, y: rowTop + 7 }, t);
+        tl.fromTo("#site-caret", { x: rowLeft }, { x: rowLeft + n * CW, duration: d, ease: "steps(" + n + ")", immediateRender: false }, t);
+        tl.set("#site-caret", { opacity: 0 }, t + d + 0.15);
+        return t + d;
+      }
+      // a status appears whole, the way a response lands
+      function status(sel, t) {
+        tl.fromTo(sel, { clipPath: SHUT }, { clipPath: OPEN, duration: 0.2, ease: "power3.out" }, t);
+      }
+      function pop(sel, t) {
+        tl.fromTo(sel, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.27, ease: "power3.out" }, t);
+      }
+
+      // lines
+      const lines = [
+        ["#site-l1-t", 0, 4],
+        ["#site-l2-t", 4, 8.5],
+        ["#site-l3-t", 8.5, 14],
+        ["#site-l4-t", 14, 19],
+        ["#site-l5-t", 19, 23],
+        ["#site-l6-t", 23, null],
+      ];
+      lines.forEach(function (l) {
+        wipeIn(l[0], l[1]);
+        if (l[2] !== null) wipeOut(l[0], l[2] - 0.4);
+      });
+
+      // 4.0 / 5.0 request rows type in, one by one
+      type("#site-r1", 5, 4.0, 1084, 240);
+      status("#site-s1", 4.45);
+      type("#site-r2", 20, 5.0, 1084, 288);
+      status("#site-s2", 5.65);
+
+      // 8.5 the JavaScript, a token inside it, decoded
+      wipeIn("#site-js", 8.5);
+      tl.fromTo("#site-ring", { opacity: 0, scale: 1.12 }, { opacity: 1, scale: 1, duration: 0.4, ease: "power3.out" }, 9.3);
+      tl.fromTo("#site-arrow", { scaleY: 0 }, { scaleY: 1, duration: 0.4, ease: "power2.inOut" }, 9.8);
+      tl.fromTo("#site-json", { clipPath: SHUT }, { clipPath: OPEN, duration: 26 / 50, ease: "steps(26)" }, 10.2);
+      pop("#site-found1", 11.5);
+      wipeOut("#site-jsinner", 13.4);
+
+      // 14.0 the database request, its answer, the row that came back
+      type("#site-r3", 35, 14.0, 1084, 336);
+      tl.fromTo("#site-db", { clipPath: SHUT }, { clipPath: OPEN, duration: 0.6, ease: "power3.out" }, 14.2);
+      status("#site-s3", 15.2);
+      tl.fromTo("#site-trow", { x: -420 }, { x: 16, duration: 0.8, ease: "power2.inOut" }, 15.6);
+      wipeIn("#site-nostore", 16.6);
+
+      // 19.0 it answered: red underline on the answer, found
+      tl.fromTo("#site-s3-ul", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power3.out" }, 19.0);
+      pop("#site-found2", 19.0);
+
+      tl.set({}, {}, SCENE);
+      window.__timelines = window.__timelines || {};
+      window.__timelines["site"] = tl;
+    })();
+  </script>
+</template>

@@ -1,0 +1,434 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: #ffffff;
+      font-family: "Inter", sans-serif;
+      color: #0a0a0a;
+    }
+    #code-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(10, 10, 10, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(10, 10, 10, 0.05) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    .code-line {
+      position: absolute;
+      left: 96px;
+      top: 108px;
+      width: 1536px;
+      height: 60px;
+    }
+    .code-line span {
+      display: inline-block;
+      font-family: "Inter", sans-serif;
+      font-weight: 700;
+      font-size: 44px;
+      line-height: 60px;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      color: #0a0a0a;
+    }
+    .code-mono {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 28px;
+      line-height: 48px;
+      white-space: pre;
+    }
+    /* file tree */
+    #code-tree {
+      position: absolute;
+      left: 96px;
+      top: 216px;
+      width: 544px;
+      height: 624px;
+      border: 2px solid #0a0a0a;
+      border-radius: 10px;
+      background: #ffffff;
+    }
+    #code-hl {
+      position: absolute;
+      left: 108px;
+      top: 0;
+      width: 520px;
+      height: 48px;
+    }
+    #code-hl-box {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 520px;
+      height: 48px;
+      background: #f2f2f0;
+      border: 2px solid #0a0a0a;
+      border-radius: 8px;
+    }
+    .code-trow {
+      position: absolute;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: #0a0a0a;
+    }
+    .code-trow svg {
+      width: 28px;
+      height: 28px;
+      flex: none;
+      overflow: visible;
+    }
+    /* code panel */
+    #code-panel {
+      position: absolute;
+      left: 700px;
+      top: 216px;
+      width: 1124px;
+      height: 624px;
+      background: #f2f2f0;
+      border-radius: 10px;
+    }
+    #code-panel-rule {
+      position: absolute;
+      left: 700px;
+      top: 298px;
+      width: 1124px;
+      height: 2px;
+      background: #0a0a0a;
+    }
+    .code-tab {
+      position: absolute;
+      left: 724px;
+      top: 242px;
+      height: 48px;
+    }
+    .code-tab span {
+      display: inline-block;
+      color: #0a0a0a;
+    }
+    .code-group {
+      position: absolute;
+      inset: 0;
+    }
+    .code-ln {
+      position: absolute;
+      left: 724px;
+      width: 34px;
+      text-align: right;
+      color: #9a9a9a;
+    }
+    .code-row {
+      position: absolute;
+      left: 782px;
+      color: #0a0a0a;
+    }
+    .code-tag {
+      position: absolute;
+      height: 44px;
+      padding: 0 16px;
+      border-radius: 10px;
+      background: #0a0a0a;
+      color: #ffffff;
+      font-family: "Inter", sans-serif;
+      font-weight: 700;
+      font-size: 28px;
+      line-height: 44px;
+      transform-origin: left center;
+    }
+    #code-caret {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 3px;
+      height: 34px;
+      background: #0a0a0a;
+      opacity: 0;
+    }
+    /* git history */
+    #code-git-rail {
+      position: absolute;
+      left: 754px;
+      top: 348px;
+      width: 2px;
+      height: 384px;
+      background: #0a0a0a;
+      transform-origin: center top;
+    }
+    .code-commit {
+      position: absolute;
+      left: 740px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+    .code-dot {
+      position: relative;
+      width: 30px;
+      height: 30px;
+      border: 2px solid #0a0a0a;
+      border-radius: 50%;
+      background: #f2f2f0;
+      flex: none;
+    }
+    .code-dot i {
+      position: absolute;
+      inset: 4px;
+      border-radius: 50%;
+      background: #0a0a0a;
+      opacity: 0;
+    }
+    .code-commit b {
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 400;
+      font-size: 28px;
+      line-height: 48px;
+      color: #0a0a0a;
+      white-space: pre;
+      display: inline-block;
+    }
+    #code-scan {
+      position: absolute;
+      left: 96px;
+      top: 0;
+      width: 1728px;
+      height: 2px;
+      background: #0a0a0a;
+    }
+    .code-strike {
+      position: absolute;
+      height: 3px;
+      background: #e5342f;
+      transform-origin: left center;
+    }
+  </style>
+
+  <div id="root" data-composition-id="code" data-start="0" data-duration="26" data-width="1920" data-height="1080">
+    <div id="code-grid"></div>
+
+    <!-- THE CODE: file tree of the taskflow lab app -->
+    <div id="code-tree"></div>
+    <div id="code-hl" class="clip" data-start="7.6" data-duration="18.4"><div id="code-hl-box"></div></div>
+    <div id="code-tree-rows">
+      <div class="code-trow" style="left: 128px; top: 240px">
+        <svg viewBox="0 0 28 28"><path d="M2 7a2 2 0 0 1 2-2h6l3 3h11a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linejoin="round" /></svg>
+        <span class="code-mono">supabase</span>
+      </div>
+      <div class="code-trow" style="left: 168px; top: 288px">
+        <svg viewBox="0 0 28 28"><path d="M2 7a2 2 0 0 1 2-2h6l3 3h11a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linejoin="round" /></svg>
+        <span class="code-mono">migrations</span>
+      </div>
+      <div class="code-trow" style="left: 208px; top: 336px">
+        <svg viewBox="0 0 28 28"><path class="code-ffill" id="code-f1" d="M6 2h11l6 6v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#0a0a0a" opacity="0" /><path d="M6 2h11l6 6v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM17 2v6h6" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linejoin="round" /></svg>
+        <span class="code-mono">20260101_init.sql</span>
+      </div>
+      <div class="code-trow" style="left: 128px; top: 384px">
+        <svg viewBox="0 0 28 28"><path d="M2 7a2 2 0 0 1 2-2h6l3 3h11a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linejoin="round" /></svg>
+        <span class="code-mono">src</span>
+      </div>
+      <div class="code-trow" style="left: 168px; top: 432px">
+        <svg viewBox="0 0 28 28"><path d="M2 7a2 2 0 0 1 2-2h6l3 3h11a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linejoin="round" /></svg>
+        <span class="code-mono">lib</span>
+      </div>
+      <div class="code-trow" style="left: 208px; top: 480px">
+        <svg viewBox="0 0 28 28"><path class="code-ffill" id="code-f2" d="M6 2h11l6 6v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#0a0a0a" opacity="0" /><path d="M6 2h11l6 6v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM17 2v6h6" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linejoin="round" /></svg>
+        <span class="code-mono">supabase.ts</span>
+      </div>
+      <div class="code-trow" style="left: 168px; top: 528px">
+        <svg viewBox="0 0 28 28"><path class="code-ffill" id="code-f3" d="M6 2h11l6 6v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#0a0a0a" opacity="0" /><path d="M6 2h11l6 6v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM17 2v6h6" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linejoin="round" /></svg>
+        <span class="code-mono">App.tsx</span>
+      </div>
+      <div class="code-trow" style="left: 168px; top: 576px">
+        <svg viewBox="0 0 28 28"><path class="code-ffill" id="code-f4" d="M6 2h11l6 6v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#0a0a0a" opacity="0" /><path d="M6 2h11l6 6v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM17 2v6h6" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linejoin="round" /></svg>
+        <span class="code-mono">main.tsx</span>
+      </div>
+      <div class="code-trow" style="left: 128px; top: 624px">
+        <svg viewBox="0 0 28 28"><path class="code-ffill" id="code-f5" d="M6 2h11l6 6v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#0a0a0a" opacity="0" /><path d="M6 2h11l6 6v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM17 2v6h6" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linejoin="round" /></svg>
+        <span class="code-mono">.env.example</span>
+      </div>
+      <div class="code-trow" style="left: 128px; top: 672px">
+        <svg viewBox="0 0 28 28"><path class="code-ffill" id="code-f6" d="M6 2h11l6 6v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#0a0a0a" opacity="0" /><path d="M6 2h11l6 6v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM17 2v6h6" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linejoin="round" /></svg>
+        <span class="code-mono">package.json</span>
+      </div>
+      <div class="code-trow" style="left: 128px; top: 720px">
+        <svg viewBox="0 0 28 28"><path class="code-ffill" id="code-f7" d="M6 2h11l6 6v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#0a0a0a" opacity="0" /><path d="M6 2h11l6 6v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM17 2v6h6" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linejoin="round" /></svg>
+        <span class="code-mono">package-lock.json</span>
+      </div>
+      <div class="code-trow" style="left: 128px; top: 768px">
+        <svg viewBox="0 0 28 28"><path class="code-ffill" id="code-f8" d="M6 2h11l6 6v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#0a0a0a" opacity="0" /><path d="M6 2h11l6 6v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM17 2v6h6" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linejoin="round" /></svg>
+        <span class="code-mono">README.md</span>
+      </div>
+    </div>
+
+    <!-- code panel -->
+    <div id="code-panel"></div>
+    <div id="code-panel-rule"></div>
+
+    <!-- panel tab labels -->
+    <div id="code-tab-git" class="code-tab clip" data-start="3.5" data-duration="4.1"><span id="code-tab-git-t" class="code-mono">git log</span></div>
+    <div id="code-tab-mig" class="code-tab clip" data-start="7.6" data-duration="7.2"><span id="code-tab-mig-t" class="code-mono">supabase/migrations/20260101_init.sql</span></div>
+    <div id="code-tab-adm" class="code-tab clip" data-start="14.8" data-duration="11.2"><span id="code-tab-adm-t" class="code-mono">src/lib/supabase.ts</span></div>
+
+    <!-- GIT HISTORY: five commits, newest on top -->
+    <div id="code-git" class="code-group clip" data-start="3.5" data-duration="4.1">
+      <div id="code-git-inner" class="code-group">
+        <div id="code-git-rail"></div>
+        <div class="code-commit" style="top: 324px"><div class="code-dot"><i id="code-d1"></i></div><b id="code-c1">Add admin client</b></div>
+        <div class="code-commit" style="top: 420px"><div class="code-dot"><i id="code-d2"></i></div><b id="code-c2">Fix login bug</b></div>
+        <div class="code-commit" style="top: 516px"><div class="code-dot"><i id="code-d3"></i></div><b id="code-c3">Add todos table</b></div>
+        <div class="code-commit" style="top: 612px"><div class="code-dot"><i id="code-d4"></i></div><b id="code-c4">Add login page</b></div>
+        <div class="code-commit" style="top: 708px"><div class="code-dot"><i id="code-d5"></i></div><b id="code-c5">Initial version from the app builder</b></div>
+      </div>
+    </div>
+
+    <!-- scan bar sweeping tree and commits -->
+    <div id="code-scanwrap" class="clip" data-start="3.9" data-duration="3.3"><div id="code-scan"></div></div>
+
+    <!-- migration file: the todos table, and the line that is missing -->
+    <div id="code-mig" class="code-group clip" data-start="7.6" data-duration="7.2">
+      <div id="code-mig-inner" class="code-group">
+        <div id="code-mig-ln5" class="code-ln code-mono" style="top: 324px">5</div>
+        <div id="code-m1" class="code-row code-mono" style="top: 324px">create table public.todos (</div>
+        <div id="code-m2" class="code-row code-mono" style="top: 372px">  id bigint generated always as identity primary key,</div>
+        <div id="code-m3" class="code-row code-mono" style="top: 420px">  user_id uuid, title text, done boolean default false</div>
+        <div id="code-m4" class="code-row code-mono" style="top: 468px">);</div>
+        <div id="code-ghost-ln" class="code-ln code-mono" style="top: 516px">6</div>
+        <div id="code-ghost" class="code-row code-mono" style="top: 516px; color: #e5342f">alter table public.todos enable row level security;</div>
+        <div id="code-ghost-strike" class="code-strike" style="left: 782px; top: 539px; width: 857px"></div>
+        <div id="code-found1" class="code-tag" style="left: 1663px; top: 518px">found</div>
+      </div>
+    </div>
+
+    <!-- src/lib/supabase.ts: the admin client -->
+    <div id="code-adm" class="code-group clip" data-start="14.8" data-duration="11.2">
+      <div id="code-adm-ln3" class="code-ln code-mono" style="top: 324px">3</div>
+      <div id="code-a1" class="code-row code-mono" style="top: 324px">export const supabaseAdmin = createClient(</div>
+      <div id="code-a2" class="code-row code-mono" style="top: 372px">  import.meta.env.VITE_SUPABASE_URL,</div>
+      <div id="code-a3" class="code-row code-mono" style="top: 420px">  import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY</div>
+      <div id="code-a4" class="code-row code-mono" style="top: 468px">);</div>
+      <div id="code-key-ul" class="code-strike" style="left: 1084px; top: 458px; width: 504px"></div>
+      <div id="code-found2" class="code-tag" style="left: 1636px; top: 422px">found</div>
+    </div>
+
+    <div id="code-caret"></div>
+
+    <!-- on-screen lines -->
+    <div id="code-l1" class="code-line clip" data-start="0" data-duration="3.5"><span id="code-l1-t">With the code, Vibeproof reads every file</span></div>
+    <div id="code-l2" class="code-line clip" data-start="3.5" data-duration="7.5"><span id="code-l2-t">and every past commit, even deleted lines</span></div>
+    <div id="code-l3" class="code-line clip" data-start="11" data-duration="4"><span id="code-l3-t">Here, the todos table has no access rules</span></div>
+    <div id="code-l4" class="code-line clip" data-start="15" data-duration="7.5"><span id="code-l4-t">and the admin key is sent to every browser</span></div>
+    <div id="code-l5" class="code-line clip" data-start="22.5" data-duration="3.5"><span id="code-l5-t">Both found by reading, no code is run</span></div>
+  </div>
+
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const SCENE = 26;
+      const CW = 16.8; // JetBrains Mono advance at 28 px (0.6 em)
+      const SHUT = "inset(0% 100% 0% 0%)";
+      const OPEN = "inset(0% 0% 0% 0%)";
+      const GONE = "inset(0% 0% 0% 100%)";
+
+      function wipeIn(sel, t, dur) {
+        tl.fromTo(sel, { clipPath: SHUT }, { clipPath: OPEN, duration: dur || 0.6, ease: "power3.out" }, t);
+      }
+      function wipeOut(sel, t) {
+        tl.fromTo(sel, { clipPath: OPEN }, { clipPath: GONE, duration: 0.4, ease: "power2.in", immediateRender: false }, t);
+      }
+      // Typing: reveal one character per step, caret follows in the same steps.
+      function type(sel, n, t, rowLeft, rowTop, cps) {
+        const d = Math.max(n / (cps || 60), 1 / 30);
+        tl.fromTo(sel, { clipPath: SHUT }, { clipPath: OPEN, duration: d, ease: "steps(" + n + ")" }, t);
+        tl.set("#code-caret", { opacity: 1, y: rowTop + 7 }, t);
+        tl.fromTo("#code-caret", { x: rowLeft }, { x: rowLeft + n * CW, duration: d, ease: "steps(" + n + ")", immediateRender: false }, t);
+        return t + d;
+      }
+      function pop(sel, t) {
+        tl.fromTo(sel, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.27, ease: "power3.out" }, t);
+      }
+
+      // lines: wipe in left to right, wipe out before the next one
+      const lines = [
+        ["#code-l1-t", 0, 3.5],
+        ["#code-l2-t", 3.5, 11],
+        ["#code-l3-t", 11, 15],
+        ["#code-l4-t", 15, 22.5],
+        ["#code-l5-t", 22.5, null],
+      ];
+      lines.forEach(function (l) {
+        wipeIn(l[0], l[1]);
+        if (l[2] !== null) wipeOut(l[0], l[2] - 0.4);
+      });
+
+      // 3.5 git history: rail draws, commits wipe in 6 frames apart
+      tl.fromTo("#code-git-rail", { scaleY: 0 }, { scaleY: 1, duration: 0.8, ease: "power2.inOut" }, 3.5);
+      wipeIn("#code-tab-git-t", 3.5);
+      for (let i = 1; i <= 5; i++) wipeIn("#code-c" + i, 3.5 + (i - 1) * 0.2);
+
+      // scan bar: 2 px ink line sweeping y 232 -> 832 from 3.9 to 6.9
+      const SCAN0 = 3.9, Y0 = 232, Y1 = 832, SPD = (Y1 - Y0) / 3;
+      tl.fromTo("#code-scan", { y: Y0 }, { y: Y1, duration: 3, ease: "none" }, SCAN0);
+      tl.fromTo("#code-scan", { opacity: 1 }, { opacity: 0, duration: 0.2, ease: "power2.in", immediateRender: false }, 6.95);
+      const passAt = function (yc) { return SCAN0 + (yc - Y0) / SPD; };
+      // files fill as they are read
+      [360, 504, 552, 600, 648, 696, 744, 792].forEach(function (yc, i) {
+        tl.fromTo("#code-f" + (i + 1), { opacity: 0 }, { opacity: 1, duration: 0.1, ease: "none" }, passAt(yc));
+      });
+      // commits fill as they are read
+      [348, 444, 540, 636, 732].forEach(function (yc, i) {
+        tl.fromTo("#code-d" + (i + 1), { opacity: 0 }, { opacity: 1, duration: 0.1, ease: "none" }, passAt(yc));
+      });
+
+      // 7.2 git out, 7.6 the migration file opens
+      wipeOut("#code-git-inner", 7.2);
+      wipeOut("#code-tab-git-t", 7.2);
+      wipeIn("#code-tab-mig-t", 7.6);
+      tl.fromTo("#code-hl-box", { y: 336 }, { y: 336, duration: 0.01 }, 7.6);
+      wipeIn("#code-hl-box", 7.6);
+
+      // 8.0 the create table line types in
+      tl.fromTo("#code-mig-ln5", { opacity: 0 }, { opacity: 1, duration: 0.01 }, 8.0);
+      let t = 8.0;
+      t = type("#code-m1", 27, t, 782, 324) + 0.08;
+      t = type("#code-m2", 54, t, 782, 372) + 0.08;
+      t = type("#code-m3", 54, t, 782, 420) + 0.08;
+      t = type("#code-m4", 2, t, 782, 468);
+      tl.set("#code-caret", { opacity: 0 }, t + 0.2);
+
+      // 11.0 the missing line: red, struck through
+      tl.fromTo("#code-ghost-ln", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power3.out" }, 11.0);
+      wipeIn("#code-ghost", 11.0);
+      tl.fromTo("#code-ghost-strike", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" }, 11.6);
+      // 13.0 found
+      pop("#code-found1", 13.0);
+
+      // 14.4 switch to src/lib/supabase.ts
+      wipeOut("#code-mig-inner", 14.4);
+      wipeOut("#code-tab-mig-t", 14.4);
+      wipeIn("#code-tab-adm-t", 14.8);
+      tl.fromTo("#code-hl-box", { y: 336 }, { y: 480, duration: 0.8, ease: "power2.inOut", immediateRender: false }, 14.4);
+
+      // 15.0 the supabaseAdmin line types in
+      tl.fromTo("#code-adm-ln3", { opacity: 0 }, { opacity: 1, duration: 0.01 }, 15.0);
+      t = 15.0;
+      t = type("#code-a1", 42, t, 782, 324) + 0.08;
+      t = type("#code-a2", 36, t, 782, 372) + 0.08;
+      t = type("#code-a3", 48, t, 782, 420) + 0.08;
+      t = type("#code-a4", 2, t, 782, 468);
+      tl.set("#code-caret", { opacity: 0 }, t + 0.2);
+
+      // 18.0 the service role key, underlined in red
+      tl.fromTo("#code-key-ul", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power3.out" }, 18.0);
+      // 20.0 found
+      pop("#code-found2", 20.0);
+
+      // hold the end state to the scene length
+      tl.set({}, {}, SCENE);
+      window.__timelines = window.__timelines || {};
+      window.__timelines["code"] = tl;
+    })();
+  </script>
+</template>

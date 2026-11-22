@@ -1,0 +1,249 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: #000;
+      font-family: "Inter", sans-serif;
+    }
+    #root .repodemo-cam {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+      transform-origin: 0 0;
+      z-index: 1;
+    }
+    #root .repodemo-shot {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+      display: block;
+    }
+    #root .repodemo-hl {
+      position: absolute;
+      z-index: 5;
+    }
+    #root .repodemo-hl svg {
+      position: absolute;
+      left: 0;
+      top: 0;
+      overflow: visible;
+    }
+    #root .repodemo-hl rect {
+      fill: none;
+      stroke: #ffffff;
+      stroke-width: 3;
+      stroke-dasharray: 1 1;
+    }
+    #root .repodemo-cursor {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+      z-index: 8;
+      pointer-events: none;
+    }
+    #root .repodemo-arrow {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 30px;
+      height: 40px;
+      transform-origin: 0 0;
+    }
+    #root .repodemo-arrow svg {
+      position: absolute;
+      left: -3px;
+      top: -3px;
+    }
+    #root .repodemo-toast-clip {
+      position: absolute;
+      right: 96px;
+      bottom: 144px;
+      z-index: 9;
+    }
+    #root .repodemo-toast {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #ffffff;
+      color: #0a0a0a;
+      border-radius: 10px;
+      padding: 18px 28px 18px 24px;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+    #root .repodemo-band {
+      position: absolute;
+      left: 0;
+      top: 960px;
+      width: 1920px;
+      height: 120px;
+      background: #000;
+      z-index: 10;
+    }
+    #root .repodemo-cap {
+      position: absolute;
+      left: 96px;
+      top: 960px;
+      width: 1728px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      z-index: 11;
+    }
+    #root .repodemo-cap span {
+      display: block;
+      color: #ffffff;
+      font-size: 44px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+  </style>
+
+  <div id="root" data-composition-id="repodemo" data-width="1920" data-height="1080">
+    <!-- SCREENS (real app, 3840x2160 shown at 1920x1080). Camera = the untimed wrapper. -->
+    <div id="repodemo-cam-welcome" class="repodemo-cam" data-layout-allow-overflow>
+      <img id="repodemo-shot-welcome" class="clip repodemo-shot" src="assets/screens/welcome.png" alt="" data-start="0" data-duration="3.5" data-track-index="1" />
+    </div>
+    <div id="repodemo-cam-typed" class="repodemo-cam" data-layout-allow-overflow>
+      <img id="repodemo-shot-typed" class="clip repodemo-shot" src="assets/screens/typed.png" alt="" data-start="3.5" data-duration="4" data-track-index="1" />
+    </div>
+    <div id="repodemo-cam-scanning" class="repodemo-cam" data-layout-allow-overflow>
+      <img id="repodemo-shot-scanning" class="clip repodemo-shot" src="assets/screens/scanning.png" alt="" data-start="7.5" data-duration="5" data-track-index="1" />
+    </div>
+    <div id="repodemo-cam-report" class="repodemo-cam" data-layout-allow-overflow>
+      <img id="repodemo-shot-report" class="clip repodemo-shot" src="assets/screens/report-repo.png" alt="" data-start="12.5" data-duration="5.5" data-track-index="1" />
+    </div>
+    <div id="repodemo-cam-finding" class="repodemo-cam" data-layout-allow-overflow>
+      <img id="repodemo-shot-finding" class="clip repodemo-shot" src="assets/screens/finding-repo.png" alt="" data-start="18" data-duration="6" data-track-index="1" />
+    </div>
+    <div id="repodemo-cam-prompt" class="repodemo-cam" data-layout-allow-overflow>
+      <img id="repodemo-shot-prompt" class="clip repodemo-shot" src="assets/screens/prompt.png" alt="" data-start="24" data-duration="8" data-track-index="1" />
+    </div>
+
+    <!-- HIGHLIGHT: the 4-finding list on report-repo (frame coords, camera at 1.0) -->
+    <div id="repodemo-hl-list" class="clip repodemo-hl" style="left: 624px; top: 405px; width: 992px; height: 233px" data-start="13" data-duration="5" data-track-index="2">
+      <svg width="992" height="233" viewBox="0 0 992 233"><rect id="repodemo-hl-list-rect" x="1.5" y="1.5" width="989" height="230" rx="10" ry="10" pathLength="1" /></svg>
+    </div>
+
+    <!-- CURSORS: tip of the arrow is the wrapper's origin -->
+    <div id="repodemo-cursor-1" class="clip repodemo-cursor" data-start="3.7" data-duration="3.8" data-track-index="3">
+      <div id="repodemo-arrow-1" class="repodemo-arrow">
+        <svg width="30" height="40" viewBox="-3 -3 30 40"><path d="M0 0 L0 30 L7.5 23 L12 34 L17.2 31.8 L12.6 21.2 L22.4 21.2 Z" fill="#ffffff" stroke="#000000" stroke-width="4" stroke-linejoin="round" paint-order="stroke" /></svg>
+      </div>
+    </div>
+    <div id="repodemo-cursor-2" class="clip repodemo-cursor" data-start="16.6" data-duration="1.4" data-track-index="3">
+      <div id="repodemo-arrow-2" class="repodemo-arrow">
+        <svg width="30" height="40" viewBox="-3 -3 30 40"><path d="M0 0 L0 30 L7.5 23 L12 34 L17.2 31.8 L12.6 21.2 L22.4 21.2 Z" fill="#ffffff" stroke="#000000" stroke-width="4" stroke-linejoin="round" paint-order="stroke" /></svg>
+      </div>
+    </div>
+    <div id="repodemo-cursor-3" class="clip repodemo-cursor" data-start="22.4" data-duration="1.6" data-track-index="3">
+      <div id="repodemo-arrow-3" class="repodemo-arrow">
+        <svg width="30" height="40" viewBox="-3 -3 30 40"><path d="M0 0 L0 30 L7.5 23 L12 34 L17.2 31.8 L12.6 21.2 L22.4 21.2 Z" fill="#ffffff" stroke="#000000" stroke-width="4" stroke-linejoin="round" paint-order="stroke" /></svg>
+      </div>
+    </div>
+    <div id="repodemo-cursor-4" class="clip repodemo-cursor" data-start="26.6" data-duration="5.4" data-track-index="3">
+      <div id="repodemo-arrow-4" class="repodemo-arrow">
+        <svg width="30" height="40" viewBox="-3 -3 30 40"><path d="M0 0 L0 30 L7.5 23 L12 34 L17.2 31.8 L12.6 21.2 L22.4 21.2 Z" fill="#ffffff" stroke="#000000" stroke-width="4" stroke-linejoin="round" paint-order="stroke" /></svg>
+      </div>
+    </div>
+
+    <!-- TOAST: mimics the app's own "Prompt copied" toast -->
+    <div id="repodemo-toast" class="clip repodemo-toast-clip" data-start="28.1" data-duration="3.9" data-track-index="4" data-hold>
+      <div id="repodemo-toast-box" class="repodemo-toast">
+        <svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 12.5 L9.5 18 L20 6.5" fill="none" stroke="#0a0a0a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        <span>Prompt copied</span>
+      </div>
+    </div>
+
+    <!-- CAPTION BAND -->
+    <div id="repodemo-band" class="repodemo-band"></div>
+    <div id="repodemo-cap-1" class="clip repodemo-cap" data-start="0" data-duration="3.5" data-track-index="5" data-layout-allow-caption-zone><span id="repodemo-cap-1-t">Vibeproof runs on your computer, in the browser</span></div>
+    <div id="repodemo-cap-2" class="clip repodemo-cap" data-start="3.5" data-duration="4" data-track-index="5" data-layout-allow-caption-zone><span id="repodemo-cap-2-t">Paste a repo link, a folder or a website</span></div>
+    <div id="repodemo-cap-3" class="clip repodemo-cap" data-start="7.5" data-duration="5" data-track-index="5" data-layout-allow-caption-zone><span id="repodemo-cap-3-t">It shows each stage as it runs</span></div>
+    <div id="repodemo-cap-4" class="clip repodemo-cap" data-start="12.5" data-duration="5.5" data-track-index="5" data-layout-allow-caption-zone><span id="repodemo-cap-4-t">Every finding, grouped by severity</span></div>
+    <div id="repodemo-cap-5" class="clip repodemo-cap" data-start="18" data-duration="6" data-track-index="5" data-layout-allow-caption-zone><span id="repodemo-cap-5-t">Why it matters, the evidence, how to fix it</span></div>
+    <div id="repodemo-cap-6" class="clip repodemo-cap" data-start="24" data-duration="8" data-track-index="5" data-layout-allow-caption-zone><span id="repodemo-cap-6-t">A prompt to paste into your coding agent</span></div>
+  </div>
+
+  <script>
+    (function () {
+      window.__timelines = window.__timelines || {};
+      const F = 1 / 30; // one frame
+      const tl = gsap.timeline({ paused: true });
+
+      // ---- captions: wipe in (power3.out 18 f), wipe out (power2.in 12 f) just before the next one
+      const caps = [
+        ["#repodemo-cap-1-t", 0, 3.5],
+        ["#repodemo-cap-2-t", 3.5, 7.5],
+        ["#repodemo-cap-3-t", 7.5, 12.5],
+        ["#repodemo-cap-4-t", 12.5, 18],
+        ["#repodemo-cap-5-t", 18, 24],
+        ["#repodemo-cap-6-t", 24, null],
+      ];
+      caps.forEach(function (c) {
+        const inAt = c[1];
+        tl.fromTo(c[0], { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 18 * F, ease: "power3.out" }, inAt);
+        if (c[2] !== null) {
+          tl.fromTo(c[0], { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 100%)", duration: 12 * F, ease: "power2.in", immediateRender: false }, c[2] - 12 * F);
+        }
+      });
+
+      // ---- cursor helper: move (power2.inOut), click = scale 0.85 for 4 frames
+      function arrive(sel, at, from, to, frames) {
+        tl.fromTo(sel, { x: from[0], y: from[1], scale: 1 }, { x: to[0], y: to[1], scale: 1, duration: frames * F, ease: "power2.inOut" }, at);
+        tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: 6 * F, ease: "none" }, at);
+      }
+      function move(sel, at, from, to, frames) {
+        tl.fromTo(sel, { x: from[0], y: from[1] }, { x: to[0], y: to[1], duration: frames * F, ease: "power2.inOut", immediateRender: false }, at);
+      }
+      function click(sel, at) {
+        tl.fromTo(sel, { scale: 1 }, { scale: 0.85, duration: 2 * F, ease: "power2.out", immediateRender: false }, at);
+        tl.fromTo(sel, { scale: 0.85 }, { scale: 1, duration: 2 * F, ease: "power2.out", immediateRender: false }, at + 2 * F);
+      }
+
+      // ---- 3.5 typed: cursor to the input, then to Scan; click 7.367, cut 7.5
+      arrive("#repodemo-arrow-1", 3.8, [560, 430], [190, 116], 21);
+      move("#repodemo-arrow-1", 6.6, [190, 116], [252, 168], 18);
+      click("#repodemo-arrow-1", 7.5 - 4 * F);
+
+      // ---- 7.5 scanning: punch-in 1.0 -> 1.6 on the progress card (sine.inOut 60 f)
+      tl.fromTo("#repodemo-cam-scanning", { x: 0, y: 0, scale: 1 }, { x: -832, y: 0, scale: 1.6, duration: 60 * F, ease: "sine.inOut" }, 7.8);
+
+      // ---- 12.5 report: highlight the 4-finding list
+      tl.fromTo("#repodemo-hl-list-rect", { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 18 * F, ease: "power3.out" }, 13.0);
+      // cursor clicks the first finding (17.867), which opens it: cut 18.0
+      arrive("#repodemo-arrow-2", 16.8, [1120, 780], [780, 437], 21);
+      click("#repodemo-arrow-2", 18 - 4 * F);
+
+      // ---- 18.0 open finding: punch-in on the expanded card (1.8, sine.inOut 66 f)
+      tl.fromTo("#repodemo-cam-finding", { x: 0, y: 0, scale: 1 }, { x: -1056, y: -541, scale: 1.8, duration: 66 * F, ease: "sine.inOut" }, 18.2);
+      // cursor clicks "Preview" (23.867), which opens the prompt: cut 24.0
+      arrive("#repodemo-arrow-3", 22.6, [860, 900], [522, 678], 21);
+      click("#repodemo-arrow-3", 24 - 4 * F);
+
+      // ---- 24.0 prompt: punch-in on the prompt preview (2.0, sine.inOut 60 f)
+      tl.fromTo("#repodemo-cam-prompt", { x: 0, y: 0, scale: 1 }, { x: -1223, y: -548, scale: 2.0, duration: 60 * F, ease: "sine.inOut" }, 24.2);
+      // cursor to "Copy fix prompt", click at 28.0
+      arrive("#repodemo-arrow-4", 26.8, [760, 640], [282, 122], 24);
+      click("#repodemo-arrow-4", 28.0);
+      // toast slides in from the right edge after the click
+      tl.fromTo("#repodemo-toast-box", { x: 420 }, { x: 0, duration: 18 * F, ease: "power3.out" }, 28.1);
+
+      // hold to the scene's end (32 s)
+      tl.set({}, {}, 32);
+      window.__timelines["repodemo"] = tl;
+    })();
+  </script>
+</template>

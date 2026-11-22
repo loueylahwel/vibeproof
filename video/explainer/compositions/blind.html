@@ -1,0 +1,189 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: #ffffff;
+      font-family: "Inter", sans-serif;
+      color: #0a0a0a;
+    }
+    #blind-grid { position: absolute; inset: 0; }
+    .blind-display {
+      position: absolute; left: 96px; top: 108px;
+      font-weight: 900; font-size: 84px; line-height: 1.05; letter-spacing: -0.02em; white-space: nowrap;
+    }
+    .blind-line {
+      position: absolute; left: 96px; top: 108px;
+      font-weight: 700; font-size: 44px; line-height: 56px; letter-spacing: -0.01em; white-space: nowrap;
+    }
+    .blind-wipe { display: inline-block; }
+    .blind-label { position: absolute; font-weight: 700; font-size: 28px; line-height: 36px; white-space: nowrap; }
+    .blind-muted { color: #6b6b6b; }
+    .blind-panel {
+      position: absolute; top: 280px; width: 820px; height: 660px;
+      border: 2px solid #0a0a0a; border-radius: 10px; background: #ffffff; overflow: hidden;
+    }
+    .blind-trow {
+      position: absolute; height: 44px;
+      font-family: "JetBrains Mono", monospace; font-size: 28px; line-height: 44px; white-space: nowrap;
+    }
+    .blind-trow svg { position: absolute; left: 0; top: 9px; }
+    .blind-trow span { position: absolute; left: 42px; top: 0; }
+    .blind-ghost {
+      position: absolute; height: 40px;
+      border: 2px dashed rgba(10, 10, 10, 0.45); border-radius: 8px;
+    }
+    .blind-tag {
+      position: absolute; height: 44px; padding: 0 14px;
+      border: 2px solid #e5342f; border-radius: 8px; background: #e5342f; color: #ffffff;
+      font-weight: 700; font-size: 28px; line-height: 40px; white-space: nowrap;
+    }
+    .blind-sep { position: absolute; left: 32px; right: 32px; height: 2px; background: rgba(10, 10, 10, 0.12); }
+    .blind-commit { position: absolute; left: 80px; font-size: 28px; line-height: 36px; white-space: nowrap; }
+    .blind-mono { font-family: "JetBrains Mono", monospace; font-size: 28px; line-height: 36px; white-space: nowrap; }
+    .blind-code {
+      position: absolute; left: 32px; top: 414px; width: 752px; height: 224px;
+      background: #f2f2f0; border-radius: 10px;
+    }
+    .blind-cl { position: absolute; left: 24px; height: 44px; font-family: "JetBrains Mono", monospace; font-size: 28px; line-height: 44px; white-space: nowrap; }
+    .blind-cl i { font-style: normal; color: #9a9a9a; display: inline-block; width: 44px; }
+  </style>
+
+  <div id="root" data-composition-id="blind" data-width="1920" data-height="1080">
+    <svg id="blind-grid" width="1920" height="1080" data-layout-ignore>
+      <defs>
+        <pattern id="blind-gridpat" width="48" height="48" patternUnits="userSpaceOnUse">
+          <path d="M48 0 V48 M0 48 H48" fill="none" stroke="#0a0a0a" stroke-opacity="0.05" stroke-width="1" />
+        </pattern>
+      </defs>
+      <rect width="1920" height="1080" fill="url(#blind-gridpat)" />
+    </svg>
+
+    <div id="blind-lab-code" class="blind-label" style="left: 96px; top: 232px">Its code</div>
+    <div id="blind-lab-site" class="blind-label" style="left: 1004px; top: 232px">Its live site</div>
+
+    <!-- CODE half -->
+    <div id="blind-code" class="blind-panel" style="left: 96px">
+      <div class="blind-trow" style="left: 32px; top: 32px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg><span>supabase/</span></div>
+      <div class="blind-trow" style="left: 68px; top: 76px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg><span>migrations/</span></div>
+      <div class="blind-trow" style="left: 104px; top: 120px"><svg width="24" height="28"><path d="M3 1 h11 l7 7 v19 H3 Z M14 1 v7 h7" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg><span>20260101_init.sql</span></div>
+      <div id="blind-ghost1" class="clip blind-ghost" data-start="4.8" data-duration="13.2" style="left: 104px; top: 166px; width: 400px"></div>
+      <div id="blind-nothere1" class="clip" data-start="6.4" data-duration="11.6" style="position: absolute; left: 524px; top: 164px; width: 160px; height: 44px"><div id="blind-nothere1-t" class="blind-tag">not here</div></div>
+      <div class="blind-trow" style="left: 32px; top: 212px"><svg width="30" height="26"><path d="M2 5 a2 2 0 0 1 2-2 h7 l3 3 h12 a2 2 0 0 1 2 2 v13 a2 2 0 0 1-2 2 H4 a2 2 0 0 1-2-2 Z" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg><span>src/</span></div>
+
+      <div class="blind-sep" style="top: 284px"></div>
+      <div class="blind-label blind-muted" style="left: 32px; top: 306px">git history</div>
+      <svg style="position: absolute; left: 32px; top: 360px" width="32" height="260">
+        <path d="M16 12 V236" stroke="#0a0a0a" stroke-width="2" />
+        <circle cx="16" cy="12" r="8" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" />
+        <circle cx="16" cy="68" r="8" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" />
+        <circle cx="16" cy="124" r="8" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" />
+        <circle cx="16" cy="180" r="8" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" />
+        <circle cx="16" cy="236" r="8" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" />
+      </svg>
+      <div class="blind-commit" style="top: 354px">edit README</div>
+      <div class="blind-commit" style="top: 410px">remove key</div>
+      <div class="blind-commit" style="top: 466px">add admin key</div>
+      <div class="blind-commit" style="top: 522px">add todos table</div>
+      <div class="blind-commit" style="top: 578px">first commit</div>
+      <!-- the flagged commit -->
+      <div id="blind-hot" class="clip" data-start="9.5" data-duration="8.5" style="position: absolute; left: 32px; top: 410px; width: 32px; height: 36px">
+        <svg id="blind-hot-dot" width="32" height="36" style="position: absolute; left: 0; top: 0; overflow: visible">
+          <circle cx="16" cy="18" r="15" fill="none" stroke="#e5342f" stroke-width="3" />
+          <circle cx="16" cy="18" r="9" fill="#e5342f" />
+        </svg>
+      </div>
+      <div id="blind-hotlab" class="clip blind-label" data-start="9.5" data-duration="8.5" style="left: 270px; top: 410px; color: #e5342f"><div id="blind-hotlab-t" class="blind-wipe">key deleted, still in history</div></div>
+    </div>
+
+    <!-- SITE half -->
+    <div id="blind-site" class="blind-panel" style="left: 1004px">
+      <svg style="position: absolute; left: 32px; top: 20px" width="384" height="330">
+        <path d="M2 36 V292 A190 32 0 0 0 382 292 V36" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" />
+        <ellipse cx="192" cy="36" rx="190" ry="32" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" />
+        <rect x="30" y="124" width="150" height="30" fill="#f2f2f0" />
+        <rect x="30" y="124" width="150" height="120" fill="none" stroke="#0a0a0a" stroke-width="2" />
+        <path d="M30 154 H180 M30 184 H180 M30 214 H180 M80 124 V244 M130 124 V244" fill="none" stroke="#0a0a0a" stroke-width="2" />
+      </svg>
+      <div class="blind-mono" style="position: absolute; left: 62px; top: 102px">todos</div>
+      <div id="blind-bookings" class="clip" data-start="3" data-duration="15" style="position: absolute; left: 230px; top: 96px; width: 160px; height: 172px">
+        <div id="blind-bookings-t" style="position: absolute; left: 0; top: 0; width: 160px; height: 172px">
+          <div class="blind-mono" style="position: absolute; left: 0; top: 6px">bookings</div>
+          <svg style="position: absolute; left: 0; top: 46px" width="154" height="124">
+            <rect x="2" y="2" width="150" height="30" fill="#f2f2f0" />
+            <rect x="2" y="2" width="150" height="120" fill="none" stroke="#0a0a0a" stroke-width="2" />
+            <path d="M2 32 H152 M2 62 H152 M2 92 H152 M52 2 V122 M102 2 V122" fill="none" stroke="#0a0a0a" stroke-width="2" />
+          </svg>
+        </div>
+      </div>
+      <div class="blind-label" style="left: 448px; top: 40px">Supabase</div>
+      <div id="blind-note" class="clip" data-start="3.6" data-duration="14.4" style="position: absolute; left: 392px; top: 164px; width: 300px; height: 72px">
+        <div id="blind-note-t" style="position: absolute; left: 0; top: 0; width: 300px; height: 72px">
+          <div style="position: absolute; left: 0; top: 35px; width: 48px; height: 2px; background: #0a0a0a"></div>
+          <div class="blind-label blind-muted" style="left: 60px; top: 0">made in the<br />dashboard</div>
+        </div>
+      </div>
+
+      <div class="blind-sep" style="top: 360px"></div>
+      <div class="blind-mono blind-muted" style="position: absolute; left: 32px; top: 372px">assets/index.js</div>
+      <div class="blind-code">
+        <div class="blind-cl" style="top: 24px"><i>1</i>const url = "https://…supabase.co";</div>
+        <div class="blind-cl" style="top: 68px"><i>2</i>const anon = "eyJhbGciOi…";</div>
+        <div class="blind-cl" style="top: 112px"><i>3</i>createClient(url, anon);</div>
+        <div class="blind-cl" style="top: 156px"><i>4</i></div>
+      </div>
+      <div id="blind-ghost2" class="clip blind-ghost" data-start="11" data-duration="7" style="left: 100px; top: 572px; width: 360px"></div>
+      <div id="blind-nothere2" class="clip" data-start="11.2" data-duration="6.8" style="position: absolute; left: 480px; top: 570px; width: 160px; height: 44px"><div id="blind-nothere2-t" class="blind-tag">not here</div></div>
+    </div>
+
+    <div id="blind-d1" class="clip blind-display" data-start="0" data-duration="3"><div id="blind-d1-t" class="blind-wipe">Each side has blind spots</div></div>
+    <div id="blind-l1" class="clip blind-line" data-start="3" data-duration="6.5"><div id="blind-l1-t" class="blind-wipe">A table made in the dashboard leaves no trace in the code</div></div>
+    <div id="blind-l2" class="clip blind-line" data-start="9.5" data-duration="5.5"><div id="blind-l2-t" class="blind-wipe">A key deleted from the code still lives in git history</div></div>
+    <div id="blind-l3" class="clip blind-line" data-hold data-start="15" data-duration="3"><div id="blind-l3-t" class="blind-wipe">So Vibeproof scans both</div></div>
+  </div>
+
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const SHUT = "inset(0% 100% 0% 0%)";
+      const OPEN = "inset(0% 0% 0% 0%)";
+      const GONE = "inset(0% 0% 0% 100%)";
+      function wipeIn(sel, t, d) {
+        tl.fromTo(sel, { clipPath: SHUT }, { clipPath: OPEN, duration: d || 0.6, ease: "power3.out" }, t);
+      }
+      function wipeOut(sel, t) {
+        tl.fromTo(sel, { clipPath: OPEN }, { clipPath: GONE, duration: 0.4, ease: "power2.in", immediateRender: false }, t);
+      }
+
+      // words
+      wipeIn("#blind-d1-t", 0.0);
+      wipeOut("#blind-d1-t", 2.6);
+      wipeIn("#blind-l1-t", 3.0);
+      wipeOut("#blind-l1-t", 9.1);
+      wipeIn("#blind-l2-t", 9.5);
+      wipeOut("#blind-l2-t", 14.6);
+      wipeIn("#blind-l3-t", 15.0);
+
+      // 3.0: "bookings" appears in the database (pop), note beside it
+      wipeIn("#blind-bookings-t", 3.0);
+      wipeIn("#blind-note-t", 3.6);
+      // 4.8 / 6.4: the code half has no such file: an empty slot, "not here"
+      tl.fromTo("#blind-ghost1", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power3.out" }, 4.8);
+      wipeIn("#blind-nothere1-t", 6.4, 0.4);
+
+      // 9.5: focus moves on; the first tag drops to ink outline
+      tl.fromTo("#blind-nothere1-t", { backgroundColor: "#e5342f", borderColor: "#e5342f", color: "#ffffff" }, { backgroundColor: "#ffffff", borderColor: "#0a0a0a", color: "#0a0a0a", duration: 0.4, ease: "power2.inOut", immediateRender: false }, 9.5);
+      // 9.5: the commit dot turns FLAW red (pop)
+      tl.fromTo("#blind-hot-dot", { scale: 0.5, opacity: 0, transformOrigin: "50% 50%" }, { scale: 1, opacity: 1, duration: 0.4, ease: "power3.out" }, 9.5);
+      wipeIn("#blind-hotlab-t", 9.7);
+      // 11.0: the site's JS has no such key
+      tl.fromTo("#blind-ghost2", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power3.out" }, 11.0);
+      wipeIn("#blind-nothere2-t", 11.2, 0.4);
+
+      tl.set({}, {}, 18);
+      window.__timelines = window.__timelines || {};
+      window.__timelines["blind"] = tl;
+    })();
+  </script>
+</template>

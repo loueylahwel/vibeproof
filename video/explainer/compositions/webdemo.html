@@ -1,0 +1,228 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: #000;
+      font-family: "Inter", sans-serif;
+    }
+    #root .webdemo-cam {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+      transform-origin: 0 0;
+      z-index: 1;
+    }
+    #root .webdemo-shot {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+      display: block;
+    }
+    #root .webdemo-paper {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+      z-index: 2;
+      background-color: #ffffff;
+      background-image:
+        linear-gradient(to right, rgba(10, 10, 10, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(10, 10, 10, 0.05) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    #root .webdemo-sheet-wrap {
+      position: absolute;
+      width: 535px;
+      height: 756px;
+      z-index: 3;
+    }
+    #root .webdemo-sheet {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 535px;
+      height: 756px;
+      display: block;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+    }
+    #root .webdemo-hl {
+      position: absolute;
+      z-index: 5;
+    }
+    #root .webdemo-hl svg {
+      position: absolute;
+      left: 0;
+      top: 0;
+      overflow: visible;
+    }
+    #root .webdemo-hl rect {
+      fill: none;
+      stroke: #ffffff;
+      stroke-width: 3;
+      stroke-dasharray: 1 1;
+    }
+    #root .webdemo-cursor {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+      z-index: 8;
+      pointer-events: none;
+    }
+    #root .webdemo-arrow {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 30px;
+      height: 40px;
+      transform-origin: 0 0;
+    }
+    #root .webdemo-arrow svg {
+      position: absolute;
+      left: -3px;
+      top: -3px;
+    }
+    #root .webdemo-band {
+      position: absolute;
+      left: 0;
+      top: 960px;
+      width: 1920px;
+      height: 120px;
+      background: #000;
+      z-index: 10;
+    }
+    #root .webdemo-cap {
+      position: absolute;
+      left: 96px;
+      top: 960px;
+      width: 1728px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      z-index: 11;
+    }
+    #root .webdemo-cap span {
+      display: block;
+      color: #ffffff;
+      font-size: 44px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+  </style>
+
+  <div id="root" data-composition-id="webdemo" data-width="1920" data-height="1080">
+    <!-- SCREENS (real app, 3840x2160 shown at 1920x1080). Camera = the untimed wrapper. -->
+    <div id="webdemo-cam-verify" class="webdemo-cam" data-layout-allow-overflow>
+      <img id="webdemo-shot-verify" class="clip webdemo-shot" src="assets/screens/verify.png" alt="" data-start="0" data-duration="11" data-track-index="1" />
+    </div>
+    <div id="webdemo-cam-report" class="webdemo-cam" data-layout-allow-overflow>
+      <img id="webdemo-shot-report" class="clip webdemo-shot" src="assets/screens/report-web.png" alt="" data-start="11" data-duration="6.5" data-track-index="1" />
+    </div>
+    <div id="webdemo-cam-finding" class="webdemo-cam" data-layout-allow-overflow>
+      <img id="webdemo-shot-finding" class="clip webdemo-shot" src="assets/screens/finding-web.png" alt="" data-start="17.5" data-duration="6.5" data-track-index="1" />
+    </div>
+
+    <!-- PAPER ending: the PDF report on the paper ground -->
+    <div id="webdemo-paper" class="clip webdemo-paper" data-start="24" data-duration="8" data-track-index="2"></div>
+    <div id="webdemo-sheet-1-wrap" class="webdemo-sheet-wrap" style="left: 480px; top: 100px">
+      <img id="webdemo-sheet-1" class="clip webdemo-sheet" src="assets/screens/pdf-web-1.png" alt="" data-start="24" data-duration="8" data-track-index="3" />
+    </div>
+    <div id="webdemo-sheet-2-wrap" class="webdemo-sheet-wrap" data-layout-allow-overflow style="left: 780px; top: 140px">
+      <img id="webdemo-sheet-2" class="clip webdemo-sheet" src="assets/screens/pdf-web-2.png" alt="" data-start="27" data-duration="5" data-track-index="4" data-hold />
+    </div>
+
+    <!-- HIGHLIGHTS (frame coords at the camera's landed state) -->
+    <div id="webdemo-hl-file" class="clip webdemo-hl" style="left: 49px; top: 202px; width: 477px; height: 194px" data-start="8.2" data-duration="2.8" data-track-index="5">
+      <svg width="477" height="194" viewBox="0 0 477 194"><rect id="webdemo-hl-file-rect" x="1.5" y="1.5" width="474" height="191" rx="10" ry="10" pathLength="1" /></svg>
+    </div>
+    <div id="webdemo-hl-dns" class="clip webdemo-hl" style="left: 49px; top: 427px; width: 477px; height: 148px" data-start="6.2" data-duration="4.8" data-track-index="6">
+      <svg width="477" height="148" viewBox="0 0 477 148"><rect id="webdemo-hl-dns-rect" x="1.5" y="1.5" width="474" height="145" rx="10" ry="10" pathLength="1" /></svg>
+    </div>
+    <div id="webdemo-hl-crit" class="clip webdemo-hl" style="left: 624px; top: 405px; width: 992px; height: 62px" data-start="11.6" data-duration="5.9" data-track-index="5">
+      <svg width="992" height="62" viewBox="0 0 992 62"><rect id="webdemo-hl-crit-rect" x="1.5" y="1.5" width="989" height="59" rx="10" ry="10" pathLength="1" /></svg>
+    </div>
+    <div id="webdemo-hl-evidence" class="clip webdemo-hl" style="left: 138px; top: 386px; width: 1539px; height: 124px" data-start="20.6" data-duration="3.4" data-track-index="5">
+      <svg width="1539" height="124" viewBox="0 0 1539 124"><rect id="webdemo-hl-evidence-rect" x="1.5" y="1.5" width="1536" height="121" rx="10" ry="10" pathLength="1" /></svg>
+    </div>
+
+    <!-- CURSOR: tip of the arrow is the wrapper's origin -->
+    <div id="webdemo-cursor-1" class="clip webdemo-cursor" data-start="14.4" data-duration="3.1" data-track-index="7">
+      <div id="webdemo-arrow-1" class="webdemo-arrow">
+        <svg width="30" height="40" viewBox="-3 -3 30 40"><path d="M0 0 L0 30 L7.5 23 L12 34 L17.2 31.8 L12.6 21.2 L22.4 21.2 Z" fill="#ffffff" stroke="#000000" stroke-width="4" stroke-linejoin="round" paint-order="stroke" /></svg>
+      </div>
+    </div>
+
+    <!-- CAPTION BAND -->
+    <div id="webdemo-band" class="webdemo-band"></div>
+    <div id="webdemo-cap-1" class="clip webdemo-cap" data-start="0" data-duration="6" data-track-index="8" data-layout-allow-caption-zone><span id="webdemo-cap-1-t">Live scans need proof you own the site</span></div>
+    <div id="webdemo-cap-2" class="clip webdemo-cap" data-start="6" data-duration="5" data-track-index="8" data-layout-allow-caption-zone><span id="webdemo-cap-2-t">Publish a token in your DNS, or as a file</span></div>
+    <div id="webdemo-cap-3" class="clip webdemo-cap" data-start="11" data-duration="6.5" data-track-index="8" data-layout-allow-caption-zone><span id="webdemo-cap-3-t">Then it scans the live site, read-only</span></div>
+    <div id="webdemo-cap-4" class="clip webdemo-cap" data-start="17.5" data-duration="6.5" data-track-index="8" data-layout-allow-caption-zone><span id="webdemo-cap-4-t">The todos table answered the public key</span></div>
+    <div id="webdemo-cap-5" class="clip webdemo-cap" data-start="24" data-duration="8" data-track-index="8" data-layout-allow-caption-zone><span id="webdemo-cap-5-t">Every scan ends in a PDF report</span></div>
+  </div>
+
+  <script>
+    (function () {
+      window.__timelines = window.__timelines || {};
+      const F = 1 / 30; // one frame
+      const tl = gsap.timeline({ paused: true });
+
+      // ---- captions: wipe in (power3.out 18 f), wipe out (power2.in 12 f) just before the next one
+      const caps = [
+        ["#webdemo-cap-1-t", 0, 6],
+        ["#webdemo-cap-2-t", 6, 11],
+        ["#webdemo-cap-3-t", 11, 17.5],
+        ["#webdemo-cap-4-t", 17.5, 24],
+        ["#webdemo-cap-5-t", 24, null],
+      ];
+      caps.forEach(function (c) {
+        tl.fromTo(c[0], { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 18 * F, ease: "power3.out" }, c[1]);
+        if (c[2] !== null) {
+          tl.fromTo(c[0], { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 100%)", duration: 12 * F, ease: "power2.in", immediateRender: false }, c[2] - 12 * F);
+        }
+      });
+
+      function draw(sel, at) {
+        tl.fromTo(sel, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 18 * F, ease: "power3.out" }, at);
+      }
+
+      // ---- 0.0 verify: punch-in 1.0 -> 1.8 on the verify panel in the sidebar (sine.inOut 60 f)
+      tl.fromTo("#webdemo-cam-verify", { x: 0, y: 0, scale: 1 }, { x: 0, y: -335, scale: 1.8, duration: 60 * F, ease: "sine.inOut" }, 0.5);
+      // 6.0: highlight the DNS TXT row, then the File row (the caption names DNS first)
+      draw("#webdemo-hl-dns-rect", 6.2);
+      draw("#webdemo-hl-file-rect", 8.2);
+
+      // ---- 11.0 report-web: highlight the critical finding
+      draw("#webdemo-hl-crit-rect", 11.6);
+      // cursor clicks the "Table readable" finding (17.367), which opens it: cut 17.5
+      // cursor arrives on the highlighted critical row first, then moves down to the high finding
+      tl.fromTo("#webdemo-arrow-1", { x: 1180, y: 760, scale: 1 }, { x: 960, y: 438, scale: 1, duration: 24 * F, ease: "power2.inOut" }, 14.5);
+      tl.fromTo("#webdemo-arrow-1", { opacity: 0 }, { opacity: 1, duration: 6 * F, ease: "none" }, 14.5);
+      tl.fromTo("#webdemo-arrow-1", { x: 960, y: 438 }, { x: 800, y: 536, duration: 21 * F, ease: "power2.inOut", immediateRender: false }, 16.4);
+      tl.fromTo("#webdemo-arrow-1", { scale: 1 }, { scale: 0.85, duration: 2 * F, ease: "power2.out", immediateRender: false }, 17.5 - 4 * F);
+      tl.fromTo("#webdemo-arrow-1", { scale: 0.85 }, { scale: 1, duration: 2 * F, ease: "power2.out", immediateRender: false }, 17.5 - 2 * F);
+
+      // ---- 17.5 finding-web: punch-in on the open finding (1.8, sine.inOut 66 f), then the evidence
+      tl.fromTo("#webdemo-cam-finding", { x: 0, y: 0, scale: 1 }, { x: -1056, y: -389, scale: 1.8, duration: 66 * F, ease: "sine.inOut" }, 17.7);
+      draw("#webdemo-hl-evidence-rect", 20.6);
+
+      // ---- 24.0 paper: the PDF's first page lands slightly large and settles; page 2 slides over it at 27.0
+      tl.fromTo("#webdemo-sheet-1-wrap", { scale: 1.04 }, { scale: 1, duration: 18 * F, ease: "power3.out" }, 24.0);
+      tl.fromTo("#webdemo-sheet-2-wrap", { x: 1200 }, { x: 0, duration: 24 * F, ease: "power3.out" }, 27.0);
+
+      // hold to the scene's end (32 s)
+      tl.set({}, {}, 32);
+      window.__timelines["webdemo"] = tl;
+    })();
+  </script>
+</template>

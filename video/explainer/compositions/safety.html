@@ -1,0 +1,314 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      font-family: "Inter", sans-serif;
+      color: #0a0a0a;
+      overflow: hidden;
+    }
+    #safety-grid {
+      position: absolute;
+      inset: 0;
+      background-color: #ffffff;
+      background-image:
+        linear-gradient(to right, rgba(10, 10, 10, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(10, 10, 10, 0.05) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    .safety-display {
+      font-weight: 900;
+      font-size: 84px;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      width: max-content;
+      white-space: nowrap;
+    }
+    .safety-line {
+      font-weight: 700;
+      font-size: 44px;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      width: max-content;
+      white-space: nowrap;
+    }
+    #safety-title {
+      position: absolute;
+      left: 96px;
+      top: 108px;
+    }
+    .safety-stmt {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+    }
+    .safety-say {
+      position: absolute;
+      left: 96px;
+      top: 676px;
+    }
+    .safety-obj {
+      position: absolute;
+      left: 96px;
+    }
+    .safety-obj svg {
+      display: block;
+      overflow: visible;
+    }
+    .safety-ink {
+      fill: none;
+      stroke: #0a0a0a;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    /* 1: lock */
+    #safety-lock {
+      top: 318px;
+    }
+    #safety-lock-body {
+      fill: #ffffff;
+    }
+    /* 2: GET arrow */
+    #safety-get {
+      top: 440px;
+    }
+    #safety-get-tag {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 64px;
+      padding: 0 22px;
+      border: 2px solid #0a0a0a;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 700;
+      font-size: 32px;
+      width: max-content;
+    }
+    #safety-get-svg {
+      position: absolute;
+      left: 0;
+      top: 96px;
+    }
+    /* 3: key */
+    #safety-key {
+      top: 496px;
+    }
+    #safety-key-tag {
+      height: 120px;
+      border: 2px solid #0a0a0a;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      padding: 0 44px 0 36px;
+      width: max-content;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 44px;
+      font-weight: 400;
+    }
+    #safety-key-hole {
+      width: 34px;
+      height: 34px;
+      border: 2px solid #0a0a0a;
+      border-radius: 50%;
+      flex: none;
+    }
+    #safety-key-text {
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+    #safety-key-mid {
+      display: inline-block;
+      padding: 0 2px;
+    }
+    /* 4: table row */
+    #safety-table {
+      top: 462px;
+    }
+    #safety-table-box {
+      width: 960px;
+      border: 2px solid #0a0a0a;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .safety-trow {
+      display: flex;
+      height: 76px;
+    }
+    .safety-trow + .safety-trow {
+      border-top: 2px solid #0a0a0a;
+    }
+    .safety-cell {
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 28px;
+      color: #6b6b6b;
+    }
+    .safety-cell + .safety-cell {
+      border-left: 2px solid #0a0a0a;
+    }
+    .safety-c1 {
+      width: 180px;
+    }
+    .safety-c2 {
+      width: 320px;
+    }
+    .safety-c3 {
+      flex: 1;
+    }
+    .safety-bar {
+      height: 22px;
+      border-radius: 11px;
+      background: #c8c8c6;
+    }
+  </style>
+
+  <div id="root" data-composition-id="safety" data-width="1920" data-height="1080">
+    <div id="safety-grid"></div>
+
+    <div id="safety-title-clip" class="clip" data-start="0" data-duration="16">
+      <div id="safety-title" class="safety-display">Built to be safe to run</div>
+    </div>
+
+    <!-- 1: lock -->
+    <div id="safety-s1" class="clip safety-stmt" data-start="2.5" data-duration="3.5">
+      <div id="safety-lock" class="safety-obj">
+        <svg width="240" height="300" viewBox="0 0 240 300">
+          <path id="safety-lock-shackle" class="safety-ink" pathLength="1" d="M62 160 V98 A58 58 0 0 1 178 98 V160" />
+          <rect id="safety-lock-body" class="safety-ink" pathLength="1" x="10" y="140" width="220" height="150" rx="10" />
+          <circle id="safety-lock-hole" class="safety-ink" pathLength="1" cx="120" cy="200" r="14" />
+          <path id="safety-lock-slot" class="safety-ink" pathLength="1" d="M120 214 V250" />
+        </svg>
+      </div>
+      <div id="safety-s1-say" class="safety-say safety-line">Only sites you prove you own</div>
+    </div>
+
+    <!-- 2: GET arrow -->
+    <div id="safety-s2" class="clip safety-stmt" data-start="6" data-duration="3.5">
+      <div id="safety-get" class="safety-obj">
+        <div id="safety-get-tag">GET</div>
+        <svg id="safety-get-svg" width="720" height="80" viewBox="0 0 720 80">
+          <path id="safety-get-shaft" class="safety-ink" pathLength="1" d="M2 40 H700" />
+          <path id="safety-get-head" class="safety-ink" pathLength="1" d="M672 14 L702 40 L672 66" />
+        </svg>
+      </div>
+      <div id="safety-s2-say" class="safety-say safety-line">Only read requests, nothing is changed</div>
+    </div>
+
+    <!-- 3: key with hidden middle -->
+    <div id="safety-s3" class="clip safety-stmt" data-start="9.5" data-duration="3.5">
+      <div id="safety-key" class="safety-obj">
+        <div id="safety-key-tag">
+          <div id="safety-key-hole"></div>
+          <div id="safety-key-text">
+            <span>sk_l</span><span id="safety-key-mid">ive_7Hq2Xm9Pz4Rw</span><span>Cd</span>
+          </div>
+        </div>
+      </div>
+      <div id="safety-s3-say" class="safety-say safety-line">Secrets are hidden in every report</div>
+    </div>
+
+    <!-- 4: table row of grey bars -->
+    <div id="safety-s4" class="clip safety-stmt" data-start="13" data-duration="3">
+      <div id="safety-table" class="safety-obj">
+        <div id="safety-table-box">
+          <div class="safety-trow">
+            <div class="safety-cell safety-c1">id</div>
+            <div class="safety-cell safety-c2">owner</div>
+            <div class="safety-cell safety-c3">secret_note</div>
+          </div>
+          <div class="safety-trow">
+            <div class="safety-cell safety-c1"><div id="safety-bar1" class="safety-bar" style="width: 64px"></div></div>
+            <div class="safety-cell safety-c2"><div id="safety-bar2" class="safety-bar" style="width: 220px"></div></div>
+            <div class="safety-cell safety-c3"><div id="safety-bar3" class="safety-bar" style="width: 360px"></div></div>
+          </div>
+        </div>
+      </div>
+      <div id="safety-s4-say" class="safety-say safety-line">Row values are never stored</div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const F = 1 / 30;
+      const SHUT = "inset(-25% 100% -25% -2%)";
+      const OPEN = "inset(-25% -2% -25% -2%)";
+      const GONE = "inset(-25% -2% -25% 100%)";
+
+      // enter: left-to-right wipe, power3.out, 18 frames
+      const wipeIn = (sel, at, dur) =>
+        tl.fromTo(sel, { clipPath: SHUT }, { clipPath: OPEN, duration: dur || 18 * F, ease: "power3.out" }, at);
+      // exit: wipe away, power2.in, 12 frames
+      const wipeOut = (sel, at) =>
+        tl.fromTo(
+          sel,
+          { clipPath: OPEN },
+          { clipPath: GONE, duration: 12 * F, ease: "power2.in", immediateRender: false },
+          at,
+        );
+      // stroke draw-on
+      const draw = (sel, at, dur, ease) =>
+        tl.fromTo(
+          sel,
+          { strokeDasharray: 1, strokeDashoffset: 1 },
+          { strokeDashoffset: 0, duration: dur, ease: ease || "power2.inOut" },
+          at,
+        );
+
+      // 0.0 title
+      wipeIn("#safety-title", 0);
+
+      // 2.5 lock: body draws, shackle drops shut
+      draw("#safety-lock-body", 2.5, 18 * F);
+      draw("#safety-lock-hole", 2.65, 12 * F);
+      draw("#safety-lock-slot", 2.75, 8 * F);
+      draw("#safety-lock-shackle", 2.6, 15 * F);
+      tl.fromTo("#safety-lock-shackle", { y: -42 }, { y: 0, duration: 12 * F, ease: "power3.in" }, 3.2);
+      wipeIn("#safety-s1-say", 2.5 + 5 * F);
+      wipeOut("#safety-lock", 5.55);
+      wipeOut("#safety-s1-say", 5.55);
+
+      // 6.0 GET arrow draws left to right
+      wipeIn("#safety-get-tag", 6.0);
+      draw("#safety-get-shaft", 6.0, 24 * F);
+      draw("#safety-get-head", 6.0 + 20 * F, 8 * F, "power2.out");
+      wipeIn("#safety-s2-say", 6.0 + 5 * F);
+      wipeOut("#safety-get", 9.05);
+      wipeOut("#safety-s2-say", 9.05);
+
+      // 9.5 key: the middle of the secret blurs away
+      wipeIn("#safety-key-tag", 9.5);
+      tl.fromTo(
+        "#safety-key-mid",
+        { filter: "blur(0px)", opacity: 1 },
+        { filter: "blur(10px)", opacity: 0.55, duration: 18 * F, ease: "power2.inOut" },
+        10.3,
+      );
+      wipeIn("#safety-s3-say", 9.5 + 5 * F);
+      wipeOut("#safety-key", 12.55);
+      wipeOut("#safety-s3-say", 12.55);
+
+      // 13.0 table row: values replaced by grey bars
+      wipeIn("#safety-table-box", 13.0);
+      wipeIn("#safety-bar1", 13.3, 12 * F);
+      wipeIn("#safety-bar2", 13.3 + 6 * F, 12 * F);
+      wipeIn("#safety-bar3", 13.3 + 12 * F, 12 * F);
+      wipeIn("#safety-s4-say", 13.0 + 5 * F);
+
+      // hold to the end of the 16 s slot
+      tl.set({}, {}, 16);
+      window.__timelines["safety"] = tl;
+    })();
+  </script>
+</template>

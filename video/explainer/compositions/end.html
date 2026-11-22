@@ -1,0 +1,135 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      font-family: "Inter", sans-serif;
+      color: #0a0a0a;
+      overflow: hidden;
+    }
+    #end-grid {
+      position: absolute;
+      inset: 0;
+      background-color: #ffffff;
+      background-image:
+        linear-gradient(to right, rgba(10, 10, 10, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(10, 10, 10, 0.05) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    .end-full {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+    }
+    .end-display {
+      position: absolute;
+      left: 96px;
+      font-weight: 900;
+      font-size: 84px;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      width: max-content;
+      white-space: nowrap;
+    }
+    #end-claim1 {
+      top: 108px;
+    }
+    #end-claim2 {
+      top: 196px;
+    }
+    #end-shield {
+      position: absolute;
+      left: 96px;
+      top: 590px;
+      width: 120px;
+      height: 120px;
+      overflow: visible;
+    }
+    .end-mark-ink {
+      fill: none;
+      stroke: #0a0a0a;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    #end-word {
+      position: absolute;
+      left: 256px;
+      top: 590px;
+      font-weight: 900;
+      font-size: 96px;
+      letter-spacing: -0.02em;
+      line-height: 120px;
+      width: max-content;
+      white-space: nowrap;
+    }
+    #end-sub {
+      position: absolute;
+      left: 256px;
+      top: 732px;
+      font-weight: 700;
+      font-size: 44px;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      color: #6b6b6b;
+      width: max-content;
+      white-space: nowrap;
+    }
+  </style>
+
+  <div id="root" data-composition-id="end" data-width="1920" data-height="1080">
+    <div id="end-grid"></div>
+
+    <div id="end-claim" class="clip end-full" data-hold data-start="0" data-duration="12">
+      <div id="end-claim1" class="end-display">Scan the code.</div>
+      <div id="end-claim2" class="end-display">Then check the live site.</div>
+    </div>
+
+    <div id="end-mark" class="clip end-full" data-start="5" data-duration="7">
+      <svg id="end-shield" viewBox="0 0 24 24">
+        <path id="end-shield-path" class="end-mark-ink" pathLength="1" d="M12 2.5 4.5 5.4v5.8c0 4.7 3.2 8.9 7.5 10.3 4.3-1.4 7.5-5.6 7.5-10.3V5.4L12 2.5Z" />
+        <path id="end-check-path" class="end-mark-ink" pathLength="1" d="m8.8 12.2 2.3 2.3 4.3-4.6" />
+      </svg>
+      <div id="end-word">Vibeproof</div>
+      <div id="end-sub">Security scanner for vibe-coded apps · university project</div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const F = 1 / 30;
+      const SHUT = "inset(-25% 100% -25% -2%)";
+      const OPEN = "inset(-25% -2% -25% -2%)";
+      const wipeIn = (sel, at, dur) =>
+        tl.fromTo(sel, { clipPath: SHUT }, { clipPath: OPEN, duration: dur || 18 * F, ease: "power3.out" }, at);
+
+      // 0.0 the claim, two lines, 6 frames apart
+      wipeIn("#end-claim1", 0);
+      wipeIn("#end-claim2", 6 * F);
+
+      // 5.0 the mark: shield draws on over 24 frames, then the check
+      tl.fromTo(
+        "#end-shield-path",
+        { strokeDasharray: 1, strokeDashoffset: 1 },
+        { strokeDashoffset: 0, duration: 24 * F, ease: "power2.inOut" },
+        5.0,
+      );
+      tl.fromTo(
+        "#end-check-path",
+        { strokeDasharray: 1, strokeDashoffset: 1 },
+        { strokeDashoffset: 0, duration: 10 * F, ease: "power2.out" },
+        5.0 + 18 * F,
+      );
+      // 5.6 the name wipes in beside it (impact peak), then the line under it
+      wipeIn("#end-word", 5.6);
+      wipeIn("#end-sub", 5.6 + 6 * F);
+
+      tl.set({}, {}, 12);
+      window.__timelines["end"] = tl;
+    })();
+  </script>
+</template>

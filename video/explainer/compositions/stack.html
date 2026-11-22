@@ -1,0 +1,166 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: #ffffff;
+      font-family: "Inter", sans-serif;
+      color: #0a0a0a;
+    }
+    #stack-grid { position: absolute; inset: 0; }
+    .stack-line {
+      position: absolute;
+      left: 96px;
+      top: 108px;
+      font-weight: 700;
+      font-size: 44px;
+      line-height: 56px;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+    .stack-wipe { display: inline-block; }
+    .stack-label {
+      position: absolute;
+      font-weight: 700;
+      font-size: 28px;
+      line-height: 36px;
+      white-space: nowrap;
+    }
+    /* browser */
+    #stack-browser {
+      position: absolute; left: 200px; top: 380px; width: 520px; height: 400px;
+      border: 2px solid #0a0a0a; border-radius: 10px; background: #ffffff; overflow: hidden;
+    }
+    .stack-bar { position: absolute; left: 0; top: 0; right: 0; height: 68px; border-bottom: 2px solid #0a0a0a; }
+    .stack-addr {
+      position: absolute; left: 92px; top: 11px; width: 408px; height: 44px;
+      border: 2px solid #0a0a0a; border-radius: 22px; padding-left: 20px;
+      font-size: 28px; line-height: 40px; white-space: nowrap;
+    }
+    .stack-row { position: absolute; left: 36px; width: 444px; height: 76px; border-bottom: 2px solid rgba(10, 10, 10, 0.12); }
+    .stack-box { position: absolute; left: 0; top: 24px; width: 30px; height: 30px; border: 2px solid #0a0a0a; border-radius: 6px; }
+    .stack-box.stack-done { background: #0a0a0a; }
+    .stack-box svg { position: absolute; left: 3px; top: 4px; }
+    .stack-task { position: absolute; left: 52px; top: 18px; font-size: 30px; line-height: 42px; white-space: nowrap; }
+    /* database */
+    #stack-db { position: absolute; left: 1300px; top: 300px; width: 420px; height: 520px; }
+    #stack-db svg { position: absolute; left: 0; top: 0; }
+    .stack-tname { position: absolute; left: 50px; top: 136px; font-family: "JetBrains Mono", monospace; font-size: 28px; line-height: 36px; }
+    /* link */
+    #stack-link { position: absolute; left: 722px; top: 579px; width: 578px; height: 2px; background: #0a0a0a; }
+    /* key */
+    #stack-key { position: absolute; left: 1074px; top: 550px; width: 216px; height: 60px; }
+    #stack-key svg { position: absolute; left: 0; top: 0; }
+    #stack-key-in { position: absolute; left: 0; top: 0; width: 216px; height: 60px; }
+    #stack-key span { position: absolute; left: 62px; top: 12px; font-weight: 700; font-size: 28px; line-height: 36px; white-space: nowrap; }
+    /* shield */
+    #stack-shield { position: absolute; left: 1130px; top: 520px; width: 100px; height: 120px; }
+    #stack-shield svg { position: absolute; left: 0; top: 0; overflow: visible; }
+  </style>
+
+  <div id="root" data-composition-id="stack" data-width="1920" data-height="1080">
+    <svg id="stack-grid" width="1920" height="1080" data-layout-ignore>
+      <defs>
+        <pattern id="stack-gridpat" width="48" height="48" patternUnits="userSpaceOnUse">
+          <path d="M48 0 V48 M0 48 H48" fill="none" stroke="#0a0a0a" stroke-opacity="0.05" stroke-width="1" />
+        </pattern>
+      </defs>
+      <rect width="1920" height="1080" fill="url(#stack-gridpat)" />
+    </svg>
+
+    <div id="stack-link"></div>
+
+    <!-- THE APP in the browser -->
+    <div id="stack-browser">
+      <div class="stack-bar">
+        <svg style="position: absolute; left: 18px; top: 28px" width="70" height="14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/><circle cx="29" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/><circle cx="51" cy="7" r="5.5" fill="none" stroke="#0a0a0a" stroke-width="2"/></svg>
+        <div class="stack-addr">taskflow.app</div>
+      </div>
+      <div class="stack-row" style="top: 76px"><div class="stack-box stack-done"><svg width="20" height="18"><path d="M2 9 L8 15 L18 3" fill="none" stroke="#fff" stroke-width="3"/></svg></div><div class="stack-task">Ship landing page</div></div>
+      <div class="stack-row" style="top: 152px"><div class="stack-box"></div><div class="stack-task">Fix login bug</div></div>
+      <div class="stack-row" style="top: 228px"><div class="stack-box"></div><div class="stack-task">Write tests</div></div>
+      <div class="stack-row" style="top: 304px; border-bottom: 0"><div class="stack-box"></div><div class="stack-task">Launch</div></div>
+    </div>
+
+    <!-- THE DATABASE -->
+    <div id="stack-db">
+      <svg width="420" height="520">
+        <path d="M2 50 V470 A208 44 0 0 0 418 470 V50" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" />
+        <ellipse cx="210" cy="50" rx="208" ry="44" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" />
+        <!-- todos table grid -->
+        <rect x="50" y="186" width="320" height="40" fill="#f2f2f0" />
+        <rect x="50" y="186" width="320" height="200" fill="none" stroke="#0a0a0a" stroke-width="2" />
+        <path d="M50 226 H370 M50 266 H370 M50 306 H370 M50 346 H370 M130 186 V386 M250 186 V386" fill="none" stroke="#0a0a0a" stroke-width="2" />
+      </svg>
+      <div class="stack-tname">todos</div>
+    </div>
+    <div id="stack-dbname" class="stack-label" style="left: 1300px; top: 836px">Supabase</div>
+
+    <!-- shield: access rules -->
+    <div id="stack-shield" class="clip" data-start="8.5" data-duration="9.5">
+      <svg width="100" height="120">
+        <path id="stack-shield-whole" d="M50 6 L90 20 V58 C90 86 72 104 50 114 C28 104 10 86 10 58 V20 Z" pathLength="1" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" stroke-dasharray="1" />
+        <g id="stack-shield-l" opacity="0"><path d="M50 6 L10 20 V58 C10 86 28 104 50 114 L42 92 L56 72 L42 50 L56 30 Z" fill="#e5342f" stroke="#e5342f" stroke-width="2" stroke-linejoin="round" /></g>
+        <g id="stack-shield-r" opacity="0"><path d="M50 6 L90 20 V58 C90 86 72 104 50 114 L42 92 L56 72 L42 50 L56 30 Z" fill="#e5342f" stroke="#e5342f" stroke-width="2" stroke-linejoin="round" /></g>
+      </svg>
+    </div>
+    <div id="stack-rules" class="clip stack-label" data-start="8.5" data-duration="9.5" style="left: 1092px; top: 656px"><div id="stack-rules-t" class="stack-wipe">access rules</div></div>
+
+    <!-- THE ANON KEY -->
+    <div id="stack-key" class="clip" data-start="3.3" data-duration="14.7">
+      <div id="stack-key-in">
+        <svg width="216" height="60"><rect x="1" y="1" width="214" height="58" rx="29" fill="#ffffff" stroke="#0a0a0a" stroke-width="2" /><circle cx="32" cy="30" r="10" fill="none" stroke="#0a0a0a" stroke-width="2" /></svg>
+        <span>anon key</span>
+      </div>
+    </div>
+
+    <div id="stack-l1" class="clip stack-line" data-start="1" data-duration="3.5"><div id="stack-l1-t" class="stack-wipe">Apps like this talk to their database directly</div></div>
+    <div id="stack-l2" class="clip stack-line" data-start="4.5" data-duration="4"><div id="stack-l2-t" class="stack-wipe">Every visitor's browser gets this key</div></div>
+    <div id="stack-l3" class="clip stack-line" data-start="8.5" data-duration="4"><div id="stack-l3-t" class="stack-wipe">Only the access rules protect the data</div></div>
+    <div id="stack-l4" class="clip stack-line" data-hold data-start="12.5" data-duration="5.5"><div id="stack-l4-t" class="stack-wipe">One wrong rule, and the data is open</div></div>
+  </div>
+
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const SHUT = "inset(0% 100% 0% 0%)";
+      const OPEN = "inset(0% 0% 0% 0%)";
+      const GONE = "inset(0% 0% 0% 100%)";
+      function wipeIn(sel, t, d) {
+        tl.fromTo(sel, { clipPath: SHUT }, { clipPath: OPEN, duration: d || 0.6, ease: "power3.out" }, t);
+      }
+      function wipeOut(sel, t) {
+        tl.fromTo(sel, { clipPath: OPEN }, { clipPath: GONE, duration: 0.4, ease: "power2.in", immediateRender: false }, t);
+      }
+
+      // lines
+      wipeIn("#stack-l1-t", 1.0);
+      wipeOut("#stack-l1-t", 4.1);
+      wipeIn("#stack-l2-t", 4.5);
+      wipeOut("#stack-l2-t", 8.1);
+      wipeIn("#stack-l3-t", 8.5);
+      wipeOut("#stack-l3-t", 12.1);
+      wipeIn("#stack-l4-t", 12.5);
+
+      // 3.3: the anon key leaves the database; travels the line, lands on the browser at 4.5 (pop)
+      tl.fromTo("#stack-key-in", { clipPath: "inset(0% 0% 0% 100%)" }, { clipPath: OPEN, duration: 0.4, ease: "power3.out" }, 3.3);
+      tl.fromTo("#stack-key-in", { x: 0 }, { x: -340, duration: 0.8, ease: "power2.inOut" }, 3.7);
+
+      // 8.5: the shield draws on at the database edge
+      tl.fromTo("#stack-shield-whole", { strokeDashoffset: 1, fillOpacity: 0 }, { strokeDashoffset: 0, duration: 0.8, ease: "power3.out" }, 8.5);
+      tl.fromTo("#stack-shield-whole", { fillOpacity: 0 }, { fillOpacity: 1, duration: 0.3, ease: "power2.out", immediateRender: false }, 8.6);
+      wipeIn("#stack-rules-t", 8.8);
+
+      // 12.5: the shield breaks, halves part 20 px and turn FLAW red (error sound)
+      tl.fromTo("#stack-shield-whole", { opacity: 1 }, { opacity: 0, duration: 0.01 }, 12.5);
+      tl.fromTo(["#stack-shield-l", "#stack-shield-r"], { opacity: 0 }, { opacity: 1, duration: 0.01 }, 12.5);
+      tl.fromTo("#stack-shield-l", { x: 0 }, { x: -10, duration: 0.4, ease: "power3.out" }, 12.5);
+      tl.fromTo("#stack-shield-r", { x: 0 }, { x: 10, duration: 0.4, ease: "power3.out" }, 12.5);
+
+      tl.set({}, {}, 18);
+      window.__timelines = window.__timelines || {};
+      window.__timelines["stack"] = tl;
+    })();
+  </script>
+</template>
