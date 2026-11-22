@@ -262,7 +262,7 @@ def impact(cue, r):
     # swell: rising band of noise + rising low tone (reverse-shaped)
     sw_env = np.where(s < pre, (s / pre) ** 3.5, np.exp(-(s - pre) / (0.02 * SR)))
     fc = np.where(s < pre, 200 * (1500 / 200) ** (s / pre), 1500)
-    swell = svf(coloured(r, n, -2.5), fc, 1.2, "bp") * sw_env * 0.6
+    swell = svf(coloured(r, n, -2.5), fc, 1.2, "bp") * sw_env * 0.12
     tone_f = np.where(s < pre, 55 * 2 ** (s / pre), 110)
     swell += sine(tone_f, n) * sw_env * 0.35
     # hit
@@ -303,18 +303,86 @@ def chime(cue, r):
     return np.stack([left + strike, right + strike]) * 0.6, 0
 
 
+
+# ------------------------------------------------------------------ v6: tonal, no air noise
+
+def _mallet(f, n, r, bright=1.0):
+    """A soft wooden mallet note: fundamental, a quiet octave and a marimba-like 4x partial."""
+    t = time_axis(n)
+    tau = r.uniform(0.18, 0.3) * (440.0 / f) ** 0.3
+    body = damped(f, n, tau) + 0.18 * damped(f * 2.0, n, tau * 0.5) + 0.08 * bright * damped(f * 3.93, n, tau * 0.18)
+    att = np.minimum(t / 0.003, 1.0)
+    felt = svf(white(r, n), f * 3, 1.5, "bp") * adsr_exp(n, 0.0003, 0.003) * 0.15
+    return (body * att + felt)
+
+
+def pluck(cue, r):
+    """A text line lands: one soft mallet note from the current chord (cue['note'] in MIDI)."""
+    f = 440.0 * 2 ** ((cue["note"] - 69) / 12)
+    n = secs(0.9)
+    mono = _mallet(f, n, r, bright=r.uniform(0.6, 1.0))
+    return pan(mono, r.uniform(-0.35, 0.35)), 0
+
+
+def bloom(cue, r):
+    """A scene cut: a warm low chord tone that swells in just before the cut and rings out."""
+    root = 440.0 * 2 ** ((cue["note"] - 69) / 12)
+    pre, post = secs(0.06), secs(1.4)
+    n = pre + post
+    out = np.zeros(n)
+    tt = time_axis(post)
+    for ratio, a, tau in ((1.0, 0.55, 0.55), (1.5, 0.22, 0.4), (2.0, 0.2, 0.35), (3.0, 0.06, 0.2)):
+        out[pre:] += sine(root * ratio * (1 + 0.001 * r.standard_normal()), post) * adsr_exp(post, 0.012, tau) * a
+    out[:pre] += sine(root, pre) * np.linspace(0, 0.2, pre)
+    f = 60 + 50 * np.exp(-tt / 0.03)
+    out[pre:] += sine(f, post) * adsr_exp(post, 0.001, 0.07) * 0.45   # soft felt knock on the cut
+    left = out + 0.1 * np.roll(out, secs(0.009))
+    right = out + 0.1 * np.roll(out, secs(0.014))
+    return np.stack([left, right]) * 0.8, pre
+
+
+def motion_v6(cue, r):
+    """Small demo motions without air noise."""
+    cid = cue["id"]
+    if "stack-rows" in cid:
+        # rows riffle into a stack: three quick rising mallet notes
+        n = secs(0.8)
+        out = np.zeros(n)
+        base = cue["note"]
+        for k, step in enumerate((0, 4, 7)):
+            i = secs(0.07 * k)
+            m = n - i
+            out[i:] += _mallet(440.0 * 2 ** ((base + step - 69) / 12), m, r, 0.7)[:m] * (0.9 ** k)
+        return moving_pan(out, -0.3, 0.3), 0
+    if "-hl-" in cid:
+        # highlight lands on a line: a soft glass ping only
+        n = secs(0.6)
+        ping_f = r.choice([1396.9, 1568.0, 1760.0, 2093.0])
+        mono = damped(ping_f, n, r.uniform(0.08, 0.12)) + 0.3 * damped(ping_f * 2.76, n, 0.03)
+        return pan(mono * 0.35, r.uniform(-0.4, 0.4)), 0
+    if "res-bars" in cid:
+        st, hit = small_motion(cue, r)
+        return st, hit
+    # punch-in: just the soft low knock, no whoosh
+    n = secs(0.3)
+    f = r.uniform(110, 150) * 2 ** (-time_axis(n) * 6)
+    return pan(sine(f, n) * adsr_exp(n, 0.001, 0.05) * 0.6, r.uniform(-0.2, 0.2)), 0
+
+
 # ------------------------------------------------------------------ routing
 
 def family_of(cue):
     cid, kind = cue["id"], cue["kind"]
     if kind == "swish":
         if cid.startswith("sfx-swing"):
-            return "swing"
+            return "bloom"
         if cid.startswith("sfx3-cam"):
-            return "cam"
+            return "cam"          # v6: dropped (see synth.select_cues)
         if cid.startswith("sfx2-line"):
-            return "line"
-        return "motion"
+            return "pluck"
+        if "cursor-move" in cid:
+            return "cursor"       # v6: dropped
+        return "motion6"
     if kind == "thud" and "break" in cid:
         return "crack"
     return kind
@@ -324,6 +392,7 @@ BUILDERS = {
     "swing": swing, "cam": cam, "line": line, "motion": small_motion,
     "click": click, "key": key, "typing": typing, "thud": thud, "crack": crack,
     "impact": impact, "chime": chime,
+    "pluck": pluck, "bloom": bloom, "motion6": motion_v6,
 }
 
 # loudness of each family before the final trim: loudest 100 ms K-weighted window (LUFS-like)
@@ -331,10 +400,12 @@ LEVEL_DB = {
     "swing": -11.5, "cam": -18.0, "line": -15.0, "motion": -15.0,
     "click": -20.0, "key": -21.0, "typing": -21.0, "thud": -12.5, "crack": -12.5,
     "impact": -8.5, "chime": -11.5,
+    "pluck": -19.0, "bloom": -14.0, "motion6": -17.0,
 }
 # sample-peak ceiling of each family before the final trim (dBFS): keeps sharp transients in check
 PEAK_CAP_DB = {
     "swing": -3.0, "cam": -11.0, "line": -8.5, "motion": -8.0,
     "click": -8.0, "key": -11.0, "typing": -10.0, "thud": -4.0, "crack": -5.0,
     "impact": -2.5, "chime": -4.5,
+    "pluck": -10.0, "bloom": -5.0, "motion6": -9.0,
 }

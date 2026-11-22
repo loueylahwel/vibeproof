@@ -17,7 +17,7 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-from bed import DUR, render_bed  # noqa: E402
+from bed import DUR, render_bed, segments  # noqa: E402
 from dsp import SR, convolve, rng_for, room_ir  # noqa: E402
 from families import BUILDERS, LEVEL_DB, PEAK_CAP_DB, family_of  # noqa: E402
 from loudness import integrated, max_short_window, oversampled_abs  # noqa: E402
@@ -33,7 +33,49 @@ CEILING_DB = -1.5       # true-peak ceiling of the limiter (dBTP)
 
 def load_cues():
     with open(CUES) as f:
-        return sorted(json.load(f)["cues"], key=lambda c: (c["at"], c["id"]))
+        return select_cues(sorted(json.load(f)["cues"], key=lambda c: (c["at"], c["id"])))
+
+
+def chord_at(t):
+    for s, e, (name, notes, root) in segments():
+        if s <= t < e:
+            return notes, root
+    return segments()[-1][2][1], segments()[-1][2][2]
+
+
+PLUCK_GAP = 0.5   # seconds: text plucks closer than this to another sound are left out
+
+
+def select_cues(cues):
+    """v6: no whooshes. Camera puffs and the cursor slide are dropped; text-line plucks are
+    thinned so they never crowd; every tonal cue gets a note from the bed's chord at that time,
+    walking up and down so consecutive plucks are never the same note."""
+    out = []
+    others = [c["at"] for c in cues if family_of(c) not in ("cam", "cursor", "pluck")]
+    last_pluck = -9.0
+    prev_note = 72
+    for c in cues:
+        fam = family_of(c)
+        if fam in ("cam", "cursor"):
+            continue
+        c = dict(c)
+        notes, root = chord_at(c["at"])
+        if fam == "pluck":
+            if c["at"] - last_pluck < PLUCK_GAP or any(abs(c["at"] - o) < 0.2 for o in others):
+                continue
+            last_pluck = c["at"]
+            r = rng_for(c["id"], "note")
+            pool = sorted({n + 12 * k for n in notes for k in (1, 2)} )
+            pool = [p for p in pool if 62 <= p <= 86 and p != prev_note]
+            near = sorted(pool, key=lambda p: abs(p - prev_note))[:4]
+            c["note"] = int(r.choice(near))
+            prev_note = c["note"]
+        elif fam == "bloom":
+            c["note"] = root + 12
+        elif fam == "motion6":
+            c["note"] = notes[0] + 12
+        out.append(c)
+    return out
 
 
 def render_cue(cue):

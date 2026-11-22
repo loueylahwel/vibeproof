@@ -1,5 +1,11 @@
 # Review: Vibeproof explainer ("Two ways in")
 
+## v6 (owner: does not like the whooshes, too repetitive)
+
+- No whooshes left. The 45 camera puffs and the cursor slide are gone. The 13 scene cuts are now a warm low note from the background chord. Text lines get a soft mallet note from the current chord, never the same note twice in a row, and thinned to at least 0.5 s apart (37 left). Highlights are a glass ping only, punch-ins a soft knock only, and the join's noise riser is turned down.
+- 90 sounds instead of 137. Mix -18.1 LUFS. The background chords play throughout, so there is no silence (nothing under -45 dB for 1 s); the longest gap between effects is about 5.6 s.
+- Same picture as v5. Render: renders/vibeproof-explainer-v6.mp4.
+
 ## v5 (owner: "same sound effect"; no HyperFrames; make everything ourselves)
 
 - Picture: our own renderer (tools/render/render.mjs). Chrome draws each scene's HTML; our code mounts the scenes, shows/hides clips, seeks the timelines and blends 8 subframes for motion blur on moving frames; ffmpeg only encodes. 6660 frames, matches v4 to the frame (mean difference 0.1-2.2 of 255).
