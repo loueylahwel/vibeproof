@@ -1,5 +1,12 @@
 # Review: Vibeproof explainer ("Two ways in")
 
+## v5 (owner: "same sound effect"; no HyperFrames; make everything ourselves)
+
+- Picture: our own renderer (tools/render/render.mjs). Chrome draws each scene's HTML; our code mounts the scenes, shows/hides clips, seeks the timelines and blends 8 subframes for motion blur on moving frames; ffmpeg only encodes. 6660 frames, matches v4 to the frame (mean difference 0.1-2.2 of 255).
+- Sound: every effect and a soft background bed synthesized with numpy (tools/sound/synth.py), on the same 137 cue times. Each cue is varied: six swishes compared pairwise are 4-12% alike. Final mix -18 LUFS; no gap over 1.5 s below -50 dB.
+- Known limits: very fast moves show faint stepped copies (more subframes would smooth them); slow camera drift frames are a little soft.
+- Render: renders/vibeproof-explainer-v5.mp4 (renders/ is not in git). Rebuild: `python3 tools/sound/synth.py`, `node tools/render/render.mjs`, then mux with ffmpeg.
+
 ## v4 (owner feedback: parts with no sound; panels moved like they were dragged)
 
 - Motion: every scene-to-scene move softened (exit power3.in, arrival 18 frames expo.out instead of power4 in 10-12 frames) and render-time motion blur on (`data-motion-blur="on"` on the root), so fast moves smear instead of stepping. Checked frame by frame: smooth glide, no jumps.
