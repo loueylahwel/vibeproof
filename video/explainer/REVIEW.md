@@ -2,7 +2,7 @@
 
 ## v2 (owner feedback: "dead", no sound effects, no end-card subtitle)
 
-- Removed all 44 sound effects; the film is silent until a music track is chosen.
+- Removed all 44 sound effects. The owner chose to keep the film silent (no music); the `film_silent` check warning is intentional.
 - Removed the end-card line under "Vibeproof" (including "university project").
 - Liveliness pass (SPEC.md "v2 ALIVE PASS"): code world dark, site world white, hook and blind split half dark / half light, end card dark; camera always moving and re-targeting each beat; words rise from a mask with one red marker per beat; found tags slam in; velocity-matched cuts between all scenes and between screens; safety objects enlarged.
 - Kept the owner's own Studio edit: the 3D tilt on the end card.
