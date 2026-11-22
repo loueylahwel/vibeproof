@@ -1,0 +1,880 @@
+{
+ "duration": 222,
+ "fps": 30,
+ "scenes": [
+  {
+   "id": "hook",
+   "start": 0.0,
+   "duration": 12.0
+  },
+  {
+   "id": "stack",
+   "start": 12.0,
+   "duration": 18.0
+  },
+  {
+   "id": "code",
+   "start": 30.0,
+   "duration": 26.0
+  },
+  {
+   "id": "site",
+   "start": 56.0,
+   "duration": 26.0
+  },
+  {
+   "id": "blind",
+   "start": 82.0,
+   "duration": 18.0
+  },
+  {
+   "id": "repodemo",
+   "start": 100.0,
+   "duration": 32.0
+  },
+  {
+   "id": "webdemo",
+   "start": 132.0,
+   "duration": 32.0
+  },
+  {
+   "id": "safety",
+   "start": 164.0,
+   "duration": 16.0
+  },
+  {
+   "id": "results",
+   "start": 180.0,
+   "duration": 30.0
+  },
+  {
+   "id": "end",
+   "start": 210.0,
+   "duration": 12.0
+  }
+ ],
+ "cues": [
+  {
+   "id": "sfx2-line-hook-0",
+   "kind": "swish",
+   "at": 0.65,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx2-line-hook-1",
+   "kind": "swish",
+   "at": 3.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-hook-5_4",
+   "kind": "swish",
+   "at": 5.4,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx2-line-hook-2",
+   "kind": "swish",
+   "at": 8.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-hook-10_0",
+   "kind": "swish",
+   "at": 10.0,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx-swing-12",
+   "kind": "swish",
+   "at": 12.0,
+   "gain": 0.2
+  },
+  {
+   "id": "sfx2-line-stack-0",
+   "kind": "swish",
+   "at": 13.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-stack-3_3",
+   "kind": "swish",
+   "at": 15.3,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx2-stack-key",
+   "kind": "thud",
+   "at": 16.5,
+   "gain": 0.08
+  },
+  {
+   "id": "sfx2-line-stack-1",
+   "kind": "swish",
+   "at": 16.75,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-stack-6_6",
+   "kind": "swish",
+   "at": 18.6,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx2-line-stack-2",
+   "kind": "swish",
+   "at": 20.75,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-stack-10_6",
+   "kind": "swish",
+   "at": 22.6,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx2-stack-break",
+   "kind": "thud",
+   "at": 24.5,
+   "gain": 0.1
+  },
+  {
+   "id": "sfx2-line-stack-3",
+   "kind": "swish",
+   "at": 24.75,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx2-stack-rows",
+   "kind": "swish",
+   "at": 25.7,
+   "gain": 0.22
+  },
+  {
+   "id": "sfx3-cam-stack-15_2",
+   "kind": "swish",
+   "at": 27.2,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx3-cam-stack-16_8",
+   "kind": "swish",
+   "at": 28.8,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx-swing-30",
+   "kind": "swish",
+   "at": 30.0,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx2-line-code-0",
+   "kind": "swish",
+   "at": 30.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-code-1_6",
+   "kind": "swish",
+   "at": 31.6,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx2-line-code-1",
+   "kind": "swish",
+   "at": 33.75,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-code-4_6",
+   "kind": "swish",
+   "at": 34.6,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx2-code-type1",
+   "kind": "typing",
+   "at": 37.967,
+   "gain": 0.3
+  },
+  {
+   "id": "sfx2-line-code-2",
+   "kind": "swish",
+   "at": 38.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx2-line-code-3",
+   "kind": "swish",
+   "at": 41.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-code-12_4",
+   "kind": "swish",
+   "at": 42.4,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx-slam-code-1",
+   "kind": "thud",
+   "at": 43.0,
+   "gain": 0.12
+  },
+  {
+   "id": "sfx3-cam-code-14_4",
+   "kind": "swish",
+   "at": 44.4,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx2-code-type2",
+   "kind": "typing",
+   "at": 44.967,
+   "gain": 0.3
+  },
+  {
+   "id": "sfx2-line-code-4",
+   "kind": "swish",
+   "at": 45.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-code-18_0",
+   "kind": "swish",
+   "at": 48.0,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx-slam-code-2",
+   "kind": "thud",
+   "at": 50.0,
+   "gain": 0.12
+  },
+  {
+   "id": "sfx3-cam-code-21_0",
+   "kind": "swish",
+   "at": 51.0,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx2-line-code-5",
+   "kind": "swish",
+   "at": 52.75,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-code-24_2",
+   "kind": "swish",
+   "at": 54.2,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx-swing-56",
+   "kind": "swish",
+   "at": 56.0,
+   "gain": 0.2
+  },
+  {
+   "id": "sfx2-line-site-0",
+   "kind": "swish",
+   "at": 56.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-site-2_4",
+   "kind": "swish",
+   "at": 58.4,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx2-site-row1",
+   "kind": "key",
+   "at": 60.0,
+   "gain": 0.5
+  },
+  {
+   "id": "sfx2-line-site-1",
+   "kind": "swish",
+   "at": 60.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx2-site-row2",
+   "kind": "key",
+   "at": 61.0,
+   "gain": 0.5
+  },
+  {
+   "id": "sfx3-cam-site-6_8",
+   "kind": "swish",
+   "at": 62.8,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx2-line-site-2",
+   "kind": "swish",
+   "at": 64.75,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-site-10_2",
+   "kind": "swish",
+   "at": 66.2,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx-slam-site-1",
+   "kind": "thud",
+   "at": 67.5,
+   "gain": 0.12
+  },
+  {
+   "id": "sfx2-site-row3",
+   "kind": "key",
+   "at": 70.0,
+   "gain": 0.5
+  },
+  {
+   "id": "sfx2-line-site-3",
+   "kind": "swish",
+   "at": 70.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx2-site-answer",
+   "kind": "key",
+   "at": 71.2,
+   "gain": 0.5
+  },
+  {
+   "id": "sfx-slam-site-2",
+   "kind": "thud",
+   "at": 75.0,
+   "gain": 0.12
+  },
+  {
+   "id": "sfx2-line-site-4",
+   "kind": "swish",
+   "at": 75.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-site-20_6",
+   "kind": "swish",
+   "at": 76.6,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx2-line-site-5",
+   "kind": "swish",
+   "at": 79.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-site-24_6",
+   "kind": "swish",
+   "at": 80.6,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx-swing-82",
+   "kind": "swish",
+   "at": 82.0,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx2-line-blind-0",
+   "kind": "swish",
+   "at": 82.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx2-line-blind-1",
+   "kind": "swish",
+   "at": 85.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx-slam-blind-1",
+   "kind": "thud",
+   "at": 88.4,
+   "gain": 0.12
+  },
+  {
+   "id": "sfx2-line-blind-2",
+   "kind": "swish",
+   "at": 91.75,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx-slam-blind-2",
+   "kind": "thud",
+   "at": 93.2,
+   "gain": 0.12
+  },
+  {
+   "id": "sfx3-cam-blind-13_0",
+   "kind": "swish",
+   "at": 95.0,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx2-line-blind-3",
+   "kind": "swish",
+   "at": 97.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-blind-16_6",
+   "kind": "swish",
+   "at": 98.6,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx-swing-100",
+   "kind": "swish",
+   "at": 100.0,
+   "gain": 0.2
+  },
+  {
+   "id": "sfx3-cam-repodemo-1_6",
+   "kind": "swish",
+   "at": 101.6,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx2-line-repodemo-0",
+   "kind": "swish",
+   "at": 103.75,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-repodemo-5_6",
+   "kind": "swish",
+   "at": 105.6,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx3-cam-repodemo-6_6",
+   "kind": "swish",
+   "at": 106.6,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx-click-scan",
+   "kind": "click",
+   "at": 107.367,
+   "gain": 0.45
+  },
+  {
+   "id": "sfx2-repo-punch-scan",
+   "kind": "swish",
+   "at": 107.8,
+   "gain": 0.2
+  },
+  {
+   "id": "sfx-swing-112_5",
+   "kind": "swish",
+   "at": 112.5,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx3-cam-repodemo-15_0",
+   "kind": "swish",
+   "at": 115.0,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx-click-row",
+   "kind": "click",
+   "at": 117.867,
+   "gain": 0.45
+  },
+  {
+   "id": "sfx2-repo-punch-finding",
+   "kind": "swish",
+   "at": 118.2,
+   "gain": 0.2
+  },
+  {
+   "id": "sfx3-cam-repodemo-20_5",
+   "kind": "swish",
+   "at": 120.5,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx-click-preview",
+   "kind": "click",
+   "at": 123.3,
+   "gain": 0.45
+  },
+  {
+   "id": "sfx-swing-124_0",
+   "kind": "swish",
+   "at": 124.0,
+   "gain": 0.2
+  },
+  {
+   "id": "sfx2-repo-punch-prompt",
+   "kind": "swish",
+   "at": 124.2,
+   "gain": 0.2
+  },
+  {
+   "id": "sfx3-cam-repodemo-26_6",
+   "kind": "swish",
+   "at": 126.6,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx-click-copy",
+   "kind": "click",
+   "at": 128.0,
+   "gain": 0.45
+  },
+  {
+   "id": "sfx3-cam-repodemo-30_0",
+   "kind": "swish",
+   "at": 130.0,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx-swing-132",
+   "kind": "swish",
+   "at": 132.0,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx2-web-punch",
+   "kind": "swish",
+   "at": 132.6,
+   "gain": 0.22
+  },
+  {
+   "id": "sfx3-cam-webdemo-3_0",
+   "kind": "swish",
+   "at": 135.0,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx2-line-webdemo-0",
+   "kind": "swish",
+   "at": 138.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx2-web-hl-file",
+   "kind": "swish",
+   "at": 140.2,
+   "gain": 0.22
+  },
+  {
+   "id": "sfx3-cam-webdemo-9_5",
+   "kind": "swish",
+   "at": 141.5,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx-swing-143_0",
+   "kind": "swish",
+   "at": 143.0,
+   "gain": 0.2
+  },
+  {
+   "id": "sfx2-web-hl-critical",
+   "kind": "swish",
+   "at": 143.6,
+   "gain": 0.22
+  },
+  {
+   "id": "sfx3-cam-webdemo-13_0",
+   "kind": "swish",
+   "at": 145.0,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx2-web-cursor-in",
+   "kind": "click",
+   "at": 146.5,
+   "gain": 0.2
+  },
+  {
+   "id": "sfx2-web-cursor-move",
+   "kind": "swish",
+   "at": 148.4,
+   "gain": 0.22
+  },
+  {
+   "id": "sfx-click-web-row",
+   "kind": "click",
+   "at": 149.367,
+   "gain": 0.45
+  },
+  {
+   "id": "sfx2-web-punch-finding",
+   "kind": "swish",
+   "at": 149.7,
+   "gain": 0.2
+  },
+  {
+   "id": "sfx2-line-webdemo-1",
+   "kind": "swish",
+   "at": 149.75,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx2-web-hl-evidence",
+   "kind": "swish",
+   "at": 152.6,
+   "gain": 0.22
+  },
+  {
+   "id": "sfx3-cam-webdemo-21_5",
+   "kind": "swish",
+   "at": 153.5,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx-swing-156_0",
+   "kind": "swish",
+   "at": 156.0,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx3-cam-webdemo-26_0",
+   "kind": "swish",
+   "at": 158.0,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx2-line-webdemo-2",
+   "kind": "swish",
+   "at": 159.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-webdemo-28_5",
+   "kind": "swish",
+   "at": 160.5,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx3-cam-webdemo-30_5",
+   "kind": "swish",
+   "at": 162.5,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx-swing-164",
+   "kind": "swish",
+   "at": 164.0,
+   "gain": 0.2
+  },
+  {
+   "id": "sfx2-line-safety-0",
+   "kind": "swish",
+   "at": 164.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx2-line-safety-1",
+   "kind": "swish",
+   "at": 166.75,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx2-safety-lock",
+   "kind": "click",
+   "at": 167.6,
+   "gain": 0.35
+  },
+  {
+   "id": "sfx2-line-safety-2",
+   "kind": "swish",
+   "at": 170.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-safety-7_8",
+   "kind": "swish",
+   "at": 171.8,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx2-line-safety-3",
+   "kind": "swish",
+   "at": 173.75,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-safety-11_2",
+   "kind": "swish",
+   "at": 175.2,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx2-line-safety-4",
+   "kind": "swish",
+   "at": 177.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-safety-14_6",
+   "kind": "swish",
+   "at": 178.6,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx-swing-180",
+   "kind": "swish",
+   "at": 180.0,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx2-line-results-0",
+   "kind": "swish",
+   "at": 180.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-results-2_0",
+   "kind": "swish",
+   "at": 182.0,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx2-res-bars1",
+   "kind": "swish",
+   "at": 184.0,
+   "gain": 0.22
+  },
+  {
+   "id": "sfx2-res-24",
+   "kind": "click",
+   "at": 185.3,
+   "gain": 0.3
+  },
+  {
+   "id": "sfx3-cam-results-6_5",
+   "kind": "swish",
+   "at": 186.5,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx2-res-19",
+   "kind": "click",
+   "at": 187.8,
+   "gain": 0.3
+  },
+  {
+   "id": "sfx3-cam-results-9_0",
+   "kind": "swish",
+   "at": 189.0,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx2-res-33",
+   "kind": "click",
+   "at": 190.3,
+   "gain": 0.3
+  },
+  {
+   "id": "sfx3-cam-results-11_5",
+   "kind": "swish",
+   "at": 191.5,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx2-line-results-1",
+   "kind": "swish",
+   "at": 194.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx3-cam-results-16_0",
+   "kind": "swish",
+   "at": 196.0,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx2-res-bars2",
+   "kind": "swish",
+   "at": 198.0,
+   "gain": 0.22
+  },
+  {
+   "id": "sfx2-line-results-2",
+   "kind": "swish",
+   "at": 198.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx2-res-11",
+   "kind": "click",
+   "at": 199.6,
+   "gain": 0.3
+  },
+  {
+   "id": "sfx2-res-6",
+   "kind": "click",
+   "at": 200.8,
+   "gain": 0.3
+  },
+  {
+   "id": "sfx2-res-12",
+   "kind": "click",
+   "at": 202.0,
+   "gain": 0.3
+  },
+  {
+   "id": "sfx3-cam-results-23_0",
+   "kind": "swish",
+   "at": 203.0,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx-join",
+   "kind": "impact",
+   "at": 205.0,
+   "gain": 0.16
+  },
+  {
+   "id": "sfx3-cam-results-27_5",
+   "kind": "swish",
+   "at": 207.5,
+   "gain": 0.18
+  },
+  {
+   "id": "sfx-swing-210",
+   "kind": "swish",
+   "at": 210.0,
+   "gain": 0.2
+  },
+  {
+   "id": "sfx2-line-end-0",
+   "kind": "swish",
+   "at": 210.25,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx2-line-end-1",
+   "kind": "swish",
+   "at": 211.35,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx2-line-end-2",
+   "kind": "swish",
+   "at": 212.85,
+   "gain": 0.24
+  },
+  {
+   "id": "sfx-mark",
+   "kind": "chime",
+   "at": 215.0,
+   "gain": 0.35
+  }
+ ]
+}

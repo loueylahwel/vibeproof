@@ -3,3 +3,5 @@ renders/
 node_modules/
 .capture/
 .waveform-cache/
+*.wav
+__pycache__/
